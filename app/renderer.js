@@ -23,15 +23,16 @@ ipcMain.handle('upload-pdf', async (event, filePath) => {
     try {
         const text = await extractText(filePath);
         const summary = await summarizeText(text);
+        
+        console.log("Summary: ", summary)
+        // // Save to database
+        // const document = await Document.create({
+        //     filename: path.basename(filePath),
+        //     filePath,
+        //     summary,
+        // });
 
-        // Save to database
-        const document = await Document.create({
-            filename: path.basename(filePath),
-            filePath,
-            summary,
-        });
-
-        return document;
+        // return document;
     } catch (err) {
         console.error(err);
         throw err;

@@ -1,20 +1,19 @@
 require('dotenv').config();
-const { Configuration, OpenAIApi } = require('openai');
+const { OpenAI } = require("openai");
 
-const configuration = new Configuration({
-    apiKey: process.env.OPENAI_API_KEY,
+const openai = new OpenAI({
+    organization: "org-UWoJ31hWNG1JFkkxytv0wOvO",
+    project: "proj_b49nN9k2EyLkWZVykN8JdUBi",
 });
-
-const openai = new OpenAIApi(configuration);
 
 async function summarizeText(text) {
     const prompt = `Summarize the following text: ${text}`;
     const response = await openai.createCompletion({
         model: 'gpt-4',
         prompt,
-        max_tokens: 500,
+        max_tokens: 1000,
     });
-    return response.data.choices[0].text.trim();
+    return response.data;
 }
 
 module.exports = { summarizeText };
