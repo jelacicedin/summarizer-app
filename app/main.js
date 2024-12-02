@@ -4,36 +4,81 @@ const { Document } = require("./database");
 const { extractText } = require("./pdf-handler");
 const { summarizeText } = require("./api");
 
+// Global variables for windows
 let mainWindow;
+let splashWindow;
 
-function createMainWindow() {
-    mainWindow = new BrowserWindow({
-        width: 900,
-        height: 700,
-        show: true,
-        webPreferences: {
-            contextIsolation: true,
-            preload: path.join(__dirname, "preload.js")
-        }
-    })
+function createSplashScreen() {
+  splashWindow = new BrowserWindow({
+    width: 800,
+    height: 509,
+    frame: false,
+    transparent: true,
+    alwaysOnTop: true,
+    resizable: false,
+  });
+
+  splashWindow.loadFile("app/assets/splash/splash.html");
+
+  splashWindow.on("closed", () => {
+    splashWindow = null;
+  });
 }
 
-app.on("ready", () => {
+function createMainWindow() {
   mainWindow = new BrowserWindow({
-    width: 800,
-    height: 600,
+    width: 900,
+    height: 700,
+    show: true,
     webPreferences: {
-      nodeIntegration: true,
       contextIsolation: false,
+      preload: path.join(__dirname, "preload.js"),
+      sandbox: true,
+      nodeIntegration: true
     },
+    resizable: false,
+    backgroundColor: "#ffffffff", // Solid background to prevent transparency issues
   });
-  mainWindow.loadFile("index.html");
-});
+
+  mainWindow.loadFile("app/index.html");
+
+  // Handle dark mode toggle
+  ipcMain.handle("dark-mode:toggle", () => {
+    const isDarkMode = nativeTheme.shouldUseDarkColors;
+    nativeTheme.themeSource = isDarkMode ? "light" : "dark"; // Toggle between light & dark
+    return nativeTheme.shouldUseDarkColors;
+  });
+
+  // Handle startup sequence
+  mainWindow.once("ready-to-show", () => {
+    fs.readFile(
+      path.join(__dirname, "./config/config.json"),
+      "utf-8",
+      (err, data) => {
+        if (err) {
+          console.error("Error reading config.json:", err);
+          return;
+        }
+        const config = JSON.parse(data);
+        const animationDuration = config.splashScreen.animationDurationMillis;
+
+        setTimeout(() => {
+          if (splashWindow) splashWindow.close(); // Close splash screen first
+          mainWindow.show(); // Then show the main window
+          mainWindow.webContents.invalidate(); // Force redraw of screen for the main app
+        }, animationDuration - 100); // Use the value from config.json
+      }
+    );
+  });
+
+  mainWindow.on("closed", () => {
+    mainWindow = null;
+  });
+}
 
 app.whenReady().then(() => {
   createSplashScreen();
   createMainWindow();
-  startPythonServer();
 
   app.on("activate", () => {
     if (BrowserWindow.getAllWindows().length === 0) createMainWindow();
@@ -42,9 +87,6 @@ app.whenReady().then(() => {
   app.on("window-all-closed", () => {
     // Close the app if all windows are closed (except on macOS)
     if (process.platform !== "darwin") {
-      if (pythonProcess) {
-        pythonProcess.kill(); // Terminate the Python process
-      }
       app.quit();
     }
   });

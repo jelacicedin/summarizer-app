@@ -1,4 +1,6 @@
 require('dotenv').config();
+import 'openai/shims/node';
+
 const { OpenAI } = require("openai");
 
 const openai = new OpenAI({

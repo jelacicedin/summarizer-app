@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <style id="dynamic-styles">
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+      }
+
+      body {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background-color: #333;
+      }
+
+      #splash-logo {
+        opacity: 0;
+        animation: fadeInOut var(--animation-duration, 3s) forwards; /* Use CSS variable for animation duration */
+      }
+
+      @keyframes fadeInOut {
+        0% {
+          opacity: 0;
+        }
+        25% {
+          opacity: 1;
+        }
+        75% {
+          opacity: 1;
+        }
+        100% {
+          opacity: 0;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <img
+      id="splash-logo"
+      src="logo.png"
+      alt="App Logo"
+      width="800px"
+    />
+    <script>
+      // Fetch the config.json file
+      fetch("../config/config.json")
+        .then((response) => response.json())
+        .then((config) => {
+          const animationDuration =
+            config.splashScreen.animationDurationMillis / 1000; // Convert ms to seconds
+
+          // Set the CSS variable for animation duration
+          document.documentElement.style.setProperty(
+            "--animation-duration",
+            `${animationDuration}s`
+          );
+        })
+        .catch((error) => console.error("Error loading config:", error));
+    </script>
+  </body>
+</html>
