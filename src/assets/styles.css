@@ -1,87 +1,88 @@
 /* Default (light mode) styles */
 body {
-    background-color: #ffffff;
-    color: #000000;
-    font-family: Arial, sans-serif;
-    transition: background-color 0.3s, color 0.3s; /* Smooth transition */
-  }
-  
-  h1 {
-    text-align: center;
-  }
-  
-  button,
-  label.custom-file-input {
-    display: inline-block;
-    margin: 10px;
-    padding: 10px 20px;
-    background-color: #007bff;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    text-align: center;
-    transition: background-color 0.3s;
-  }
-  
-  button:hover,
-  label.custom-file-input:hover {
-    background-color: #0056b3;
-  }
-  
-  pre {
-    background-color: #f4f4f4;
-    border: 1px solid #ddd;
-    padding: 10px;
-    border-radius: 5px;
-    max-height: 300px;
-    overflow-y: auto;
-  }
-  
-  /* Dark mode styles */
-  body.dark-mode {
-    background-color: #121212;
-    color: #ffffff;
-  }
-  
-  button.dark-mode,
-  label.custom-file-input.dark-mode {
-    background-color: #444444;
-    color: white;
-  }
-  
-  pre.dark-mode {
-    background-color: #333333;
-    color: #ffffff;
-    border-color: #444444;
-  }
-  
-  table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 20px;
-  }
-  
-  table th, table td {
-    border: 1px solid #ddd;
-    padding: 8px;
-    text-align: left;
-  }
-  
-  table th {
-    background-color: #007bff;
-    color: white;
-  }
-  
-  table tr:nth-child(even) {
-    background-color: #f2f2f2;
-  }
-  
-  table tr:hover {
-    background-color: #ddd;
-  }
-  
-  input[type="text"] {
-    width: 90%;
-    padding: 5px;
-  }
+  background-color: #ffffff;
+  color: #000000;
+  font-family: Arial, sans-serif;
+  transition: background-color 0.3s, color 0.3s; /* Smooth transition */
+}
+
+h1 {
+  text-align: center;
+}
+
+button,
+label.custom-file-input {
+  display: inline-block;
+  margin: 10px;
+  padding: 10px 20px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  text-align: center;
+  transition: background-color 0.3s;
+}
+
+button:hover,
+label.custom-file-input:hover {
+  background-color: #0056b3;
+}
+
+pre {
+  background-color: #f4f4f4;
+  border: 1px solid #ddd;
+  padding: 10px;
+  border-radius: 5px;
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+/* Dark mode styles */
+body.dark-mode {
+  background-color: #121212;
+  color: #ffffff;
+}
+
+button.dark-mode,
+label.custom-file-input.dark-mode {
+  background-color: #444444;
+  color: white;
+}
+
+pre.dark-mode {
+  background-color: #333333;
+  color: #ffffff;
+  border-color: #444444;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+}
+
+table th,
+table td {
+  border: 1px solid #ddd;
+  padding: 8px;
+  text-align: left;
+}
+
+table th {
+  background-color: #007bff;
+  color: white;
+}
+
+table tr:nth-child(even) {
+  background-color: #f2f2f2;
+}
+
+table tr:hover {
+  background-color: #ddd;
+}
+
+input[type="text"] {
+  width: 90%;
+  padding: 5px;
+}

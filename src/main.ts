@@ -1,4 +1,4 @@
-import { app, BrowserWindow, ipcMain, nativeTheme, dialog  } from "electron";
+import { app, BrowserWindow, ipcMain, nativeTheme, dialog } from "electron";
 import path from "path";
 import { addDocument, getDocuments, updateDocument } from "./database";
 import { extractText } from "./pdf-handler";
@@ -113,7 +113,7 @@ ipcMain.handle("upload-file", async () => {
         filePath,
         title: filename.replace(".pdf", ""),
         authors: "Unknown",
-        metadata: JSON.stringify({ uploaded: new Date() }),
+        metadata: { uploaded: new Date() },
       };
 
       await addDocument(newDoc);
