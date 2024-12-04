@@ -41,3 +41,23 @@ document.addEventListener("DOMContentLoaded", () => {
         }
       });
   });
+
+// Dark mode 
+// Wait for the DOM to load
+document.addEventListener("DOMContentLoaded", () => {
+    const darkModeToggle = document.getElementById("darkModeToggle");
+  
+    // Add click event listener to the toggle button
+    darkModeToggle.addEventListener("click", () => {
+      // Toggle the 'dark-mode' class on the body element
+      document.body.classList.toggle("dark-mode");
+  
+      // Optionally update button text
+      if (document.body.classList.contains("dark-mode")) {
+        darkModeToggle.textContent = "Disable Dark Mode";
+      } else {
+        darkModeToggle.textContent = "Enable Dark Mode";
+      }
+    });
+  });
+  
