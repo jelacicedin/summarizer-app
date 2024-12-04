@@ -35,7 +35,6 @@ function createMainWindow(): void {
       contextIsolation: true,
       preload: path.join(__dirname, "preload.js"),
       sandbox: true,
-      nodeIntegration: true
     },
     resizable: false,
     backgroundColor: "#ffffffff", // Solid background to prevent transparency issues
@@ -104,8 +103,8 @@ ipcMain.handle("upload-file", async () => {
       filters: [{ name: "PDFs", extensions: ["pdf"] }],
     });
 
-    if (!result.canceled && result.filePaths.length > 0) {
-      const filePath = result.filePaths[0];
+    if (result.length > 0) {
+      const filePath = result[0];
       const filename = path.basename(filePath);
 
       // Add to database

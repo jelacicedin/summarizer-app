@@ -7,9 +7,12 @@ declare global {
         };
 
         dbAPI: {
-            fetchDocuments: () => Promise<{}>;
-            uploadFile: () => Promise<{}>;
-            updateDocument: (id: number, updates: object) => Promise<{}>;
-        }
+            fetchDocuments: () => Promise<
+                | { success: true; documents: DocumentAttributes[] }
+                | { success: false; error: string }
+            >;
+            uploadFile: () => Promise<{ success: boolean; message?: string }>;
+            updateDocument: (id: number, updates: Partial<DocumentAttributes>) => Promise<{ success: boolean; error?: string }>;
+        };
     }
 }
