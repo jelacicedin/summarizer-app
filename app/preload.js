@@ -6,4 +6,7 @@ contextBridge.exposeInMainWorld("electronAPI", {
     toggle: () => ipcRenderer.invoke("dark-mode:toggle"),
     system: () => ipcRenderer.invoke("dark-mode:system"),
   },
+  uploadPdf: async (fileData) => {
+    return await ipcRenderer.invoke("upload-pdf", fileData);
+  },
 });

@@ -3,6 +3,7 @@ const path = require("path");
 const { Document } = require("./database");
 const { extractText } = require("./pdf-handler");
 const { summarizeText } = require("./api");
+const fs = require("fs");
 
 // Global variables for windows
 let mainWindow;
@@ -31,7 +32,7 @@ function createMainWindow() {
     height: 700,
     show: true,
     webPreferences: {
-      contextIsolation: false,
+      contextIsolation: true,
       preload: path.join(__dirname, "preload.js"),
       sandbox: true,
       nodeIntegration: true
@@ -107,4 +108,29 @@ ipcMain.handle("execute-command", (event, command) => {
       resolve(stdout);
     });
   });
+});
+
+// Register the IPC handler for pdf upload
+// Handle file upload from renderer
+ipcMain.handle("upload-pdf", async (event, fileData) => {
+  try {
+    console.log("Received file:", fileData.name);
+
+    // Write the file to a temporary location
+    const fs = require("fs");
+    const tempPath = path.join(app.getPath("temp"), fileData.name);
+    fs.writeFileSync(tempPath, Buffer.from(fileData.content));
+
+    // Process the file (extract text and summarize)
+    const text = await extractText(tempPath);
+    const summary = await summarizeText(text);
+
+    console.log("Summary:", summary);
+
+    // Return the summary to the renderer
+    return { success: true, summary };
+  } catch (error) {
+    console.error("Error in 'upload-pdf' handler:", error);
+    throw error;
+  }
 });
