@@ -19,7 +19,7 @@ function createSplashScreen(): void {
     resizable: false,
   });
 
-  splashWindow.loadFile(path.join(__dirname, "../src/assets/splash/splash.html"));
+  splashWindow.loadFile(path.join(__dirname, "assets/splash/splash.html"));
 
   splashWindow.on("closed", () => {
     splashWindow = null;
@@ -41,7 +41,7 @@ function createMainWindow(): void {
     backgroundColor: "#ffffffff", // Solid background to prevent transparency issues
   });
 
-  mainWindow.loadFile(path.join(__dirname, "../src/index.html"));
+  mainWindow.loadFile(path.join(__dirname, "index.html"));
 
   // Handle dark mode toggle
   ipcMain.handle("dark-mode:toggle", (): boolean => {
