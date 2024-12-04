@@ -1,6 +1,6 @@
-import { app, BrowserWindow, ipcMain, nativeTheme } from "electron";
+import { app, BrowserWindow, ipcMain, nativeTheme, dialog  } from "electron";
 import path from "path";
-import { Document } from "./database";
+import { addDocument, getDocuments, updateDocument } from "./database";
 import { extractText } from "./pdf-handler";
 import { summarizeText } from "./api";
 import fs from "fs";
@@ -94,33 +94,60 @@ app.whenReady().then(() => {
   });
 });
 
-// IPC Handlers
-
-interface FileData {
-  name: string;
-  content: ArrayBuffer;
-}
 
 // Register the IPC handler for pdf upload
-// Handle file upload from renderer
-ipcMain.handle("upload-pdf", async (event, fileData: FileData) => {
+// Handle adding a document (triggered by file upload)
+ipcMain.handle("upload-file", async () => {
   try {
-    console.log("Received file:", fileData.name);
+    const result = await dialog.showOpenDialog({
+      properties: ["openFile"],
+      filters: [{ name: "PDFs", extensions: ["pdf"] }],
+    });
 
-    // Write the file to a temporary location
-    const tempPath = path.join(app.getPath("temp"), fileData.name);
-    fs.writeFileSync(tempPath, Buffer.from(fileData.content));
+    if (!result.canceled && result.filePaths.length > 0) {
+      const filePath = result.filePaths[0];
+      const filename = path.basename(filePath);
 
-    // Process the file (extract text and summarize)
-    const text = await extractText(tempPath);
-    const summary = await summarizeText(text);
+      // Add to database
+      const newDoc = {
+        filename,
+        filePath,
+        title: filename.replace(".pdf", ""),
+        authors: "Unknown",
+        metadata: JSON.stringify({ uploaded: new Date() }),
+      };
 
-    console.log("Summary:", summary);
+      await addDocument(newDoc);
 
-    // Return the summary to the renderer
-    return { success: true, summary };
-  } catch (error) {
-    console.error("Error in 'upload-pdf' handler:", error);
-    throw error;
+      return { success: true, document: newDoc };
+    }
+
+    return { success: false, message: "No file selected" };
+  } catch (error: any) {
+    console.error("Error uploading file:", error);
+    return { success: false, error: error.message };
+  }
+});
+
+
+// Handle fetching all documents
+ipcMain.handle("fetch-documents", async () => {
+  try {
+    const documents = await getDocuments();
+    return { success: true, documents };
+  } catch (error: any) {
+    console.error("Error fetching documents:", error);
+    return { success: false, error: error.message };
+  }
+});
+
+// Handle updating a document
+ipcMain.handle("update-document", async (event, { id, updates }) => {
+  try {
+    await updateDocument(id, updates);
+    return { success: true };
+  } catch (error: any) {
+    console.error("Error updating document:", error);
+    return { success: false, error: error.message };
   }
 });

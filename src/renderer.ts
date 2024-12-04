@@ -90,3 +90,63 @@ ipcMain.handle("db:delete-document", async (event, id) => {
     return { success: false, error: err.message };
   }
 });
+
+
+document.addEventListener("DOMContentLoaded", () => {
+  const uploadButton = document.getElementById("uploadButton");
+  const tableBody = document.querySelector("#documentsTable tbody");
+
+  // Fetch and display documents
+  async function loadDocuments() {
+    const response = await window.dbAPI.fetchDocuments();
+    if (response.success) {
+      tableBody.innerHTML = ""; // Clear the table
+      response.documents.forEach((doc) => {
+        const row = document.createElement("tr");
+        row.innerHTML = `
+          <td>${doc.id}</td>
+          <td>${doc.filename}</td>
+          <td><input type="text" value="${doc.title}" data-id="${doc.id}" data-field="title"></td>
+          <td><input type="text" value="${doc.authors}" data-id="${doc.id}" data-field="authors"></td>
+          <td><input type="text" value="${doc.summary || ""}" data-id="${doc.id}" data-field="summary"></td>
+          <td><input type="checkbox" ${doc.approved ? "checked" : ""} data-id="${doc.id}" data-field="approved"></td>
+        `;
+        tableBody.appendChild(row);
+      });
+
+      attachEventListeners();
+    } else {
+      console.error("Failed to fetch documents:", response.error);
+    }
+  }
+
+  // Attach event listeners to input fields for inline editing
+  function attachEventListeners() {
+    const inputs = tableBody.querySelectorAll("input[type='text'], input[type='checkbox']");
+    inputs.forEach((input) => {
+      input.addEventListener("change", async (event) => {
+        const { id, field } = event.target.dataset;
+        const value = event.target.type === "checkbox" ? event.target.checked : event.target.value;
+
+        // Update the database
+        const response = await window.dbAPI.updateDocument(parseInt(id), { [field]: value });
+        if (!response.success) {
+          console.error("Failed to update document:", response.error);
+        }
+      });
+    });
+  }
+
+  // Upload a file
+  uploadButton.addEventListener("click", async () => {
+    const response = await window.dbAPI.uploadFile();
+    if (response.success) {
+      await loadDocuments(); // Refresh the table
+    } else {
+      console.error("File upload failed:", response.error || response.message);
+    }
+  });
+
+  // Initial load
+  loadDocuments();
+});
