@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>PDF Summarizer</title>
+    <link rel="stylesheet" href="assets/styles.css" />
+    <!-- Link to your CSS file -->
+  </head>
+  <body>
+    <h1>PDF Summarizer</h1>
+    <!-- Styled file input -->
+    <label for="fileInput" class="custom-file-input">Choose File</label>
+    <input type="file" id="fileInput" hidden />
+    <button id="uploadButton">Upload and Summarize</button>
+    <pre id="summaryOutput"></pre>
+    <!-- Display the summary here -->
+
+    <!-- Add a dark mode toggle -->
+    <button id="darkModeToggle">Toggle Dark Mode</button>
+
+    <script src="./dist/renderer.js"></script>
+</body>
+</html>

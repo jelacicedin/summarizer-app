@@ -1,15 +1,15 @@
-const { app, BrowserWindow, ipcMain, nativeTheme } = require("electron");
-const path = require("path");
-const { Document } = require("./database");
-const { extractText } = require("./pdf-handler");
-const { summarizeText } = require("./api");
-const fs = require("fs");
+import { app, BrowserWindow, ipcMain, nativeTheme } from "electron";
+import path from "path";
+import { Document } from "./database";
+import { extractText } from "./pdf-handler";
+import { summarizeText } from "./api";
+import fs from "fs";
 
 // Global variables for windows
-let mainWindow;
-let splashWindow;
+let mainWindow: BrowserWindow | null;
+let splashWindow: BrowserWindow | null;
 
-function createSplashScreen() {
+function createSplashScreen(): void {
   splashWindow = new BrowserWindow({
     width: 800,
     height: 509,
@@ -19,18 +19,18 @@ function createSplashScreen() {
     resizable: false,
   });
 
-  splashWindow.loadFile("app/assets/splash/splash.html");
+  splashWindow.loadFile(path.join(__dirname, "../src/assets/splash/splash.html"));
 
   splashWindow.on("closed", () => {
     splashWindow = null;
   });
 }
 
-function createMainWindow() {
+function createMainWindow(): void {
   mainWindow = new BrowserWindow({
     width: 900,
     height: 700,
-    show: true,
+    show: false, // Hide until splash disappears
     webPreferences: {
       contextIsolation: true,
       preload: path.join(__dirname, "preload.js"),
@@ -41,10 +41,10 @@ function createMainWindow() {
     backgroundColor: "#ffffffff", // Solid background to prevent transparency issues
   });
 
-  mainWindow.loadFile("app/index.html");
+  mainWindow.loadFile(path.join(__dirname, "../src/index.html"));
 
   // Handle dark mode toggle
-  ipcMain.handle("dark-mode:toggle", () => {
+  ipcMain.handle("dark-mode:toggle", (): boolean => {
     const isDarkMode = nativeTheme.shouldUseDarkColors;
     nativeTheme.themeSource = isDarkMode ? "light" : "dark"; // Toggle between light & dark
     return nativeTheme.shouldUseDarkColors;
@@ -53,7 +53,7 @@ function createMainWindow() {
   // Handle startup sequence
   mainWindow.once("ready-to-show", () => {
     fs.readFile(
-      path.join(__dirname, "./config/config.json"),
+      path.join(__dirname, "../src/config/config.json"), // Correct relative path
       "utf-8",
       (err, data) => {
         if (err) {
@@ -65,8 +65,8 @@ function createMainWindow() {
 
         setTimeout(() => {
           if (splashWindow) splashWindow.close(); // Close splash screen first
-          mainWindow.show(); // Then show the main window
-          mainWindow.webContents.invalidate(); // Force redraw of screen for the main app
+          mainWindow?.show(); // Then show the main window
+          mainWindow?.webContents.invalidate(); // Force redraw of screen for the main app
         }, animationDuration - 100); // Use the value from config.json
       }
     );
@@ -77,6 +77,7 @@ function createMainWindow() {
   });
 }
 
+// Electron lifecycle hooks
 app.whenReady().then(() => {
   createSplashScreen();
   createMainWindow();
@@ -93,31 +94,20 @@ app.whenReady().then(() => {
   });
 });
 
-// Handle execution of commands in the main process
-ipcMain.handle("execute-command", (event, command) => {
-  return new Promise((resolve, reject) => {
-    exec(command, (err, stdout, stderr) => {
-      if (err) {
-        reject(new Error(`Error: ${err.message}`)); // Ensure error is handled correctly
-        return;
-      }
-      if (stderr) {
-        reject(new Error(`stderr: ${stderr}`)); // Handle stderr properly
-        return;
-      }
-      resolve(stdout);
-    });
-  });
-});
+// IPC Handlers
+
+interface FileData {
+  name: string;
+  content: ArrayBuffer;
+}
 
 // Register the IPC handler for pdf upload
 // Handle file upload from renderer
-ipcMain.handle("upload-pdf", async (event, fileData) => {
+ipcMain.handle("upload-pdf", async (event, fileData: FileData) => {
   try {
     console.log("Received file:", fileData.name);
 
     // Write the file to a temporary location
-    const fs = require("fs");
     const tempPath = path.join(app.getPath("temp"), fileData.name);
     fs.writeFileSync(tempPath, Buffer.from(fileData.content));
 

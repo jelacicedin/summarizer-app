@@ -2,7 +2,7 @@
   "name": "summarizer-app",
   "version": "1.0.0",
   "description": "Small Electron / Postgresql project for AI-powered research article summarization.",
-  "main": "app/main.js",
+  "main": "dist/main.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "electron-forge start",
@@ -24,11 +24,15 @@
     "sequelize": "^6.37.5"
   },
   "devDependencies": {
+    "@types/electron": "^1.4.38",
+    "@types/node": "^22.10.1",
+    "@types/pdf-parse": "^1.1.4",
     "babel-plugin-transform-async-to-generator": "^6.24.1",
     "babel-preset-env": "^0.0.0",
     "babel-preset-react": "^6.24.1",
     "electron-forge": "^2.0.0",
-    "electron-prebuilt-compile": "1.3.2"
+    "electron-prebuilt-compile": "1.3.2",
+    "typescript": "^5.7.2"
   },
   "config": {
     "forge": {
