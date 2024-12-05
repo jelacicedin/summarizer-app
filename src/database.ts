@@ -1,9 +1,40 @@
-import { Sequelize, DataTypes, Model, Optional } from "sequelize";
+import { Sequelize, DataTypes, Model, Optional, Dialect } from "sequelize";
+import 'dotenv/config'
+
+// Loading of auth from .env
+let database: string;
+let username: string;
+let password: string;
+let host: string;
+let dialect: Dialect = "postgres";
+
+if (process.env.DATABASE != undefined) {
+    database = process.env.DATABASE;
+} else {
+    throw new Error("Database not defined in .env");
+}
+
+if (process.env.USERNAME != undefined) {
+    username = process.env.USERNAME;
+} else {
+    throw new Error("Username not defined in .env");
+}
+if (process.env.HOST != undefined) {
+    host = process.env.HOST;
+} else {
+    throw new Error("Host not defined in .env");
+}
+if (process.env.PASSWORD != undefined) {
+    password = process.env.PASSWORD;
+} else {
+    throw new Error("Password not defined in .env");
+}
+
 
 // Database connection
-export const sequelize = new Sequelize("app_db", "user", "password", {
-    host: "localhost",
-    dialect: "postgres",
+export const sequelize = new Sequelize(database, username, password, {
+    host: host,
+    dialect: dialect,
 });
 
 // Define TypeScript interface for the Document
@@ -72,26 +103,26 @@ sequelize
     .catch((err) => console.error("Error syncing database:", err));
 
 
-    export async function addDocument(data: {
-        filename: string;
-        filePath: string;
-        title?: string;
-        authors?: string;
-        metadata?: object;
-      }): Promise<void> {
-        const document = await Document.create({
-          filename: data.filename,
-          filePath: data.filePath,
-          title: data.title,
-          authors: data.authors,
-          metadata: data.metadata,
-        });
-      
-        // Log the created document to verify the ID
-        console.log("Document created:", document.toJSON());
-      
-        // retuKrn document;
-      }
+export async function addDocument(data: {
+    filename: string;
+    filePath: string;
+    title?: string;
+    authors?: string;
+    metadata?: object;
+}): Promise<void> {
+    const document = await Document.create({
+        filename: data.filename,
+        filePath: data.filePath,
+        title: data.title,
+        authors: data.authors,
+        metadata: data.metadata,
+    });
+
+    // Log the created document to verify the ID
+    console.log("Document created:", document.toJSON());
+
+    // retuKrn document;
+}
 
 
 export async function getDocuments(): Promise<Document[]> {

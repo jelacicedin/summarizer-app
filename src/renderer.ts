@@ -40,13 +40,14 @@ document.addEventListener("DOMContentLoaded", () => {
   
         response.documents.forEach((doc) => {
           const row = document.createElement("tr");
+          let dataValues = doc.dataValues;
           row.innerHTML = `
-            <td>${doc.id || "undefined"}</td>
-            <td>${doc.filename || "undefined"}</td>
-            <td><input type="text" value="${doc.title || "undefined"}" data-id="${doc.id}" data-field="title"></td>
-            <td><input type="text" value="${doc.authors || "undefined"}" data-id="${doc.id}" data-field="authors"></td>
-            <td><input type="text" value="${doc.summary || ""}" data-id="${doc.id}" data-field="summary"></td>
-            <td><input type="checkbox" ${doc.approved ? "checked" : ""} data-id="${doc.id}" data-field="approved"></td>
+            <td>${dataValues.id || "undefined"}</td>
+            <td>${dataValues.filename || "undefined"}</td>
+            <td><input type="text" value="${dataValues.title || "undefined"}" data-id="${dataValues.id}" data-field="title"></td>
+            <td><input type="text" value="${dataValues.authors || "undefined"}" data-id="${dataValues.id}" data-field="authors"></td>
+            <td><input type="text" value="${dataValues.summary || ""}" data-id="${dataValues.id}" data-field="summary"></td>
+            <td><input type="checkbox" ${dataValues.approved ? "checked" : ""} data-id="${dataValues.id}" data-field="approved"></td>
           `;
           tableBody.appendChild(row);
         });
