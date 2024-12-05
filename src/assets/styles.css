@@ -86,3 +86,15 @@ input[type="text"] {
   width: 90%;
   padding: 5px;
 }
+
+th {
+  cursor: pointer;
+}
+
+th.asc::after {
+  content: " ▲";
+}
+
+th.desc::after {
+  content: " ▼";
+}

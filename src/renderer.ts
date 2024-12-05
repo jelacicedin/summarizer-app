@@ -31,13 +31,13 @@ document.addEventListener("DOMContentLoaded", () => {
     try {
       const response = await window.dbAPI.fetchDocuments(); // Fetch documents via IPC
       const tableBody = document.querySelector("#documentsTable tbody");
-  
+
       if (!tableBody) throw new Error("Table body element not found");
-  
+
       if (response.success) {
         console.log("Loaded documents:", response.documents); // Log fetched data
         tableBody.innerHTML = ""; // Clear the table
-  
+
         response.documents.forEach((doc) => {
           const row = document.createElement("tr");
           let dataValues = doc.dataValues;
@@ -51,8 +51,10 @@ document.addEventListener("DOMContentLoaded", () => {
           `;
           tableBody.appendChild(row);
         });
-  
+
         attachEventListeners(); // Attach listeners to input fields for inline editing
+        makeTableSortable(); // Enable sorting after rows are loaded
+
       } else {
         console.error("Failed to fetch documents:", response.error);
       }
@@ -101,3 +103,41 @@ document.addEventListener("DOMContentLoaded", () => {
   // Initial Table Load
   loadDocuments();
 });
+
+function makeTableSortable() {
+  const table = document.getElementById("documentsTable")!;
+  const headers = table.querySelectorAll("thead th");
+
+  headers.forEach((header) => {
+    header.addEventListener("click", () => {
+      const sortKey = header.getAttribute("data-sort"); // Get the column to sort
+      const tbody = table.querySelector("tbody");
+      const rows = Array.from(tbody?.querySelectorAll("tr") || []);
+
+      // Determine the current sorting direction
+      const isAscending = header.classList.contains("asc");
+      const direction = isAscending ? -1 : 1;
+
+      // Sort rows based on the data in the selected column
+      rows.sort((rowA, rowB) => {
+        const cellA = rowA.querySelector(`td[data-field="${sortKey}"]`)?.textContent?.trim() || "";
+        const cellB = rowB.querySelector(`td[data-field="${sortKey}"]`)?.textContent?.trim() || "";
+
+        // For numeric values, compare as numbers
+        if (!isNaN(Number(cellA)) && !isNaN(Number(cellB))) {
+          return (Number(cellA) - Number(cellB)) * direction;
+        }
+
+        // For strings, compare lexicographically
+        return cellA.localeCompare(cellB) * direction;
+      });
+
+      // Remove current rows and append sorted rows
+      rows.forEach((row) => tbody?.appendChild(row));
+
+      // Update header classes for sorting direction
+      headers.forEach((h) => h.classList.remove("asc", "desc"));
+      header.classList.add(isAscending ? "desc" : "asc");
+    });
+  });
+}
