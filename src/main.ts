@@ -1,6 +1,7 @@
 import { app, BrowserWindow, ipcMain, nativeTheme, dialog } from "electron";
 import path from "path";
 import { addDocument, getDocuments, updateDocument } from "./database";
+import { startDockerServices } from "./check-docker";
 import { extractText } from "./pdf-handler";
 import { summarizeText } from "./api";
 import fs from "fs";
@@ -139,6 +140,7 @@ function createMainWindow(): void {
 
 // Electron lifecycle hooks
 app.whenReady().then(() => {
+  startDockerServices();
   createSplashScreen();
   createMainWindow();
 
