@@ -140,7 +140,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Initial Table Load
   loadDocuments();
+  makeTableSortable();
+
 });
+
+
+
 function makeTableSortable() {
   const table = document.getElementById("documentsTable") as HTMLTableElement;
   const headers = table.querySelectorAll("thead th") as NodeListOf<HTMLTableCellElement>;
