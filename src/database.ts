@@ -45,7 +45,7 @@ export class Document extends Model<DocumentAttributes, DocumentCreationAttribut
 // Define the Sequelize model
 Document.init(
     {
-        id: { type: DataTypes.INTEGER, autoIncrement: true, primaryKey: true },
+        id: { type: DataTypes.INTEGER, autoIncrement: true, primaryKey: true, allowNull: false },
         filename: { type: DataTypes.STRING, allowNull: false },
         filePath: { type: DataTypes.STRING, allowNull: false },
         title: { type: DataTypes.STRING, allowNull: true },
@@ -72,9 +72,26 @@ sequelize
     .catch((err) => console.error("Error syncing database:", err));
 
 
-export async function addDocument(data: Omit<DocumentAttributes, "id" | "createdAt">): Promise<void> {
-    await Document.create(data);
-}
+    export async function addDocument(data: {
+        filename: string;
+        filePath: string;
+        title?: string;
+        authors?: string;
+        metadata?: object;
+      }): Promise<void> {
+        const document = await Document.create({
+          filename: data.filename,
+          filePath: data.filePath,
+          title: data.title,
+          authors: data.authors,
+          metadata: data.metadata,
+        });
+      
+        // Log the created document to verify the ID
+        console.log("Document created:", document.toJSON());
+      
+        // retuKrn document;
+      }
 
 
 export async function getDocuments(): Promise<Document[]> {

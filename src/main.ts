@@ -5,6 +5,8 @@ import { extractText } from "./pdf-handler";
 import { summarizeText } from "./api";
 import fs from "fs";
 
+console.log("Main process is running. Directory:", __dirname);
+
 // Global variables for windows
 let mainWindow: BrowserWindow | null;
 let splashWindow: BrowserWindow | null;
@@ -98,16 +100,17 @@ app.whenReady().then(() => {
 // Handle adding a document (triggered by file upload)
 ipcMain.handle("upload-file", async () => {
   try {
-    const result = await dialog.showOpenDialog({
+    const result: any = await dialog.showOpenDialog({
       properties: ["openFile"],
       filters: [{ name: "PDFs", extensions: ["pdf"] }],
     });
 
-    if (result.length > 0) {
-      const filePath = result[0];
+    // Check for user cancellation or empty selection
+    if (!result.canceled && result.filePaths.length > 0) {
+      const filePath = result.filePaths[0];
       const filename = path.basename(filePath);
 
-      // Add to database
+      // Add document data to database
       const newDoc = {
         filename,
         filePath,
@@ -128,12 +131,12 @@ ipcMain.handle("upload-file", async () => {
   }
 });
 
-
 // Handle fetching all documents
 ipcMain.handle("fetch-documents", async () => {
   try {
-    const documents = await getDocuments();
-    return { success: true, documents };
+    const documents = await getDocuments(); // Fetch from the database
+    console.log("Fetched documents:", documents.map((doc) => doc.toJSON())); // Log the fetched data
+    return { success: true, documents }; // Return documents to the renderer
   } catch (error: any) {
     console.error("Error fetching documents:", error);
     return { success: false, error: error.message };

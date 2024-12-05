@@ -29,25 +29,29 @@ document.addEventListener("DOMContentLoaded", () => {
   // Fetch and Display Documents
   async function loadDocuments() {
     try {
-      const response = await window.dbAPI.fetchDocuments();
+      const response = await window.dbAPI.fetchDocuments(); // Fetch documents via IPC
+      const tableBody = document.querySelector("#documentsTable tbody");
+  
+      if (!tableBody) throw new Error("Table body element not found");
+  
       if (response.success) {
+        console.log("Loaded documents:", response.documents); // Log fetched data
         tableBody.innerHTML = ""; // Clear the table
-
+  
         response.documents.forEach((doc) => {
           const row = document.createElement("tr");
-
           row.innerHTML = `
-          <td>${doc.id}</td>
-          <td>${doc.filename}</td>
-          <td><input type="text" value="${doc.title}" data-id="${doc.id}" data-field="title"></td>
-          <td><input type="text" value="${doc.authors}" data-id="${doc.id}" data-field="authors"></td>
-          <td><input type="text" value="${doc.summary || ""}" data-id="${doc.id}" data-field="summary"></td>
-          <td><input type="checkbox" ${doc.approved ? "checked" : ""} data-id="${doc.id}" data-field="approved"></td>
-        `;
+            <td>${doc.id || "undefined"}</td>
+            <td>${doc.filename || "undefined"}</td>
+            <td><input type="text" value="${doc.title || "undefined"}" data-id="${doc.id}" data-field="title"></td>
+            <td><input type="text" value="${doc.authors || "undefined"}" data-id="${doc.id}" data-field="authors"></td>
+            <td><input type="text" value="${doc.summary || ""}" data-id="${doc.id}" data-field="summary"></td>
+            <td><input type="checkbox" ${doc.approved ? "checked" : ""} data-id="${doc.id}" data-field="approved"></td>
+          `;
           tableBody.appendChild(row);
         });
-
-        attachEventListeners();
+  
+        attachEventListeners(); // Attach listeners to input fields for inline editing
       } else {
         console.error("Failed to fetch documents:", response.error);
       }
