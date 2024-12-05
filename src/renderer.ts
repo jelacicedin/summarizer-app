@@ -64,7 +64,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // Attach Event Listeners for Inline Editing
-  function attachEventListeners() {
+  function attachEventListeners(): void {
     const inputs = tableBody.querySelectorAll("input[type='text'], input[type='checkbox']");
     inputs.forEach((input) => {
       input.addEventListener("change", async (event) => {
@@ -104,32 +104,39 @@ document.addEventListener("DOMContentLoaded", () => {
   loadDocuments();
 });
 
-function makeTableSortable() {
+
+function makeTableSortable(): void {
   const table = document.getElementById("documentsTable")!;
   const headers = table.querySelectorAll("thead th");
 
   headers.forEach((header) => {
     header.addEventListener("click", () => {
-      const sortKey = header.getAttribute("data-sort"); // Get the column to sort
+      const sortKey = header.getAttribute("data-sort"); // Get the column to sort by
       const tbody = table.querySelector("tbody");
       const rows = Array.from(tbody?.querySelectorAll("tr") || []);
+
+      if (!sortKey) return; // If no sort key, do nothing
 
       // Determine the current sorting direction
       const isAscending = header.classList.contains("asc");
       const direction = isAscending ? -1 : 1;
 
-      // Sort rows based on the data in the selected column
+      // Sort rows based on the cell content for the clicked column
       rows.sort((rowA, rowB) => {
-        const cellA = rowA.querySelector(`td[data-field="${sortKey}"]`)?.textContent?.trim() || "";
-        const cellB = rowB.querySelector(`td[data-field="${sortKey}"]`)?.textContent?.trim() || "";
+        const cellA = rowA.querySelector(`td:nth-child(${Array.from(headers).indexOf(header) + 1})`);
+        const cellB = rowB.querySelector(`td:nth-child(${Array.from(headers).indexOf(header) + 1})`);
+
+        // Handle cells with input fields
+        const valueA = cellA?.querySelector("input") ? (cellA.querySelector("input") as HTMLInputElement).value.trim() : cellA?.textContent?.trim() || "";
+        const valueB = cellB?.querySelector("input") ? (cellB.querySelector("input") as HTMLInputElement).value.trim() : cellB?.textContent?.trim() || "";
 
         // For numeric values, compare as numbers
-        if (!isNaN(Number(cellA)) && !isNaN(Number(cellB))) {
-          return (Number(cellA) - Number(cellB)) * direction;
+        if (!isNaN(Number(valueA)) && !isNaN(Number(valueB))) {
+          return (Number(valueA) - Number(valueB)) * direction;
         }
 
         // For strings, compare lexicographically
-        return cellA.localeCompare(cellB) * direction;
+        return valueA.localeCompare(valueB) * direction;
       });
 
       // Remove current rows and append sorted rows
