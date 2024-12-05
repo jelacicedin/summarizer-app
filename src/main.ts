@@ -1,6 +1,6 @@
 import { app, BrowserWindow, ipcMain, nativeTheme, dialog } from "electron";
 import path from "path";
-import { addDocument, getDocuments, updateDocument } from "./database";
+import { addDocument, getDocuments, updateDocument, fetchDocument } from "./database";
 import { startDockerServices } from "./check-docker";
 import { extractText } from "./pdf-handler";
 import { summarizeText } from "./api";
@@ -47,19 +47,19 @@ ipcMain.on("save-summary", async (event, updatedSummary) => {
 
   try {
     // Assume we track the current document ID in the editor's parent window
-    const id = editorWindow?.getParentWindow()?.id; 
+    const id = editorWindow?.getParentWindow()?.id;
     if (!id) throw new Error("No document ID found");
 
     await updateDocument(id, { summary: updatedSummary });
-    
+
     // Notify the main window to refresh the table
     const mainWindow = BrowserWindow.getAllWindows().find((w) => w.id !== editorWindow?.id);
     if (mainWindow) {
       mainWindow.webContents.send("refresh-table");
     }
-    
+
     event.reply("summary-saved", { success: true }); // Send success back to renderer
-    
+
   } catch (error) {
     console.error("Error saving summary:", error);
     event.reply("summary-saved", { success: false, error });
@@ -88,8 +88,8 @@ function createSplashScreen(): void {
 
 function createMainWindow(): void {
   mainWindow = new BrowserWindow({
-    width: 1200, 
-    height: 800, 
+    width: 1200,
+    height: 800,
     show: false, // Hide until splash disappears
     webPreferences: {
       contextIsolation: true,
@@ -221,6 +221,34 @@ ipcMain.handle("summarize-text", async (event, text: string) => {
     return { success: true, summary };
   } catch (error: any) {
     console.error("Error summarizing text:", error);
+    return { success: false, error: error.message };
+  }
+});
+
+ipcMain.handle("fetch-document", async (event, id: number) => {
+  try {
+    const document = await fetchDocument(id);
+    if (document) {
+      return { success: true, document };
+    } else {
+      return { success: false, error: "Document not found" };
+    }
+  } catch (error: any) {
+    console.error("Error fetching document: ", error);
+    return { success: false, error: error.message };
+  }
+});
+
+ipcMain.handle("extract-text", async (event, filePath: string) => {
+  try {
+    const text = await extractText(filePath);
+    if (text) {
+      return { success: true, text };
+    } else {
+      return { success: false, error: "Did not parse any text." }
+    }
+  } catch (error: any) {
+    console.error("Error extracting the text: ", error);
     return { success: false, error: error.message };
   }
 });

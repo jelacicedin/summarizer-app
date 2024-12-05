@@ -144,3 +144,18 @@ export async function deleteDocument(id: number): Promise<void> {
         where: { id },
     });
 }
+
+/**
+ * Fetch a single document by its ID.
+ * @param id - The ID of the document to fetch.
+ * @returns A Promise that resolves to the document object or null if not found.
+ */
+export async function fetchDocument(id: number): Promise<Document|null> {
+    try{
+        const document = await Document.findByPk(id);
+        return document;
+    } catch (error) {
+        console.error('Error fetching document with ID: ${id}', error);
+        throw error;
+    }
+}

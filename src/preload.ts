@@ -1,4 +1,5 @@
 import { contextBridge, ipcRenderer } from "electron";
+import { extractText } from "./pdf-handler";
 
 contextBridge.exposeInMainWorld("electronAPI", {
   uploadPdf: async (fileData: { name: string; content: ArrayBuffer }) => {
@@ -15,12 +16,15 @@ contextBridge.exposeInMainWorld("electronAPI", {
   onRefreshTable: (callback: () => void) => {
     ipcRenderer.on("refresh-table", () => callback());
   },
+  summarizeText: (text: string) => ipcRenderer.invoke("summarize-text", text),
+  extractText: (filePath: string) => ipcRenderer.invoke("extract-text", filePath)
 
 });
 
 contextBridge.exposeInMainWorld("dbAPI", {
   uploadFile: () => ipcRenderer.invoke("upload-file"),
   fetchDocuments: () => ipcRenderer.invoke("fetch-documents"),
+  fetchDocument: (id: number) => ipcRenderer.invoke("fetch-document"),
   updateDocument: (id: number, updates: object) =>
     ipcRenderer.invoke("update-document", { id, updates }),
 });

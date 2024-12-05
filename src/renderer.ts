@@ -46,10 +46,9 @@ document.addEventListener("DOMContentLoaded", () => {
             <td><input type="text" value="${dataValues.title || "undefined"}" data-id="${dataValues.id}" data-field="title"></td>
             <td><input type="text" value="${dataValues.authors || "undefined"}" data-id="${dataValues.id}" data-field="authors"></td>
             <td>${dataValues.metadata ? JSON.stringify(dataValues.metadata) : "No Metadata"}</td>
-            <td>${
-              dataValues.imageLinks
-                ? dataValues.imageLinks.map((link: string) => `<a href="${link}" target="_blank">Image</a>`).join(", ")
-                : "No Images"
+            <td>${dataValues.imageLinks
+              ? dataValues.imageLinks.map((link: string) => `<a href="${link}" target="_blank">Image</a>`).join(", ")
+              : "No Images"
             }</td>
             <td><button class="summarize-btn" data-id="${dataValues.id}">Summarize</button></td>
             <td>${dataValues.summary ? `<span class="summary-preview" data-id="${dataValues.id}">${dataValues.summary.substring(0, 20)}...</span>` : "No Summary Available"}</td>
@@ -67,8 +66,8 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-   // Attach event listeners to inputs and summarize buttons
-   function attachEventListeners() {
+  // Attach event listeners to inputs and summarize buttons
+  function attachEventListeners() {
     const inputs = tableBody.querySelectorAll("input[type='text'], input[type='checkbox']");
     const summarizeButtons = tableBody.querySelectorAll(".summarize-btn");
 
@@ -98,15 +97,19 @@ document.addEventListener("DOMContentLoaded", () => {
         const id = parseInt(target.dataset.id || "0", 10);
 
         try {
-          const doc = await window.dbAPI.fetchDocument(id); // Fetch document by ID
-          const text = await window.dbAPI.extractText(doc.filePath); // Extract text from PDF
-          const summary = await window.dbAPI.summarizeText(text); // Call summarizeText API
+          const doc = (await window.dbAPI.fetchDocument(id)).document; // Fetch document by ID
+          const extraction = await window.electronAPI.extractText(doc.filePath);
+          if (extraction.success) {
+            const text = extraction.text; // Extract text from PDF
+            const summary = await window.electronAPI.summarizeText(text); // Call summarizeText API
 
-          // Update the document with the new summary
-          const updateResponse = await window.dbAPI.updateDocument(id, { summary });
-          if (updateResponse.success) {
-            await loadDocuments(); // Reload the table to reflect changes
+            // Update the document with the new summary
+            const updateResponse = await window.dbAPI.updateDocument(id, { summary });
+            if (updateResponse.success) {
+              await loadDocuments(); // Reload the table to reflect changes
+            }
           }
+
         } catch (error) {
           console.error("Error summarizing document:", error);
         }
