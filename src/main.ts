@@ -11,6 +11,55 @@ console.log("Main process is running. Directory:", __dirname);
 let mainWindow: BrowserWindow | null;
 let splashWindow: BrowserWindow | null;
 
+let editorWindow: BrowserWindow | null = null;
+
+ipcMain.on("open-editor", (event, { id, summary }) => {
+  // Create the editor window
+  editorWindow = new BrowserWindow({
+    width: 500,
+    height: 400,
+    modal: true,
+    parent: mainWindow!,
+    webPreferences: {
+      preload: path.join(__dirname, "preload.js"),
+      contextIsolation: true,
+    },
+  });
+
+  editorWindow.loadFile(path.join(__dirname, "summary-editor.html"));
+
+  // Send the current summary to the editor
+  editorWindow.webContents.once("did-finish-load", () => {
+    editorWindow?.webContents.send("load-summary", summary);
+  });
+
+  // Cleanup when the editor window is closed
+  editorWindow.on("closed", () => {
+    editorWindow = null;
+  });
+});
+
+
+
+ipcMain.on("save-summary", async (event, updatedSummary) => {
+  console.log("Received updated summary:", updatedSummary); // Debug log
+
+  try {
+    // Assume we track the current document ID in the editor's parent window
+    const id = editorWindow?.getParentWindow()?.id; 
+    if (!id) throw new Error("No document ID found");
+
+    await updateDocument(id, { summary: updatedSummary });
+    event.reply("summary-saved", { success: true }); // Send success back to renderer
+  } catch (error) {
+    console.error("Error saving summary:", error);
+    event.reply("summary-saved", { success: false, error });
+  }
+
+  editorWindow?.close(); // Close the editor window
+});
+
+
 function createSplashScreen(): void {
   splashWindow = new BrowserWindow({
     width: 800,
@@ -75,6 +124,8 @@ function createMainWindow(): void {
 
   mainWindow.on("closed", () => {
     mainWindow = null;
+    editorWindow = null;
+    splashWindow = null;
   });
 }
 

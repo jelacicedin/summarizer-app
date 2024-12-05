@@ -46,7 +46,11 @@ document.addEventListener("DOMContentLoaded", () => {
             <td>${dataValues.filename || "undefined"}</td>
             <td><input type="text" value="${dataValues.title || "undefined"}" data-id="${dataValues.id}" data-field="title"></td>
             <td><input type="text" value="${dataValues.authors || "undefined"}" data-id="${dataValues.id}" data-field="authors"></td>
-            <td><input type="text" value="${dataValues.summary || ""}" data-id="${dataValues.id}" data-field="summary"></td>
+            <td>
+      <span class="summary-preview" data-id="${dataValues.id}">
+        ${dataValues.summary ? dataValues.summary.slice(0, 30) + "..." : "No summary available"}
+      </span>
+    </td>
             <td><input type="checkbox" ${dataValues.approved ? "checked" : ""} data-id="${dataValues.id}" data-field="approved"></td>
           `;
           tableBody.appendChild(row);
@@ -148,3 +152,18 @@ function makeTableSortable(): void {
     });
   });
 }
+
+
+
+
+document.body.addEventListener("click", (event) => {
+  const target = event.target as HTMLElement;
+
+  if (target.classList.contains("summary-preview")) {
+    const id = target.dataset.id;
+    const summary = target.textContent?.trim() || "";
+
+    // Request the main process to open the editor window
+    window.electronAPI.openEditor({ id: parseInt(id!), summary });
+  }
+});

@@ -56,6 +56,7 @@ pre.dark-mode {
   border-color: #444444;
 }
 
+/* Table styles */
 table {
   width: 100%;
   border-collapse: collapse;
@@ -97,4 +98,71 @@ th.asc::after {
 
 th.desc::after {
   content: " ▼";
+}
+
+/* Table styles for dark mode */
+body.dark-mode table {
+  border-color: #444444;
+}
+
+body.dark-mode table th {
+  background-color: #333333;
+  color: #ffffff;
+}
+
+body.dark-mode table td {
+  background-color: #222222;
+  color: #ffffff;
+}
+
+body.dark-mode table tr:nth-child(even) {
+  background-color: #1a1a1a;
+}
+
+body.dark-mode table tr:hover {
+  background-color: #333333;
+}
+
+/* Modal styles */
+.modal {
+  display: none; /* Hidden by default */
+  position: fixed;
+  z-index: 1000;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  background-color: rgba(0, 0, 0, 0.4);
+}
+
+.modal-content {
+  background-color: #fff;
+  margin: 10% auto;
+  padding: 20px;
+  border: 1px solid #888;
+  width: 50%;
+  border-radius: 10px;
+}
+
+body.dark-mode .modal-content {
+  background-color: #222222;
+  color: #ffffff;
+  border-color: #444444;
+}
+
+.close-button {
+  float: right;
+  font-size: 28px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+#modalSummaryInput {
+  width: 100%;
+  height: 200px;
+}
+
+#saveSummaryButton {
+  margin-top: 10px;
 }

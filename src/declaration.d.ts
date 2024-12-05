@@ -4,6 +4,8 @@ declare global {
     interface Window {
         electronAPI: {
             uploadPdf: (fileData: { name: string; content: ArrayBuffer }) => Promise<{ success: boolean; summary: string }>;
+            openEditor: (data: { id: number; summary: string }) => void;
+            saveSummary: (updatedSummary: string) => void;
         };
 
         dbAPI: {
