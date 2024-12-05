@@ -35,7 +35,6 @@ document.addEventListener("DOMContentLoaded", () => {
       if (!tableBody) throw new Error("Table body element not found");
 
       if (response.success) {
-        console.log("Loaded documents:", response.documents); // Log fetched data
         tableBody.innerHTML = ""; // Clear the table
 
         response.documents.forEach((doc) => {
@@ -104,54 +103,70 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
+  // Listen for table refresh trigger
+  window.electronAPI.onRefreshTable(() => {
+    console.log("Received refresh-table event"); // Debug log
+    loadDocuments(); // Reload the table
+  });
+
   // Initial Table Load
   loadDocuments();
 });
-
-
-function makeTableSortable(): void {
-  const table = document.getElementById("documentsTable")!;
-  const headers = table.querySelectorAll("thead th");
+function makeTableSortable() {
+  const table = document.getElementById("documentsTable") as HTMLTableElement;
+  const headers = table.querySelectorAll("thead th") as NodeListOf<HTMLTableCellElement>;
 
   headers.forEach((header) => {
     header.addEventListener("click", () => {
       const sortKey = header.getAttribute("data-sort"); // Get the column to sort by
-      const tbody = table.querySelector("tbody");
-      const rows = Array.from(tbody?.querySelectorAll("tr") || []);
-
-      if (!sortKey) return; // If no sort key, do nothing
+      const tbody = table.querySelector("tbody")!;
+      const rows = Array.from(tbody.querySelectorAll("tr"));
 
       // Determine the current sorting direction
-      const isAscending = header.classList.contains("asc");
-      const direction = isAscending ? -1 : 1;
+      const isCurrentlyAscending = header.classList.contains("asc");
+      const direction = isCurrentlyAscending ? -1 : 1;
 
-      // Sort rows based on the cell content for the clicked column
+      // Remove "asc" and "desc" classes from all headers
+      headers.forEach((h) => h.classList.remove("asc", "desc"));
+
+      // Toggle the clicked header's sorting direction
+      header.classList.add(isCurrentlyAscending ? "desc" : "asc");
+
+      // Sort rows based on the data in the selected column
       rows.sort((rowA, rowB) => {
-        const cellA = rowA.querySelector(`td:nth-child(${Array.from(headers).indexOf(header) + 1})`);
-        const cellB = rowB.querySelector(`td:nth-child(${Array.from(headers).indexOf(header) + 1})`);
+        const cellA = rowA.querySelector(`td:nth-child(${header.cellIndex + 1})`);
+        const cellB = rowB.querySelector(`td:nth-child(${header.cellIndex + 1})`);
 
-        // Handle cells with input fields
-        const valueA = cellA?.querySelector("input") ? (cellA.querySelector("input") as HTMLInputElement).value.trim() : cellA?.textContent?.trim() || "";
-        const valueB = cellB?.querySelector("input") ? (cellB.querySelector("input") as HTMLInputElement).value.trim() : cellB?.textContent?.trim() || "";
+        let valueA = "";
+        let valueB = "";
 
-        // For numeric values, compare as numbers
-        if (!isNaN(Number(valueA)) && !isNaN(Number(valueB))) {
-          return (Number(valueA) - Number(valueB)) * direction;
+        if (cellA && cellB) {
+          // Check if the cell contains an input element
+          const inputA = cellA.querySelector("input") as HTMLInputElement | null;
+          const inputB = cellB.querySelector("input") as HTMLInputElement | null;
+
+          if (inputA && inputB) {
+            valueA = inputA.value.trim();
+            valueB = inputB.value.trim();
+          } else {
+            valueA = cellA.textContent?.trim() || "";
+            valueB = cellB.textContent?.trim() || "";
+          }
         }
 
-        // For strings, compare lexicographically
-        return valueA.localeCompare(valueB) * direction;
+        // Handle numeric and string sorting
+        if (!isNaN(Number(valueA)) && !isNaN(Number(valueB))) {
+          return (Number(valueA) - Number(valueB)) * direction; // Numeric sort
+        }
+        return valueA.localeCompare(valueB) * direction; // Lexicographic sort
       });
 
-      // Remove current rows and append sorted rows
-      rows.forEach((row) => tbody?.appendChild(row));
-
-      // Update header classes for sorting direction
-      headers.forEach((h) => h.classList.remove("asc", "desc"));
-      header.classList.add(isAscending ? "desc" : "asc");
+      // Append sorted rows back to the table
+      rows.forEach((row) => tbody.appendChild(row));
     });
   });
 }
+
 
 
 

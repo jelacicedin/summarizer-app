@@ -50,7 +50,15 @@ ipcMain.on("save-summary", async (event, updatedSummary) => {
     if (!id) throw new Error("No document ID found");
 
     await updateDocument(id, { summary: updatedSummary });
+    
+    // Notify the main window to refresh the table
+    const mainWindow = BrowserWindow.getAllWindows().find((w) => w.id !== editorWindow?.id);
+    if (mainWindow) {
+      mainWindow.webContents.send("refresh-table");
+    }
+    
     event.reply("summary-saved", { success: true }); // Send success back to renderer
+    
   } catch (error) {
     console.error("Error saving summary:", error);
     event.reply("summary-saved", { success: false, error });
@@ -186,7 +194,6 @@ ipcMain.handle("upload-file", async () => {
 ipcMain.handle("fetch-documents", async () => {
   try {
     const documents = await getDocuments(); // Fetch from the database
-    console.log("Fetched documents:", documents.map((doc) => doc.toJSON())); // Log the fetched data
     return { success: true, documents }; // Return documents to the renderer
   } catch (error: any) {
     console.error("Error fetching documents:", error);

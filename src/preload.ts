@@ -6,7 +6,15 @@ contextBridge.exposeInMainWorld("electronAPI", {
   },
   openEditor: (data: { id: number; summary: string }) =>
     ipcRenderer.send("open-editor", data),
-  saveSummary: (updatedSummary: string) => ipcRenderer.send("save-summary", updatedSummary),
+  loadSummary: (callback: (summary: string) => void) => {
+    ipcRenderer.on("load-summary", (event, summary) => callback(summary));
+  },
+  saveSummary: (updatedSummary: string) => {
+    ipcRenderer.send("save-summary", updatedSummary);
+  },
+  onRefreshTable: (callback: () => void) => {
+    ipcRenderer.on("refresh-table", () => callback());
+  },
 
 });
 
