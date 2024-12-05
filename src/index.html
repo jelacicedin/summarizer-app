@@ -11,20 +11,23 @@
     <!-- Styled file input
     <label for="fileInput" class="custom-file-input">Choose File</label>
     <input type="file" id="fileInput" hidden /> -->
-    <button id="uploadButton">Upload and Summarize</button>
+    <button id="uploadButton">Upload file...</button>
     <pre id="summaryOutput"></pre>
     <!-- Display the summary here -->
 
     <!-- Documents table -->
     <table id="documentsTable">
       <thead>
-        <tr>
+        <tr> 
           <th data-sort="id">ID</th>
-          <th data-sort="filename">Filename</th>
-          <th data-sort="title">Title</th>
-          <th data-sort="authors">Authors</th>
-          <th data-sort="summary">Summary</th>
-          <th data-sort="approved">Approved</th>
+      <th data-sort="id">Filename</th>
+      <th data-sort="title">Title</th>
+      <th data-sort="authors">Authors</th>
+      <th data-sort="metadata">Metadata</th>
+      <th>Image Links</th>
+      <th data-sort="actions">Actions</th>
+      <th data-sort="summary">Summary</th>
+      <th data-sort="approved">Approved</th>
         </tr>
       </thead>
       <tbody>

@@ -88,8 +88,8 @@ function createSplashScreen(): void {
 
 function createMainWindow(): void {
   mainWindow = new BrowserWindow({
-    width: 900,
-    height: 700,
+    width: 1200, 
+    height: 800, 
     show: false, // Hide until splash disappears
     webPreferences: {
       contextIsolation: true,
@@ -210,6 +210,17 @@ ipcMain.handle("update-document", async (event, { id, updates }) => {
     return { success: true };
   } catch (error: any) {
     console.error("Error updating document:", error);
+    return { success: false, error: error.message };
+  }
+});
+
+
+ipcMain.handle("summarize-text", async (event, text: string) => {
+  try {
+    const summary = await summarizeText(text);
+    return { success: true, summary };
+  } catch (error: any) {
+    console.error("Error summarizing text:", error);
     return { success: false, error: error.message };
   }
 });

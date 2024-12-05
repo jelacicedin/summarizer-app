@@ -17,6 +17,7 @@ declare global {
             >;
             uploadFile: () => Promise<{ success: boolean; message?: string }>;
             updateDocument: (id: number, updates: Partial<DocumentAttributes>) => Promise<{ success: boolean; error?: string }>;
+            summarizeText: (text: string) => Promise<string>;
         };
     }
 }

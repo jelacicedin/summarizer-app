@@ -26,38 +26,39 @@ document.addEventListener("DOMContentLoaded", () => {
       : "Enable Dark Mode";
   });
 
-  // Fetch and Display Documents
+  // Fetch and display documents
   async function loadDocuments() {
     try {
-      const response = await window.dbAPI.fetchDocuments(); // Fetch documents via IPC
-      const tableBody = document.querySelector("#documentsTable tbody");
-
-      if (!tableBody) throw new Error("Table body element not found");
+      const response = await window.dbAPI.fetchDocuments();
 
       if (response.success) {
+        console.log("Loaded documents:", response.documents);
+
         tableBody.innerHTML = ""; // Clear the table
 
-        response.documents.forEach((doc) => {
+        response.documents.forEach((doc: any) => {
+          const dataValues = doc.dataValues;
+
           const row = document.createElement("tr");
-          let dataValues = doc.dataValues;
           row.innerHTML = `
             <td>${dataValues.id || "undefined"}</td>
             <td>${dataValues.filename || "undefined"}</td>
             <td><input type="text" value="${dataValues.title || "undefined"}" data-id="${dataValues.id}" data-field="title"></td>
             <td><input type="text" value="${dataValues.authors || "undefined"}" data-id="${dataValues.id}" data-field="authors"></td>
-            <td>
-      <span class="summary-preview" data-id="${dataValues.id}">
-        ${dataValues.summary ? dataValues.summary.slice(0, 30) + "..." : "No summary available"}
-      </span>
-    </td>
+            <td>${dataValues.metadata ? JSON.stringify(dataValues.metadata) : "No Metadata"}</td>
+            <td>${
+              dataValues.imageLinks
+                ? dataValues.imageLinks.map((link: string) => `<a href="${link}" target="_blank">Image</a>`).join(", ")
+                : "No Images"
+            }</td>
+            <td><button class="summarize-btn" data-id="${dataValues.id}">Summarize</button></td>
+            <td>${dataValues.summary ? `<span class="summary-preview" data-id="${dataValues.id}">${dataValues.summary.substring(0, 20)}...</span>` : "No Summary Available"}</td>
             <td><input type="checkbox" ${dataValues.approved ? "checked" : ""} data-id="${dataValues.id}" data-field="approved"></td>
           `;
           tableBody.appendChild(row);
         });
 
-        attachEventListeners(); // Attach listeners to input fields for inline editing
-        makeTableSortable(); // Enable sorting after rows are loaded
-
+        attachEventListeners(); // Attach event listeners to inputs and buttons
       } else {
         console.error("Failed to fetch documents:", response.error);
       }
@@ -66,15 +67,17 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  // Attach Event Listeners for Inline Editing
-  function attachEventListeners(): void {
+   // Attach event listeners to inputs and summarize buttons
+   function attachEventListeners() {
     const inputs = tableBody.querySelectorAll("input[type='text'], input[type='checkbox']");
+    const summarizeButtons = tableBody.querySelectorAll(".summarize-btn");
+
+    // Inline editing
     inputs.forEach((input) => {
       input.addEventListener("change", async (event) => {
         const target = event.target as HTMLInputElement;
         const id = parseInt(target.dataset.id || "0", 10);
         const field = target.dataset.field || "";
-
         const value = target.type === "checkbox" ? target.checked : target.value;
 
         try {
@@ -87,7 +90,30 @@ document.addEventListener("DOMContentLoaded", () => {
         }
       });
     });
+
+    // Summarize buttons
+    summarizeButtons.forEach((button) => {
+      button.addEventListener("click", async (event) => {
+        const target = event.target as HTMLButtonElement;
+        const id = parseInt(target.dataset.id || "0", 10);
+
+        try {
+          const doc = await window.dbAPI.fetchDocument(id); // Fetch document by ID
+          const text = await window.dbAPI.extractText(doc.filePath); // Extract text from PDF
+          const summary = await window.dbAPI.summarizeText(text); // Call summarizeText API
+
+          // Update the document with the new summary
+          const updateResponse = await window.dbAPI.updateDocument(id, { summary });
+          if (updateResponse.success) {
+            await loadDocuments(); // Reload the table to reflect changes
+          }
+        } catch (error) {
+          console.error("Error summarizing document:", error);
+        }
+      });
+    });
   }
+
 
   // Upload File and Refresh Table
   uploadButton.addEventListener("click", async () => {
