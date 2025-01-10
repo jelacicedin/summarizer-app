@@ -3,7 +3,7 @@ import path from "path";
 import { addDocument, getDocuments, updateDocument, fetchDocument } from "./database";
 import { startDockerServices } from "./check-docker";
 import { extractText } from "./pdf-handler";
-import { summarizeText } from "./llm_api";
+import { summarizeTextForPaper, resetContextForPaper } from "./llm_api";
 import fs from "fs";
 
 console.log("Main process is running. Directory:", __dirname);
@@ -213,15 +213,68 @@ ipcMain.handle("update-document", async (event, { id, updates }) => {
   }
 });
 
+// Function to create the summarization modal
+function createSummarizationModal(paperId: number) {
+  const modal = new BrowserWindow({
+    width: 800,
+    height: 600,
+    modal: true,
+    parent: BrowserWindow.getFocusedWindow() || undefined, // Attach to the current window
+    webPreferences: {
+      preload: path.join(__dirname, "preload.js"), // Ensure you add your preload file here
+    },
+  });
 
-ipcMain.handle("summarize-text", async (event, text: string) => {
+  // Load the summarization HTML
+  modal.loadFile(path.join(__dirname, "dist/summarization_modal/summarization.html"));
+
+  // Send the paper ID to the renderer process
+  modal.webContents.once("did-finish-load", () => {
+    modal.webContents.send("open-summarization-modal", paperId);
+  });
+
+  // Handle window close
+  modal.on("closed", () => {
+    console.log(`Summarization modal for paper ID ${paperId} closed.`);
+  });
+
+  return modal;
+}
+
+ipcMain.handle('summarize-text-for-paper', async (event, paperId: number, text: string, correction?: string) => {
   try {
-    const summary = await summarizeText(text);
+    console.log(`Summarizing text for paper ID: ${paperId}`);
+    const summary = await summarizeTextForPaper(paperId, text, correction);
     return { success: true, summary };
   } catch (error: any) {
-    console.error("Error summarizing text:", error);
+    console.error(`Error summarizing text for paper ID: ${paperId}`, error);
     return { success: false, error: error.message };
   }
+});
+
+// Handle context reset requests
+ipcMain.handle('reset-context-for-paper', async (event, paperId: number) => {
+  try {
+    console.log(`Resetting context for paper ID: ${paperId}`);
+    resetContextForPaper(paperId);
+    return { success: true };
+  } catch (error: any) {
+    console.error(`Error resetting context for paper ID: ${paperId}`, error);
+    return { success: false, error: error.message };
+  }
+});
+
+// Listen for requests to open the modal
+ipcMain.handle("open-summarization-modal", (event, paperId: number) => {
+  createSummarizationModal(paperId);
+});
+
+ipcMain.handle("update-summary", async (event, paperId: number, correction: string) => {
+  console.log(`Received correction for paper ID ${paperId}:`, correction);
+
+  // Call your summarization function with the correction
+  const updatedSummary = await summarizeTextForPaper(paperId, "", correction);
+  return updatedSummary;
 });
 
 
@@ -254,3 +307,4 @@ ipcMain.handle("extract-text", async (event, filePath: string) => {
     return { success: false, error: error.message };
   }
 });
+

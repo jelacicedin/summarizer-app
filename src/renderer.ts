@@ -93,37 +93,11 @@ document.addEventListener("DOMContentLoaded", () => {
     // Summarize buttons
     summarizeButtons.forEach((button) => {
       button.addEventListener("click", async (event) => {
-        const target = event.target as HTMLButtonElement;
-        const id = parseInt(target.dataset.id || "-1", 10); // Use -1 as a fallback to detect invalid IDs
-        if (id < 1) {
-          console.error("Invalid document ID:", id);
-          return;
-        } else {
-          console.debug(`Retrieving ${id}`);
-        }
+        const paperId = parseInt(button.getAttribute("data-id") || "0", 10);
+        console.log("Opening summarization modal for paper ID:", paperId);
 
-        try {
-          const response = await window.dbAPI.fetchDocument(id);
-          if (!response.success || !response.document) {
-            console.error("Document not found:", `ID: ${id}`);
-            return;
-          }
-          const doc = response.document;
-          const extraction = await window.electronAPI.extractText(doc.dataValues.filePath);
-          if (extraction.success) {
-            const text = extraction.text; // Extract text from PDF
-            const summary = await window.electronAPI.summarizeText(text); // Call summarizeText API
-
-            // Update the document with the new summary
-            const updateResponse = await window.dbAPI.updateDocument(id, { summary });
-            if (updateResponse.success) {
-              await loadDocuments(); // Reload the table to reflect changes
-            }
-          }
-
-        } catch (error) {
-          console.error("Error summarizing document:", error);
-        }
+        // Ask the main process to open the modal
+        await window.modalAPI.openSummarizationModal(paperId);
       });
     });
   }

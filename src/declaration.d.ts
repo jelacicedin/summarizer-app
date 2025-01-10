@@ -24,6 +24,18 @@ declare global {
 
             uploadFile: () => Promise<{ success: boolean; message?: string }>;
             updateDocument: (id: number, updates: Partial<DocumentAttributes>) => Promise<{ success: boolean; error?: string }>;
+            summarizeTextForPaper: (paperId: number, text: string, correction?: string) => Promise<{ success: boolean; summary?: string; error?: string }>;
+            resetContextForPaper: (paperId: number) => Promise<{ success: boolean; error?: string }>;
+
+        };
+
+        modalAPI: {
+            /**
+             * Opens the summarization modal for a specific paper.
+             * @param paperId - The unique ID of the paper to summarize.
+             * @returns A promise that resolves when the modal is opened.
+             */
+            openSummarizationModal: (paperId: number) => Promise<void>;
         };
     }
 }

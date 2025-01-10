@@ -27,4 +27,13 @@ contextBridge.exposeInMainWorld("dbAPI", {
   fetchDocument: (id: number) => ipcRenderer.invoke("fetch-document", id),
   updateDocument: (id: number, updates: object) =>
     ipcRenderer.invoke("update-document", { id, updates }),
+  summarizeTextForPaper: (paperId: number, text: string, correction?: string) =>
+    ipcRenderer.invoke('summarize-text-for-paper', paperId, text, correction),
+  resetContextForPaper: (paperId: number) =>
+    ipcRenderer.invoke('reset-context-for-paper', paperId),
+});
+
+contextBridge.exposeInMainWorld("modalAPI", {
+  openSummarizationModal: (paperId: number) =>
+    ipcRenderer.invoke("open-summarization-modal", paperId),
 });
