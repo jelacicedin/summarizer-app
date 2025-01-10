@@ -24,7 +24,7 @@ contextBridge.exposeInMainWorld("electronAPI", {
 contextBridge.exposeInMainWorld("dbAPI", {
   uploadFile: () => ipcRenderer.invoke("upload-file"),
   fetchDocuments: () => ipcRenderer.invoke("fetch-documents"),
-  fetchDocument: (id: number) => ipcRenderer.invoke("fetch-document"),
+  fetchDocument: (id: number) => ipcRenderer.invoke("fetch-document", id),
   updateDocument: (id: number, updates: object) =>
     ipcRenderer.invoke("update-document", { id, updates }),
 });

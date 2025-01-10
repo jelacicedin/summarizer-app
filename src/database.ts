@@ -1,4 +1,4 @@
-import { Sequelize, DataTypes, Model, Optional, Dialect } from "sequelize";
+import { Sequelize, DataTypes, Model, QueryTypes, Optional, Dialect } from "sequelize";
 import 'dotenv/config'
 
 // Loading of auth from .env
@@ -7,6 +7,8 @@ let username: string;
 let password: string;
 let host: string;
 let dialect: Dialect = "postgres";
+
+
 
 if (process.env.DATABASE != undefined) {
     database = process.env.DATABASE;
@@ -35,6 +37,7 @@ if (process.env.PASSWORD != undefined) {
 export const sequelize = new Sequelize(database, username, password, {
     host: host,
     dialect: dialect,
+    logging: console.log
 });
 
 // Define TypeScript interface for the Document
@@ -145,17 +148,26 @@ export async function deleteDocument(id: number): Promise<void> {
     });
 }
 
+
 /**
  * Fetch a single document by its ID.
  * @param id - The ID of the document to fetch.
  * @returns A Promise that resolves to the document object or null if not found.
  */
-export async function fetchDocument(id: number): Promise<Document|null> {
-    try{
+export async function fetchDocument(id: number): Promise<Document | null> {
+    try {
+
+        console.debug("Attempting to fetch document by primary key:", id);
+        // Run a raw SQL query
         const document = await Document.findByPk(id);
+
+        if (!document) {
+            console.error(`Document with ID ${id} not found.`);
+            return null;
+        }
         return document;
     } catch (error) {
-        console.error('Error fetching document with ID: ${id}', error);
+        console.error(`Error fetching document with ID: ${id}`, error);
         throw error;
     }
 }

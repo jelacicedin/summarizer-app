@@ -94,11 +94,22 @@ document.addEventListener("DOMContentLoaded", () => {
     summarizeButtons.forEach((button) => {
       button.addEventListener("click", async (event) => {
         const target = event.target as HTMLButtonElement;
-        const id = parseInt(target.dataset.id || "0", 10);
+        const id = parseInt(target.dataset.id || "-1", 10); // Use -1 as a fallback to detect invalid IDs
+        if (id < 1) {
+          console.error("Invalid document ID:", id);
+          return;
+        } else {
+          console.debug(`Retrieving ${id}`);
+        }
 
         try {
-          const doc = (await window.dbAPI.fetchDocument(id)).document; // Fetch document by ID
-          const extraction = await window.electronAPI.extractText(doc.filePath);
+          const response = await window.dbAPI.fetchDocument(id);
+          if (!response.success || !response.document) {
+            console.error("Document not found:", `ID: ${id}`);
+            return;
+          }
+          const doc = response.document;
+          const extraction = await window.electronAPI.extractText(doc.dataValues.filePath);
           if (extraction.success) {
             const text = extraction.text; // Extract text from PDF
             const summary = await window.electronAPI.summarizeText(text); // Call summarizeText API

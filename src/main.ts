@@ -3,7 +3,7 @@ import path from "path";
 import { addDocument, getDocuments, updateDocument, fetchDocument } from "./database";
 import { startDockerServices } from "./check-docker";
 import { extractText } from "./pdf-handler";
-import { summarizeText } from "./api";
+import { summarizeText } from "./llm_api";
 import fs from "fs";
 
 console.log("Main process is running. Directory:", __dirname);
@@ -11,7 +11,6 @@ console.log("Main process is running. Directory:", __dirname);
 // Global variables for windows
 let mainWindow: BrowserWindow | null;
 let splashWindow: BrowserWindow | null;
-
 let editorWindow: BrowserWindow | null = null;
 
 ipcMain.on("open-editor", (event, { id, summary }) => {
@@ -225,16 +224,19 @@ ipcMain.handle("summarize-text", async (event, text: string) => {
   }
 });
 
-ipcMain.handle("fetch-document", async (event, id: number) => {
+
+ipcMain.handle("fetch-document", async (event, id) => {
+  console.log("ID received in fetch-document handler:", id); // Add this log
+  if (!id) {
+    console.error("Invalid ID received:", id);
+    return { success: false, error: "Invalid ID" };
+  }
+
   try {
-    const document = await fetchDocument(id);
-    if (document) {
-      return { success: true, document };
-    } else {
-      return { success: false, error: "Document not found" };
-    }
+    const document = await fetchDocument(id); 
+    return { success: true, document };
   } catch (error: any) {
-    console.error("Error fetching document: ", error);
+    console.error("Error fetching document:", error);
     return { success: false, error: error.message };
   }
 });

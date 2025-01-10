@@ -1,6 +1,6 @@
 {
     "appTitle": "MDU Summarizer App",
     "splashScreen": {
-        "animationDurationMillis": 6000
+        "animationDurationMillis": 1000
     }
 }
