@@ -3,14 +3,18 @@
   "version": "1.0.0",
   "description": "Small Electron / Postgresql project for AI-powered research article summarization.",
   "main": "dist/main.js",
+  "type": "module",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "electron-forge start",
-    "package": "electron-forge package",
-    "make": "electron-forge make",
-    "build": "tsc && npm run copy-static",
-    "copy-static": "copyfiles -u 1 src/**/*.{html,css,json,png} dist"
-  },
+  "start": "electron-forge start",
+  "package": "electron-forge package",
+  "make": "electron-forge make",
+  "build": "npm run build:main && npm run build:preload && npm run rename-preload && npm run copy-static",
+  "build:main": "tsc --project tsconfig.json",
+  "build:preload": "tsc --project tsconfig.preload.json",
+  "rename-preload": "mv dist/preload.js dist/preload.cjs || ren dist\\preload.js dist\\preload.cjs",
+  "copy-static": "copyfiles -u 1 src/**/*.{html,css,json,png} dist"
+}
+,
   "keywords": [],
   "author": "",
   "license": "ISC",

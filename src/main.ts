@@ -1,17 +1,25 @@
 import { app, BrowserWindow, ipcMain, nativeTheme, dialog } from "electron";
 import path from "path";
-import { addDocument, getDocuments, updateDocument, fetchDocument } from "./database";
-import { startDockerServices } from "./check-docker";
-import { extractText } from "./pdf-handler";
-import { summarizeTextForPaper, resetContextForPaper } from "./llm_api";
+import { addDocument, getDocuments, updateDocument, fetchDocument } from "./database.js";
+import { startDockerServices } from "./check-docker.js";
+import { extractText } from "./pdf-handler.js";
+import { summarizeTextForPaper, resetContextForPaper } from "./llm_api.js";
 import fs from "fs";
+import { fileURLToPath } from 'url';
 
-console.log("Main process is running. Directory:", __dirname);
+
+// Get __dirname equivalent in ES Modules
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // Global variables for windows
 let mainWindow: BrowserWindow | null;
 let splashWindow: BrowserWindow | null;
 let editorWindow: BrowserWindow | null = null;
+let chatModal: BrowserWindow | null = null;
+
+
+
 
 ipcMain.on("open-editor", (event, { id, summary }) => {
   // Create the editor window
@@ -21,7 +29,7 @@ ipcMain.on("open-editor", (event, { id, summary }) => {
     modal: true,
     parent: mainWindow!,
     webPreferences: {
-      preload: path.join(__dirname, "preload.js"),
+      preload: path.join(__dirname, "preload.cjs"),
       contextIsolation: true,
     },
   });
@@ -92,8 +100,8 @@ function createMainWindow(): void {
     show: false, // Hide until splash disappears
     webPreferences: {
       contextIsolation: true,
-      preload: path.join(__dirname, "preload.js"),
-      sandbox: true,
+      preload: path.join(__dirname, "preload.cjs"),
+      sandbox: false,
     },
     resizable: false,
     backgroundColor: "#ffffffff", // Solid background to prevent transparency issues
@@ -213,33 +221,45 @@ ipcMain.handle("update-document", async (event, { id, updates }) => {
   }
 });
 
+
 // Function to create the summarization modal
 function createSummarizationModal(paperId: number) {
-  const modal = new BrowserWindow({
+  if (chatModal) {
+    console.log("Modal already open.");
+    return; // Prevent creating multiple modals
+  }
+
+  chatModal = new BrowserWindow({
     width: 800,
     height: 600,
     modal: true,
-    parent: BrowserWindow.getFocusedWindow() || undefined, // Attach to the current window
+    parent: BrowserWindow.getFocusedWindow() || undefined,
     webPreferences: {
-      preload: path.join(__dirname, "preload.js"), // Ensure you add your preload file here
+      preload: path.join(__dirname, "preload.cjs"),
+      contextIsolation: true,
     },
   });
 
   // Load the summarization HTML
-  modal.loadFile(path.join(__dirname, "./summarization_modal/summarization.html"));
+  chatModal.loadFile(path.join(__dirname, "./summarization_modal/summarization.html"));
 
-  // Send the paper ID to the renderer process
-  modal.webContents.once("did-finish-load", () => {
-    modal.webContents.send("open-summarization-modal", paperId);
+  // Send the paper ID to the renderer process when the modal is ready
+  chatModal.once("ready-to-show", () => {
+    console.log(`Sending paper ID ${paperId} to renderer`);
+    chatModal?.webContents.send("open-summarization-modal", paperId);
   });
 
-  // Handle window close
-  modal.on("closed", () => {
-    console.log(`Summarization modal for paper ID ${paperId} closed.`);
+  // Handle modal close
+  chatModal.on("closed", () => {
+    console.log("Modal closed.");
+    chatModal = null; // Reset the modal reference
   });
-
-  return modal;
 }
+
+// Handle the IPC call to open the modal
+ipcMain.handle("open-summarization-modal", (event, paperId: number) => {
+  createSummarizationModal(paperId);
+});
 
 ipcMain.handle('summarize-text-for-paper', async (event, paperId: number, text: string, correction?: string) => {
   try {
@@ -282,10 +302,7 @@ ipcMain.handle('reset-context-for-paper', async (event, paperId: number) => {
   }
 });
 
-// Listen for requests to open the modal
-ipcMain.handle("open-summarization-modal", (event, paperId: number) => {
-  createSummarizationModal(paperId);
-});
+
 
 ipcMain.handle("update-summary", async (event, paperId: number, correction: string) => {
   console.log(`Received correction for paper ID ${paperId}:`, correction);

@@ -1,0 +1,38 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Electron: Main Process",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": [
+        "electron-forge",
+        "start",
+        "--remote-debugging-port=9222" // Exposes the debugging port
+      ],
+      "outputCapture": "std",
+      "env": {
+        "NODE_ENV": "development"
+      },
+      "cwd": "${workspaceFolder}",
+      "sourceMaps": true,
+      "preLaunchTask": "build"
+    },
+    {
+      "type": "chrome",
+      "request": "launch",
+      "name": "Chrome Browser",
+      "url": "http://localhost:9222", // Connect to the remote debugging port
+      "webRoot": "${workspaceFolder}",
+      "sourceMaps": true,
+      "skipFiles": ["<node_internals>/**"]
+    }
+  ],
+  "compounds": [
+    {
+      "name": "Debug Main Process and Chrome",
+      "configurations": ["Electron: Main Process", "Chrome Browser"]
+    }
+  ]
+}

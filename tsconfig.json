@@ -1,11 +1,11 @@
 {
   "compilerOptions": {
-    "target": "ESNext",
-    "module": "CommonJS",
+    "target": "ES6",           // Modern JavaScript target
+    "module": "ESNext",        // Use ES Modules instead of CommonJS
     "strict": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
-
+    "sourceMap": true,
     "outDir": "./dist",
     "rootDir": "./src",
     "moduleResolution": "node",

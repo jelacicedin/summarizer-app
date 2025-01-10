@@ -1,0 +1,16 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+      {
+        "label": "build", // This matches the task name referenced in launch.json
+        "type": "shell",
+        "command": "npm run build", // Executes the `build` script from package.json
+        "problemMatcher": ["$tsc"],
+        "group": {
+          "kind": "build",
+          "isDefault": true
+        }
+      }
+    ]
+  }
+  

@@ -1,0 +1,17 @@
+{
+    "compilerOptions": {
+      "target": "ES6",
+      "module": "CommonJS", // Required for Electron preload scripts
+      "strict": true,
+      "esModuleInterop": true,
+      "skipLibCheck": true,
+      "sourceMap": true,
+      "outDir": "./dist",
+      "rootDir": "./src",
+      "moduleResolution": "node",
+      "resolveJsonModule": true
+    },
+    "include": ["src/preload.ts"],
+    "exclude": ["node_modules", "dist"]
+  }
+  
