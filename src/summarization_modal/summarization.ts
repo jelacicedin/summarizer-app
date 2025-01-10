@@ -10,15 +10,38 @@ function getElementById<T extends HTMLElement>(id: string): T {
 }
 
 // Listen for the paper ID when the modal is opened
-ipcRenderer.on("open-summarization-modal", (event, paperId) => {
+ipcRenderer.on("open-summarization-modal", async (event, paperId) => {
     console.log("Summarization modal opened for paper ID:", paperId);
 
     try {
         // Display the paper ID in the modal
         const paperIdElement = getElementById<HTMLParagraphElement>("paper-id");
         paperIdElement.textContent = `Paper ID: ${paperId}`;
+
+        // Automatically fetch the existing summary or start summarization
+        const summaryTextarea = getElementById<HTMLTextAreaElement>("summary");
+        const existingSummary = await ipcRenderer.invoke("fetch-summary", paperId);
+
+        if (existingSummary) {
+            console.log("Existing summary found, displaying it in the modal.");
+            summaryTextarea.value = existingSummary;
+        } else {
+            console.log("No existing summary found, extracting text and generating summary...");
+            const filePath = await ipcRenderer.invoke("fetch-file-path", paperId); // Fetch file path for extraction
+            if (!filePath) {
+                throw new Error(`File path not found for paper ID ${paperId}.`);
+            }
+
+            const extractedText = await ipcRenderer.invoke("extract-text", filePath); // Extract text from the file
+            if (!extractedText) {
+                throw new Error(`Failed to extract text for paper ID ${paperId}.`);
+            }
+
+            const generatedSummary = await ipcRenderer.invoke("generate-summary", paperId, extractedText); // Generate summary from the extracted text
+            summaryTextarea.value = generatedSummary || "Error generating summary.";
+        }
     } catch (error: any) {
-        console.error("Error displaying the paper ID:", error.message);
+        console.error("Error initializing the summarization modal:", error.message);
     }
 });
 

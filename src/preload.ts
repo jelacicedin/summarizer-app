@@ -1,5 +1,4 @@
 import { contextBridge, ipcRenderer } from "electron";
-import { extractText } from "./pdf-handler";
 
 contextBridge.exposeInMainWorld("electronAPI", {
   uploadPdf: async (fileData: { name: string; content: ArrayBuffer }) => {
@@ -18,7 +17,6 @@ contextBridge.exposeInMainWorld("electronAPI", {
   },
   summarizeText: (text: string) => ipcRenderer.invoke("summarize-text", text),
   extractText: (filePath: string) => ipcRenderer.invoke("extract-text", filePath)
-
 });
 
 contextBridge.exposeInMainWorld("dbAPI", {

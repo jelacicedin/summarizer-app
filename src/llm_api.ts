@@ -37,7 +37,6 @@ export async function summarizeTextForPaper(
         content: correction,
       });
     }
-
     // Call OpenAI API
     const response = await openai.chat.completions.create({
       model: 'gpt-3.5-turbo',

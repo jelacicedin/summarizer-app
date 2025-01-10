@@ -226,7 +226,7 @@ function createSummarizationModal(paperId: number) {
   });
 
   // Load the summarization HTML
-  modal.loadFile(path.join(__dirname, "dist/summarization_modal/summarization.html"));
+  modal.loadFile(path.join(__dirname, "./summarization_modal/summarization.html"));
 
   // Send the paper ID to the renderer process
   modal.webContents.once("did-finish-load", () => {
@@ -249,6 +249,24 @@ ipcMain.handle('summarize-text-for-paper', async (event, paperId: number, text: 
   } catch (error: any) {
     console.error(`Error summarizing text for paper ID: ${paperId}`, error);
     return { success: false, error: error.message };
+  }
+});
+
+ipcMain.handle("fetch-summary", async (event, paperId: number) => {
+  console.log(`Fetching summary for paper ID ${paperId}`);
+  const document = await fetchDocument(paperId); // Replace with your database fetch method
+  return document?.dataValues.summary || null;
+});
+
+ipcMain.handle("generate-summary", async (event, paperId: number, extractedText: string) => {
+  console.log(`Generating summary for paper ID ${paperId}`);
+  try {
+    const generatedSummary = await summarizeTextForPaper(paperId, extractedText); // Replace with your summarization logic
+    await updateDocument(paperId, { summary: generatedSummary }); // Save the generated summary to the database
+    return generatedSummary;
+  } catch (error: any) {
+    console.error("Error generating summary:", error.message);
+    return "Error generating summary.";
   }
 });
 
@@ -286,7 +304,7 @@ ipcMain.handle("fetch-document", async (event, id) => {
   }
 
   try {
-    const document = await fetchDocument(id); 
+    const document = await fetchDocument(id);
     return { success: true, document };
   } catch (error: any) {
     console.error("Error fetching document:", error);
