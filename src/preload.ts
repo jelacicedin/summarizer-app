@@ -40,7 +40,7 @@ interface ElectronAPI {
 contextBridge.exposeInMainWorld("electronAPI", <ElectronAPI>{
   uploadPdf: async (fileData) => ipcRenderer.invoke("upload-pdf", fileData),
   openEditor: (data) => ipcRenderer.send("open-editor", data),
-  loadSummary: (callback) => ipcRenderer.on("load-summary", (event, summary) => callback(summary)),
+  loadSummary: () => ipcRenderer.invoke("load-summary"),
   saveSummary: (updatedSummary) => ipcRenderer.send("save-summary", updatedSummary),
   onRefreshTable: (callback) => ipcRenderer.on("refresh-table", callback),
   summarizeText: (text) => ipcRenderer.invoke("summarize-text", text),

@@ -15,66 +15,7 @@ const __dirname = path.dirname(__filename);
 // Global variables for windows
 let mainWindow: BrowserWindow | null;
 let splashWindow: BrowserWindow | null;
-let editorWindow: BrowserWindow | null = null;
 let chatModal: BrowserWindow | null = null;
-
-
-
-
-ipcMain.on("open-editor", (event, { id, summary }) => {
-  // Create the editor window
-  editorWindow = new BrowserWindow({
-    width: 500,
-    height: 400,
-    modal: true,
-    parent: mainWindow!,
-    webPreferences: {
-      preload: path.join(__dirname, "preload.cjs"),
-      contextIsolation: true,
-    },
-  });
-
-  editorWindow.loadFile(path.join(__dirname, "summary-editor.html"));
-
-  // Send the current summary to the editor
-  editorWindow.webContents.once("did-finish-load", () => {
-    editorWindow?.webContents.send("load-summary", summary);
-  });
-
-  // Cleanup when the editor window is closed
-  editorWindow.on("closed", () => {
-    editorWindow = null;
-  });
-});
-
-
-
-ipcMain.on("save-summary", async (event, updatedSummary) => {
-  console.log("Received updated summary:", updatedSummary); // Debug log
-
-  try {
-    // Assume we track the current document ID in the editor's parent window
-    const id = editorWindow?.getParentWindow()?.id;
-    if (!id) throw new Error("No document ID found");
-
-    await updateDocument(id, { summary: updatedSummary });
-
-    // Notify the main window to refresh the table
-    const mainWindow = BrowserWindow.getAllWindows().find((w) => w.id !== editorWindow?.id);
-    if (mainWindow) {
-      mainWindow.webContents.send("refresh-table");
-    }
-
-    event.reply("summary-saved", { success: true }); // Send success back to renderer
-
-  } catch (error) {
-    console.error("Error saving summary:", error);
-    event.reply("summary-saved", { success: false, error });
-  }
-
-  editorWindow?.close(); // Close the editor window
-});
-
 
 function createSplashScreen(): void {
   splashWindow = new BrowserWindow({
@@ -140,7 +81,6 @@ function createMainWindow(): void {
 
   mainWindow.on("closed", () => {
     mainWindow = null;
-    editorWindow = null;
     splashWindow = null;
   });
 }

@@ -1,3 +1,8 @@
+let currentSortColumn: string = ""; // Default to an empty string
+let currentSortOrder: 'asc' | 'desc' = 'asc';
+
+
+
 document.addEventListener("DOMContentLoaded", () => {
   const uploadButton = document.getElementById("uploadButton") as HTMLButtonElement;
   const tableBody = document.querySelector("#documentsTable tbody") as HTMLElement;
@@ -26,93 +31,90 @@ document.addEventListener("DOMContentLoaded", () => {
       : "Enable Dark Mode";
   });
 
-// Variables to track the current sort column and order
-let currentSortColumn: string = ""; // Default to an empty string
-let currentSortOrder: 'asc' | 'desc' = 'asc';
+  // Fetch and display documents
+  async function loadDocuments() {
+    try {
+      const response = await window.dbAPI.fetchDocuments();
 
-// Fetch and display documents
-async function loadDocuments() {
-  try {
-    const response = await window.dbAPI.fetchDocuments();
+      if (response.success) {
+        console.log("Loaded documents:", response.documents);
 
-    if (response.success) {
-      console.log("Loaded documents:", response.documents);
+        tableBody.innerHTML = ""; // Clear the table
 
-      tableBody.innerHTML = ""; // Clear the table
+        // Sort documents based on the current sort state
+        if (currentSortColumn) {
+          response.documents.sort((a: any, b: any) => {
+            const valA = a.dataValues[currentSortColumn];
+            const valB = b.dataValues[currentSortColumn];
 
-      // Sort documents based on current sort column and order
-      if (currentSortColumn) {
-        response.documents.sort((a: any, b: any) => {
-          const valA = a.dataValues[currentSortColumn];
-          const valB = b.dataValues[currentSortColumn];
+            if (valA < valB) return currentSortOrder === "asc" ? -1 : 1;
+            if (valA > valB) return currentSortOrder === "asc" ? 1 : -1;
+            return 0;
+          });
+        }
 
-          if (valA < valB) return currentSortOrder === 'asc' ? -1 : 1;
-          if (valA > valB) return currentSortOrder === 'asc' ? 1 : -1;
-          return 0;
-        });
-      }
+        // Populate the table
+        response.documents.forEach((doc: any) => {
+          const dataValues = doc.dataValues;
 
-      // Populate the table
-      response.documents.forEach((doc: any) => {
-        const dataValues = doc.dataValues;
-
-        const row = document.createElement("tr");
-        row.innerHTML = `
+          const row = document.createElement("tr");
+          row.innerHTML = `
           <td>${dataValues.id || "undefined"}</td>
           <td>${dataValues.filename || "undefined"}</td>
           <td><input type="text" value="${dataValues.title || "undefined"}" data-id="${dataValues.id}" data-field="title"></td>
           <td><input type="text" value="${dataValues.authors || "undefined"}" data-id="${dataValues.id}" data-field="authors"></td>
           <td>${dataValues.metadata ? JSON.stringify(dataValues.metadata) : "No Metadata"}</td>
           <td>${dataValues.imageLinks
-            ? dataValues.imageLinks.map((link: string) => `<a href="${link}" target="_blank">Image</a>`).join(", ")
-            : "No Images"
-          }</td>
-          <td><button class="summarize-btn" data-id="${dataValues.id}">Summarize</button></td>
-          <td>${dataValues.summary ? `<span class="summary-preview" data-id="${dataValues.id}">${dataValues.summary.substring(0, 20)}...</span>` : "No Summary Available"}</td>
+              ? dataValues.imageLinks.map((link: string) => `<a href="${link}" target="_blank">Image</a>`).join(", ")
+              : "No Images"
+            }</td>
+          <td><button class="summarize-btn" data-id="${dataValues.id}">Summary Editing</button></td>
+          <td>${dataValues.summary ? `<span class="summary-preview" data-id="${dataValues.id}">${dataValues.summary.substring(0, 200)}...</span>` : "No Summary Available"}</td>
           <td><input type="checkbox" ${dataValues.approved ? "checked" : ""} data-id="${dataValues.id}" data-field="approved"></td>
         `;
-        tableBody.appendChild(row);
-      });
+          tableBody.appendChild(row);
+        });
 
-      attachEventListeners(); // Attach event listeners to inputs and buttons
-    } else {
-      console.error("Failed to fetch documents:", response.error);
+        attachEventListeners(); // Attach event listeners to inputs and buttons
+      } else {
+        console.error("Failed to fetch documents:", response.error);
+      }
+    } catch (error) {
+      console.error("Error loading documents:", error);
     }
-  } catch (error) {
-    console.error("Error loading documents:", error);
-  }
-}
-
-// Function to handle sorting
-function handleSort(column: string) {
-  if (currentSortColumn === column) {
-    // Toggle sort order if the same column is clicked
-    currentSortOrder = currentSortOrder === 'asc' ? 'desc' : 'asc';
-  } else {
-    // Set new sort column and default to ascending order
-    currentSortColumn = column;
-    currentSortOrder = 'asc';
   }
 
-  loadDocuments(); // Refresh the table with the new sort order
+  
+function makeTableSortable() {
+  const table = document.getElementById("documentsTable") as HTMLTableElement;
+  const headers = table.querySelectorAll("thead th") as NodeListOf<HTMLTableCellElement>;
+
+  headers.forEach((header) => {
+    header.addEventListener("click", () => {
+      const sortKey = header.getAttribute("data-sort"); // Get the column to sort by
+      if (!sortKey) return;
+
+      // Update global sort state
+      if (currentSortColumn === sortKey) {
+        currentSortOrder = currentSortOrder === "asc" ? "desc" : "asc";
+      } else {
+        currentSortColumn = sortKey;
+        currentSortOrder = "asc";
+      }
+
+      // Refresh the table with the new sort order
+      loadDocuments();
+
+      // Update header styles
+      headers.forEach((h) => h.classList.remove("asc", "desc"));
+      header.classList.add(currentSortOrder);
+    });
+  });
 }
 
-// Add sorting event listeners to table headers
-document.addEventListener("DOMContentLoaded", () => {
-  document.getElementById("header-id")?.addEventListener("click", () => handleSort("id"));
-  document.getElementById("header-filename")?.addEventListener("click", () => handleSort("filename"));
-  document.getElementById("header-title")?.addEventListener("click", () => handleSort("title"));
-  document.getElementById("header-authors")?.addEventListener("click", () => handleSort("authors"));
-
-  loadDocuments(); // Initial load
-});
 
 
-// Refresh the table upon external events
-window.electronAPI.onRefreshTable(() => {
-  console.log("Refreshing table...");
-  loadDocuments();
-});
+
   // Attach event listeners to inputs and summarize buttons
   function attachEventListeners() {
     const inputs = tableBody.querySelectorAll("input[type='text'], input[type='checkbox']");
@@ -149,11 +151,6 @@ window.electronAPI.onRefreshTable(() => {
     });
   }
 
-  window.electronAPI.onRefreshTable(() => {
-    console.log("Refreshing the documents table.");
-    loadDocuments(); // Replace with your table loading logic
-  });
-  
 
   // Upload File and Refresh Table
   uploadButton.addEventListener("click", async () => {
@@ -180,64 +177,6 @@ window.electronAPI.onRefreshTable(() => {
   makeTableSortable();
 
 });
-
-
-
-function makeTableSortable() {
-  const table = document.getElementById("documentsTable") as HTMLTableElement;
-  const headers = table.querySelectorAll("thead th") as NodeListOf<HTMLTableCellElement>;
-
-  headers.forEach((header) => {
-    header.addEventListener("click", () => {
-      const sortKey = header.getAttribute("data-sort"); // Get the column to sort by
-      const tbody = table.querySelector("tbody")!;
-      const rows = Array.from(tbody.querySelectorAll("tr"));
-
-      // Determine the current sorting direction
-      const isCurrentlyAscending = header.classList.contains("asc");
-      const direction = isCurrentlyAscending ? -1 : 1;
-
-      // Remove "asc" and "desc" classes from all headers
-      headers.forEach((h) => h.classList.remove("asc", "desc"));
-
-      // Toggle the clicked header's sorting direction
-      header.classList.add(isCurrentlyAscending ? "desc" : "asc");
-
-      // Sort rows based on the data in the selected column
-      rows.sort((rowA, rowB) => {
-        const cellA = rowA.querySelector(`td:nth-child(${header.cellIndex + 1})`);
-        const cellB = rowB.querySelector(`td:nth-child(${header.cellIndex + 1})`);
-
-        let valueA = "";
-        let valueB = "";
-
-        if (cellA && cellB) {
-          // Check if the cell contains an input element
-          const inputA = cellA.querySelector("input") as HTMLInputElement | null;
-          const inputB = cellB.querySelector("input") as HTMLInputElement | null;
-
-          if (inputA && inputB) {
-            valueA = inputA.value.trim();
-            valueB = inputB.value.trim();
-          } else {
-            valueA = cellA.textContent?.trim() || "";
-            valueB = cellB.textContent?.trim() || "";
-          }
-        }
-
-        // Handle numeric and string sorting
-        if (!isNaN(Number(valueA)) && !isNaN(Number(valueB))) {
-          return (Number(valueA) - Number(valueB)) * direction; // Numeric sort
-        }
-        return valueA.localeCompare(valueB) * direction; // Lexicographic sort
-      });
-
-      // Append sorted rows back to the table
-      rows.forEach((row) => tbody.appendChild(row));
-    });
-  });
-}
-
 
 
 
