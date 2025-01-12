@@ -8,6 +8,7 @@ interface ModalAPI {
   extractText: (filePath: string) => Promise<string>;
   generateSummary: (paperId: number, text: string) => Promise<string>;
   updateSummary: (paperId: number, correction: string) => Promise<string>;
+  sendSummaryToDb: (paperId: number, text: string) => void;
 }
 
 // Define types for the dbAPI
@@ -68,4 +69,7 @@ contextBridge.exposeInMainWorld("modalAPI", <ModalAPI>{
       callback(paperId);
     });
   },
+  refreshTable: () => ipcRenderer.send("refresh-table"), // Notify the main process to refresh the table
+  sendSummaryToDb: (paperId, text) => ipcRenderer.invoke("send-summary-to-db", paperId, text),
+  
 });

@@ -211,11 +211,10 @@ ipcMain.handle("fetch-documents", async () => {
 });
 
 // Handle returning a filepath for a document
-ipcMain.handle("fetch-file-path", async (event, paperId:number) : Promise<string> =>  {
+ipcMain.handle("fetch-file-path", async (event, paperId: number): Promise<string> => {
   try {
     const document = await fetchDocument(paperId);
-    if (document)
-    {
+    if (document) {
       return document.filePath;
     } else throw Error(`Could not fetch document with paperId ${paperId}`);
   } catch (error: any) {
@@ -286,6 +285,12 @@ ipcMain.handle('summarize-text-for-paper', async (event, paperId: number, text: 
   }
 });
 
+ipcMain.on("refresh-table", () => {
+  console.log("Received request to refresh the table.");
+  mainWindow?.webContents.send("refresh-table"); // Notify the main window to refresh the table
+});
+
+
 ipcMain.handle("fetch-summary", async (event, paperId: number) => {
   console.log(`Fetching summary for paper ID ${paperId}`);
   const document = await fetchDocument(paperId); // Replace with your database fetch method
@@ -316,7 +321,17 @@ ipcMain.handle('reset-context-for-paper', async (event, paperId: number) => {
   }
 });
 
+ipcMain.handle("send-summary-to-db", async (event, paperId: number, text: string) => {
+  console.log(`Received new database summary for paper ID ${paperId}`);
 
+  try {
+    await updateDocument(paperId, { summary: text });
+  } catch (error: any) {
+    console.error(`Could not update document ${paperId} with text ${text}`);
+    throw error;
+  }
+
+});
 
 ipcMain.handle("update-summary", async (event, paperId: number, correction: string) => {
   console.log(`Received correction for paper ID ${paperId}:`, correction);

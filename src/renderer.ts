@@ -26,6 +26,11 @@ document.addEventListener("DOMContentLoaded", () => {
       : "Enable Dark Mode";
   });
 
+  let currentSortColumn: string | null = null;
+let currentSortOrder: 'asc' | 'desc' = 'asc'; // Default to ascending
+
+
+
   // Fetch and display documents
   async function loadDocuments() {
     try {
@@ -102,6 +107,11 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
+  window.electronAPI.onRefreshTable(() => {
+    console.log("Refreshing the documents table.");
+    loadDocuments(); // Replace with your table loading logic
+  });
+  
 
   // Upload File and Refresh Table
   uploadButton.addEventListener("click", async () => {

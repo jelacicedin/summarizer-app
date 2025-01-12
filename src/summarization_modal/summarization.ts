@@ -49,6 +49,11 @@ window.modalAPI.onSummarizationModal((paperId: number) => {
 // Handle the "Send Correction" button click
 document.addEventListener("DOMContentLoaded", () => {
   console.log("Setting up event listeners for modal.");
+
+  const saveSummaryButton = getElementById<HTMLButtonElement>("save-summary");
+  saveSummaryButton.addEventListener("click", handleSaveSummary);
+
+
   const sendCorrectionButton = getElementById<HTMLButtonElement>("send-correction");
   sendCorrectionButton.addEventListener("click", async () => {
     const chatboxInput = getElementById<HTMLTextAreaElement>("chatbox-input");
@@ -77,3 +82,37 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 });
+
+
+// Save Summary Function
+async function handleSaveSummary() {
+  try {
+    const summaryTextarea = getElementById<HTMLTextAreaElement>("summary");
+    const paperIdElement = getElementById<HTMLParagraphElement>("paper-id");
+
+    const updatedSummary = summaryTextarea.value.trim();
+    const paperId = parseInt(paperIdElement.textContent?.replace("Paper ID: ", "") || "0", 10);
+
+    if (!updatedSummary || !paperId) {
+      alert("No valid summary or paper ID found.");
+      return;
+    }
+
+    console.log(`Saving summary for paper ID ${paperId}:`, updatedSummary);
+
+    // Save the updated summary to the database
+    try{
+      await window.modalAPI.sendSummaryToDb(paperId, updatedSummary);
+      alert("Summary saved successfully.");
+      console.log("Notifying main window to refresh table.");
+      window.modalAPI.refreshTable(); // Notify main window to refresh the table
+    } catch (error: any)
+    {
+      alert("Error saving summary. Please try again.");
+      throw error;
+    }
+  } catch (error: any) {
+    console.error("Error saving summary:", error.message);
+  }
+}
+

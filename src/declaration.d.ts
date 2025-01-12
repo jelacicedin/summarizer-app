@@ -6,7 +6,8 @@ interface ModalAPI {
     generateSummary: (paperId: number, text: string) => Promise<string>;
     updateSummary: (paperId: number, correction: string) => Promise<string>;
     onSummarizationModal: (callback: (paperId: number) => void) => void; // Add this
-
+    refreshTable: () => void,
+    sendSummaryToDb: (paperId:number, text:string) => void;
   }
   
   interface DbAPI {
