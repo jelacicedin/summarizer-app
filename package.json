@@ -5,16 +5,15 @@
   "main": "dist/main.js",
   "type": "module",
   "scripts": {
-  "start": "electron-forge start",
-  "package": "electron-forge package",
-  "make": "electron-forge make",
-  "build": "npm run build:main && npm run build:preload && npm run rename-preload && npm run copy-static",
-  "build:main": "tsc --project tsconfig.json",
-  "build:preload": "tsc --project tsconfig.preload.json",
-  "rename-preload": "mv dist/preload.js dist/preload.cjs || ren dist\\preload.js dist\\preload.cjs",
-  "copy-static": "copyfiles -u 1 src/**/*.{html,css,json,png} dist"
-}
-,
+    "start": "electron-forge start",
+    "package": "electron-forge package",
+    "make": "electron-forge make",
+    "build": "npm run build:main && npm run build:preload && npm run rename-preload && npm run copy-static",
+    "build:main": "tsc --project tsconfig.json",
+    "build:preload": "tsc --project tsconfig.preload.json",
+    "rename-preload": "mv dist/preload.js dist/preload.cjs || ren dist\\preload.js dist\\preload.cjs",
+    "copy-static": "copyfiles -u 1 src/**/*.{html,css,json,png} dist"
+  },
   "keywords": [],
   "author": "",
   "license": "ISC",
@@ -23,6 +22,7 @@
     "fs": "^0.0.1-security",
     "openai": "^4.74.0",
     "pdf-parse": "^1.1.1",
+    "pdfjs-dist": "^4.10.38",
     "pg": "^8.13.1",
     "sequelize": "^6.37.5"
   },

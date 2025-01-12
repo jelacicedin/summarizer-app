@@ -241,7 +241,7 @@ ipcMain.handle("generate-summary", async (event, paperId: number, extractedText:
   console.log(`Generating summary for paper ID ${paperId}`);
   try {
     const generatedSummary = await summarizeTextForPaper(paperId, extractedText); // Replace with your summarization logic
-    await updateDocument(paperId, { summary: generatedSummary }); // Save the generated summary to the database
+    // await updateDocument(paperId, { summary: generatedSummary }); // Save the generated summary to the database
     return generatedSummary;
   } catch (error: any) {
     console.error("Error generating summary:", error.message);
@@ -302,13 +302,12 @@ ipcMain.handle("extract-text", async (event, filePath: string) => {
   try {
     const text = await extractText(filePath);
     if (text) {
-      return { success: true, text };
+      return text;
     } else {
-      return { success: false, error: "Did not parse any text." }
+      throw Error("Did not parse any text.");
     }
   } catch (error: any) {
     console.error("Error extracting the text: ", error);
-    return { success: false, error: error.message };
   }
 });
 

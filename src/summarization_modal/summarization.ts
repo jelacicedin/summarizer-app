@@ -101,13 +101,12 @@ async function handleSaveSummary() {
     console.log(`Saving summary for paper ID ${paperId}:`, updatedSummary);
 
     // Save the updated summary to the database
-    try{
-      await window.modalAPI.sendSummaryToDb(paperId, updatedSummary);
+    try {
+      window.modalAPI.sendSummaryToDb(paperId, updatedSummary);
       alert("Summary saved successfully.");
       console.log("Notifying main window to refresh table.");
       window.modalAPI.refreshTable(); // Notify main window to refresh the table
-    } catch (error: any)
-    {
+    } catch (error: any) {
       alert("Error saving summary. Please try again.");
       throw error;
     }

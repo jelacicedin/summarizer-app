@@ -6,7 +6,8 @@ export async function extractText(filePath: fs.PathOrFileDescriptor) {
     try {
         const dataBuffer = fs.readFileSync(filePath);
         const data = await pdfParse(dataBuffer);
-        if (!data.text) {
+        const text = data.text.trim();
+        if (text.length === 0) {
             throw Error("No text found in pdf.");
         }
         console.debug(`******* ${data.text}`)
