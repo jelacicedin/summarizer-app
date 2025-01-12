@@ -63,4 +63,9 @@ contextBridge.exposeInMainWorld("modalAPI", <ModalAPI>{
   extractText: (filePath) => ipcRenderer.invoke("extract-text", filePath),
   generateSummary: (paperId, text) => ipcRenderer.invoke("generate-summary", paperId, text),
   updateSummary: (paperId, correction) => ipcRenderer.invoke("update-summary", paperId, correction),
+  onSummarizationModal: (callback: any) => {
+    ipcRenderer.on("open-summarization-modal", (event, paperId) => {
+      callback(paperId);
+    });
+  },
 });

@@ -210,6 +210,20 @@ ipcMain.handle("fetch-documents", async () => {
   }
 });
 
+// Handle returning a filepath for a document
+ipcMain.handle("fetch-file-path", async (event, paperId:number) : Promise<string> =>  {
+  try {
+    const document = await fetchDocument(paperId);
+    if (document)
+    {
+      return document.filePath;
+    } else throw Error(`Could not fetch document with paperId ${paperId}`);
+  } catch (error: any) {
+    console.error("Error fetching documents:", error);
+    throw error;
+  }
+});
+
 // Handle updating a document
 ipcMain.handle("update-document", async (event, { id, updates }) => {
   try {

@@ -5,6 +5,8 @@ interface ModalAPI {
     extractText: (filePath: string) => Promise<string>;
     generateSummary: (paperId: number, text: string) => Promise<string>;
     updateSummary: (paperId: number, correction: string) => Promise<string>;
+    onSummarizationModal: (callback: (paperId: number) => void) => void; // Add this
+
   }
   
   interface DbAPI {
