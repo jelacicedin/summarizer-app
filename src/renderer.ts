@@ -26,51 +26,93 @@ document.addEventListener("DOMContentLoaded", () => {
       : "Enable Dark Mode";
   });
 
-  let currentSortColumn: string | null = null;
-let currentSortOrder: 'asc' | 'desc' = 'asc'; // Default to ascending
+// Variables to track the current sort column and order
+let currentSortColumn: string = ""; // Default to an empty string
+let currentSortOrder: 'asc' | 'desc' = 'asc';
 
+// Fetch and display documents
+async function loadDocuments() {
+  try {
+    const response = await window.dbAPI.fetchDocuments();
 
+    if (response.success) {
+      console.log("Loaded documents:", response.documents);
 
-  // Fetch and display documents
-  async function loadDocuments() {
-    try {
-      const response = await window.dbAPI.fetchDocuments();
+      tableBody.innerHTML = ""; // Clear the table
 
-      if (response.success) {
-        console.log("Loaded documents:", response.documents);
+      // Sort documents based on current sort column and order
+      if (currentSortColumn) {
+        response.documents.sort((a: any, b: any) => {
+          const valA = a.dataValues[currentSortColumn];
+          const valB = b.dataValues[currentSortColumn];
 
-        tableBody.innerHTML = ""; // Clear the table
-
-        response.documents.forEach((doc: any) => {
-          const dataValues = doc.dataValues;
-
-          const row = document.createElement("tr");
-          row.innerHTML = `
-            <td>${dataValues.id || "undefined"}</td>
-            <td>${dataValues.filename || "undefined"}</td>
-            <td><input type="text" value="${dataValues.title || "undefined"}" data-id="${dataValues.id}" data-field="title"></td>
-            <td><input type="text" value="${dataValues.authors || "undefined"}" data-id="${dataValues.id}" data-field="authors"></td>
-            <td>${dataValues.metadata ? JSON.stringify(dataValues.metadata) : "No Metadata"}</td>
-            <td>${dataValues.imageLinks
-              ? dataValues.imageLinks.map((link: string) => `<a href="${link}" target="_blank">Image</a>`).join(", ")
-              : "No Images"
-            }</td>
-            <td><button class="summarize-btn" data-id="${dataValues.id}">Summarize</button></td>
-            <td>${dataValues.summary ? `<span class="summary-preview" data-id="${dataValues.id}">${dataValues.summary.substring(0, 20)}...</span>` : "No Summary Available"}</td>
-            <td><input type="checkbox" ${dataValues.approved ? "checked" : ""} data-id="${dataValues.id}" data-field="approved"></td>
-          `;
-          tableBody.appendChild(row);
+          if (valA < valB) return currentSortOrder === 'asc' ? -1 : 1;
+          if (valA > valB) return currentSortOrder === 'asc' ? 1 : -1;
+          return 0;
         });
-
-        attachEventListeners(); // Attach event listeners to inputs and buttons
-      } else {
-        console.error("Failed to fetch documents:", response.error);
       }
-    } catch (error) {
-      console.error("Error loading documents:", error);
+
+      // Populate the table
+      response.documents.forEach((doc: any) => {
+        const dataValues = doc.dataValues;
+
+        const row = document.createElement("tr");
+        row.innerHTML = `
+          <td>${dataValues.id || "undefined"}</td>
+          <td>${dataValues.filename || "undefined"}</td>
+          <td><input type="text" value="${dataValues.title || "undefined"}" data-id="${dataValues.id}" data-field="title"></td>
+          <td><input type="text" value="${dataValues.authors || "undefined"}" data-id="${dataValues.id}" data-field="authors"></td>
+          <td>${dataValues.metadata ? JSON.stringify(dataValues.metadata) : "No Metadata"}</td>
+          <td>${dataValues.imageLinks
+            ? dataValues.imageLinks.map((link: string) => `<a href="${link}" target="_blank">Image</a>`).join(", ")
+            : "No Images"
+          }</td>
+          <td><button class="summarize-btn" data-id="${dataValues.id}">Summarize</button></td>
+          <td>${dataValues.summary ? `<span class="summary-preview" data-id="${dataValues.id}">${dataValues.summary.substring(0, 20)}...</span>` : "No Summary Available"}</td>
+          <td><input type="checkbox" ${dataValues.approved ? "checked" : ""} data-id="${dataValues.id}" data-field="approved"></td>
+        `;
+        tableBody.appendChild(row);
+      });
+
+      attachEventListeners(); // Attach event listeners to inputs and buttons
+    } else {
+      console.error("Failed to fetch documents:", response.error);
     }
+  } catch (error) {
+    console.error("Error loading documents:", error);
+  }
+}
+
+// Function to handle sorting
+function handleSort(column: string) {
+  if (currentSortColumn === column) {
+    // Toggle sort order if the same column is clicked
+    currentSortOrder = currentSortOrder === 'asc' ? 'desc' : 'asc';
+  } else {
+    // Set new sort column and default to ascending order
+    currentSortColumn = column;
+    currentSortOrder = 'asc';
   }
 
+  loadDocuments(); // Refresh the table with the new sort order
+}
+
+// Add sorting event listeners to table headers
+document.addEventListener("DOMContentLoaded", () => {
+  document.getElementById("header-id")?.addEventListener("click", () => handleSort("id"));
+  document.getElementById("header-filename")?.addEventListener("click", () => handleSort("filename"));
+  document.getElementById("header-title")?.addEventListener("click", () => handleSort("title"));
+  document.getElementById("header-authors")?.addEventListener("click", () => handleSort("authors"));
+
+  loadDocuments(); // Initial load
+});
+
+
+// Refresh the table upon external events
+window.electronAPI.onRefreshTable(() => {
+  console.log("Refreshing table...");
+  loadDocuments();
+});
   // Attach event listeners to inputs and summarize buttons
   function attachEventListeners() {
     const inputs = tableBody.querySelectorAll("input[type='text'], input[type='checkbox']");
