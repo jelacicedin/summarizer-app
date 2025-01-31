@@ -64,7 +64,7 @@ function createMainWindow(): void {
         {
           label: "Toggle Dark Mode",
           click: () => {
-            mainWindow?.webContents.send("dark-mode:toggle");
+            mainWindow?.webContents.send("toggle-dark-mode");
           },
         },
         { role: "reload" },

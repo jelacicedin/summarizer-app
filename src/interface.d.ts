@@ -17,6 +17,8 @@ export interface IModalAPI {
     generateSummary: (paperId: number, text: string) => Promise<string>;
     updateSummary: (paperId: number, correction: string) => Promise<string>;
     sendSummaryToDb: (paperId: number, text: string) => void;
+    onSummarizationModal: (callback: (paperId: number) => void) => void; // Add this
+    refreshTable: () => void,
 }
 
 export interface IDBAPI {
