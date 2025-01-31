@@ -59,6 +59,10 @@ tr:nth-child(even) {
   background-color: #f2f2f2;
 }
 
+tr:nth-child(odd) {
+  background-color: #ffffff;
+}
+
 tr:hover {
   background-color: #ddd;
 }
@@ -117,6 +121,12 @@ th.dark-mode {
 
 tr.dark-mode:nth-child(even) {
   background-color: #333333;
+  color: #ccc;
+}
+
+tr.dark-mode:nth-child(odd) {
+  background-color: #1e1e1e; /* Darker background for odd rows */
+  color: #ccc;
 }
 
 tr.dark-mode:hover {
