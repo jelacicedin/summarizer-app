@@ -223,7 +223,8 @@ ipcMain.handle("update-document", async (event, { id, updates }) => {
 
 
 // Function to create the summarization modal
-function createSummarizationModal(paperId: number, stage:number) {
+function createSummarizationModal(paperId: number, stage: number) {
+  // TODO: implement this stage option for two different modal types.
   if (chatModal) {
     console.log("Modal already open.");
     return; // Prevent creating multiple modals
@@ -260,7 +261,7 @@ function createSummarizationModal(paperId: number, stage:number) {
 }
 
 // Handle the IPC call to open the modal
-ipcMain.handle("open-summarization-modal", (event, paperId: number, stage:number) => {
+ipcMain.handle("open-summarization-modal", (event, paperId: number, stage: number) => {
   createSummarizationModal(paperId, stage);
 });
 
