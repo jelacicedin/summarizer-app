@@ -10,8 +10,8 @@
   z-index: 1000;
   font-family: 'Helvetica Neue', Arial, sans-serif;
   font-size: 16px;
-  width: 90%;
-  height: 90%;
+  width: 95%;
+  height: 95%;
   display: flex;
   flex-direction: column;
 }
@@ -36,7 +36,7 @@ p {
 }
 
 textarea {
-  width: 100%;
+  width: 95%;
   flex-grow: 1;
   padding: 10px;
   border: 1px solid #ddd;
@@ -52,7 +52,7 @@ textarea {
 }
 
 button {
-  background-color: #fc8c5c;
+  background-color: #FF9800;
   color: white;
   padding: 10px 20px;
   border: none;
@@ -61,7 +61,7 @@ button {
 }
 
 button:hover {
-  background-color: #fc8c5c;
+  background-color: #FB8C00;
 }
 
 /* Dark Mode Styles for Modal */
@@ -92,8 +92,8 @@ body.dark-mode button:hover {
 /* Responsive Design for Modal */
 @media (max-width: 768px) {
   #summarization-modal {
-    width: 90%;
-    height: 90%;
+    width: 95%;
+    height: 95%;
     padding: 15px;
   }
 

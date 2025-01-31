@@ -40,6 +40,22 @@ async function handleModalInitialization(paperId: number) {
   }
 }
 
+window.electronAPI?.on("toggle-dark-mode", () => toggleDarkMode());
+
+function toggleDarkMode() {
+  document.body.classList.toggle("dark-mode");
+  document.querySelectorAll("th, td, tr").forEach((element) => {
+    element.classList.toggle("dark-mode");
+  });
+  document.querySelectorAll(".responsive-input").forEach((input) => {
+    input.classList.toggle("dark-mode");
+  });
+
+  document.querySelectorAll("h1, p, textarea, button").forEach((element) => {
+    element.classList.toggle("dark-mode");
+  });
+}
+
 // Listen for the "open-summarization-modal" event
 window.modalAPI.onSummarizationModal((paperId: number) => {
   console.log("Received paperId in renderer:", paperId);
@@ -66,7 +82,7 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
-    const paperId = parseInt(paperIdElement.textContent?.replace("Paper ID: ", "") || "0", 10);
+    const paperId = parseInt(paperIdElement.textContent?.replace("Paper ID: ", "") ?? "0", 10);
     if (!paperId) {
       console.error("Invalid paper ID.");
       alert("An error occurred. Please try again.");
@@ -91,7 +107,7 @@ async function handleSaveSummary() {
     const paperIdElement = getElementById<HTMLParagraphElement>("paper-id");
 
     const updatedSummary = summaryTextarea.value.trim();
-    const paperId = parseInt(paperIdElement.textContent?.replace("Paper ID: ", "") || "0", 10);
+    const paperId = parseInt(paperIdElement.textContent?.replace("Paper ID: ", "") ?? "0", 10);
 
     if (!updatedSummary || !paperId) {
       alert("No valid summary or paper ID found.");

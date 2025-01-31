@@ -33,8 +33,6 @@ document.addEventListener("DOMContentLoaded", () => {
     if (fileLabel) {
       fileLabel.classList.toggle("dark-mode");
     }
-
-
   }
 
 

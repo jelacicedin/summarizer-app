@@ -65,6 +65,15 @@ function createMainWindow(): void {
           label: "Toggle Dark Mode",
           click: () => {
             mainWindow?.webContents.send("toggle-dark-mode");
+            chatModal?.webContents.send("toggle-dark-mode");
+
+            if (nativeTheme.shouldUseDarkColors) {
+              nativeTheme.themeSource = 'light'
+            } else {
+              nativeTheme.themeSource = 'dark'
+            }
+            return nativeTheme.shouldUseDarkColors
+              ;
           },
         },
         { role: "reload" },
@@ -85,6 +94,15 @@ function createMainWindow(): void {
   ]);
 
   Menu.setApplicationMenu(menu);
+
+  ipcMain.handle('toggle-dark-mode-theme', () => {
+    if (nativeTheme.shouldUseDarkColors) {
+      nativeTheme.themeSource = 'light'
+    } else {
+      nativeTheme.themeSource = 'dark'
+    }
+    return nativeTheme.shouldUseDarkColors
+  });
 
   // Handle startup sequence
   mainWindow.once("ready-to-show", () => {
@@ -229,6 +247,9 @@ function createSummarizationModal(paperId: number) {
   chatModal.once("ready-to-show", () => {
     console.log(`Sending paper ID ${paperId} to renderer`);
     chatModal?.webContents.send("open-summarization-modal", paperId);
+    if (nativeTheme.themeSource === 'dark') {
+      chatModal?.webContents.send("toggle-dark-mode");
+    }
   });
 
   // Handle modal close
