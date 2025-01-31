@@ -1,7 +1,7 @@
 import { contextBridge, ipcRenderer } from "electron";
-
+import { IElectronAPI, IDBAPI, IModalAPI } from "./interface";
 // Expose APIs to the Renderer process
-contextBridge.exposeInMainWorld("electronAPI", <ElectronAPI>{
+contextBridge.exposeInMainWorld("electronAPI", <IElectronAPI>{
   uploadPdf: async (fileData) => ipcRenderer.invoke("upload-pdf", fileData),
   openEditor: (data) => ipcRenderer.send("open-editor", data),
   loadSummary: () => ipcRenderer.invoke("load-summary"),
@@ -13,7 +13,7 @@ contextBridge.exposeInMainWorld("electronAPI", <ElectronAPI>{
     ipcRenderer.on(channel, (event, ...args) => callback(...args))
 });
 
-contextBridge.exposeInMainWorld("dbAPI", <DbAPI>{
+contextBridge.exposeInMainWorld("dbAPI", <IDBAPI>{
   uploadFile: () => ipcRenderer.invoke("upload-file"),
   fetchDocuments: () => ipcRenderer.invoke("fetch-documents"),
   fetchDocument: (id) => ipcRenderer.invoke("fetch-document", id),
@@ -23,7 +23,7 @@ contextBridge.exposeInMainWorld("dbAPI", <DbAPI>{
   resetContextForPaper: (paperId) => ipcRenderer.invoke("reset-context-for-paper", paperId),
 });
 
-contextBridge.exposeInMainWorld("modalAPI", <ModalAPI>{
+contextBridge.exposeInMainWorld("modalAPI", <IModalAPI>{
   openSummarizationModal: (paperId) => ipcRenderer.invoke("open-summarization-modal", paperId),
   fetchSummary: (paperId) => ipcRenderer.invoke("fetch-summary", paperId),
   fetchFilePath: (paperId) => ipcRenderer.invoke("fetch-file-path", paperId),
@@ -37,5 +37,5 @@ contextBridge.exposeInMainWorld("modalAPI", <ModalAPI>{
   },
   refreshTable: () => ipcRenderer.send("refresh-table"), // Notify the main process to refresh the table
   sendSummaryToDb: (paperId, text) => ipcRenderer.invoke("send-summary-to-db", paperId, text),
-  
+
 });

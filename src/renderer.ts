@@ -13,13 +13,9 @@ document.addEventListener("DOMContentLoaded", () => {
     return;
   }
 
-  // Dark Mode Toggle
-  // const darkModeToggle = document.getElementById("darkModeToggle");
-  // const fileLabel = document.querySelector(".custom-file-input");
+  window.electronAPI?.on("toggle-dark-mode", () => toggleDarkMode());
 
-  window.electronAPI?.
-
-  darkModeToggle.addEventListener("click", () => {
+  function toggleDarkMode() {
     document.body.classList.toggle("dark-mode");
 
     document.querySelectorAll("button").forEach((button) => {
@@ -38,10 +34,9 @@ document.addEventListener("DOMContentLoaded", () => {
       fileLabel.classList.toggle("dark-mode");
     }
 
-    darkModeToggle.textContent = document.body.classList.contains("dark-mode")
-      ? "Disable Dark Mode"
-      : "Enable Dark Mode";
-  });
+
+  }
+
 
   // Fetch and display documents
   async function loadDocuments() {

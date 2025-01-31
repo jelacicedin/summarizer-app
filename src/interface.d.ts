@@ -20,10 +20,10 @@ export interface IModalAPI {
 }
 
 export interface IDBAPI {
-    uploadFile: () => Promise<void>;
-    fetchDocuments: () => Promise<any[]>;
+    uploadFile: () => Promise<any>;
+    fetchDocuments: () => Promise<any>;
     fetchDocument: (id: number) => Promise<any>;
-    updateDocument: (id: number, updates: object) => Promise<void>;
+    updateDocument: (id: number, updates: object) => Promise<any>;
     summarizeTextForPaper: (
         paperId: number,
         text: string,
