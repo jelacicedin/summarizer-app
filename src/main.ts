@@ -223,15 +223,15 @@ ipcMain.handle("update-document", async (event, { id, updates }) => {
 
 
 // Function to create the summarization modal
-function createSummarizationModal(paperId: number) {
+function createSummarizationModal(paperId: number, stage:number) {
   if (chatModal) {
     console.log("Modal already open.");
     return; // Prevent creating multiple modals
   }
 
   chatModal = new BrowserWindow({
-    width: 1000,
-    height: 600,
+    width: 1400,
+    height: 800,
     modal: true,
     parent: BrowserWindow.getFocusedWindow() || undefined,
     webPreferences: {
@@ -260,8 +260,8 @@ function createSummarizationModal(paperId: number) {
 }
 
 // Handle the IPC call to open the modal
-ipcMain.handle("open-summarization-modal", (event, paperId: number) => {
-  createSummarizationModal(paperId);
+ipcMain.handle("open-summarization-modal", (event, paperId: number, stage:number) => {
+  createSummarizationModal(paperId, stage);
 });
 
 ipcMain.handle('summarize-text-for-paper', async (event, paperId: number, text: string, correction?: string) => {
@@ -284,7 +284,7 @@ ipcMain.on("refresh-table", () => {
 ipcMain.handle("fetch-summary", async (event, paperId: number) => {
   console.log(`Fetching summary for paper ID ${paperId}`);
   const document = await fetchDocument(paperId); // Replace with your database fetch method
-  return document?.dataValues.summary || null;
+  return document?.dataValues.stage1Summary ?? null;
 });
 
 ipcMain.handle("generate-summary", async (event, paperId: number, extractedText: string) => {
@@ -311,11 +311,11 @@ ipcMain.handle('reset-context-for-paper', async (event, paperId: number) => {
   }
 });
 
-ipcMain.handle("send-summary-to-db", async (event, paperId: number, text: string) => {
+ipcMain.handle("send-summary-to-db", async (_, paperId: number, text: string) => {
   console.log(`Received new database summary for paper ID ${paperId}`);
 
   try {
-    await updateDocument(paperId, { summary: text });
+    await updateDocument(paperId, { stage1Summary: text });
   } catch (error: any) {
     console.error(`Could not update document ${paperId} with text ${text}`);
     throw error;
@@ -323,7 +323,7 @@ ipcMain.handle("send-summary-to-db", async (event, paperId: number, text: string
 
 });
 
-ipcMain.handle("update-summary", async (event, paperId: number, correction: string) => {
+ipcMain.handle("update-summary", async (_, paperId: number, correction: string) => {
   console.log(`Received correction for paper ID ${paperId}:`, correction);
 
   // Call your summarization function with the correction

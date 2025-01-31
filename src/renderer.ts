@@ -36,7 +36,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
 
-  // Fetch and display documents
+    // Fetch and display documents
   async function loadDocuments() {
     try {
       const response = await window.dbAPI.fetchDocuments();
@@ -102,9 +102,9 @@ document.addEventListener("DOMContentLoaded", () => {
           authorsCell.appendChild(authorsInput);
           row.appendChild(authorsCell);
 
-          const metadataCell = document.createElement("td");
-          metadataCell.textContent = dataValues.metadata ? JSON.stringify(dataValues.metadata) : "No Metadata";
-          row.appendChild(metadataCell);
+          const datetimeAddedCell = document.createElement("td");
+          datetimeAddedCell.textContent = dataValues.datetimeAdded || "undefined";
+          row.appendChild(datetimeAddedCell);
 
           const imageLinksCell = document.createElement("td");
           if (dataValues.imageLinks) {
@@ -125,34 +125,100 @@ document.addEventListener("DOMContentLoaded", () => {
           }
           row.appendChild(imageLinksCell);
 
-          const actionsCell = document.createElement("td");
-          const summarizeButton = document.createElement("button");
-          summarizeButton.classList.add("summarize-btn");
-          summarizeButton.dataset.id = dataValues.id;
-          summarizeButton.textContent = "Summary Editing";
-          actionsCell.appendChild(summarizeButton);
-          row.appendChild(actionsCell);
-
-          const summaryCell = document.createElement("td");
-          if (dataValues.summary) {
-            const summarySpan = document.createElement("span");
-            summarySpan.classList.add("summary-preview");
-            summarySpan.dataset.id = dataValues.id;
-            summarySpan.textContent = `${dataValues.summary.substring(0, 50)}...`;
-            summaryCell.appendChild(summarySpan);
-          } else {
-            summaryCell.textContent = "No Summary Available";
+          // Stage 1 Summary and Approval
+          const stage1SummaryCell = document.createElement("td");
+          const stage1SummaryInput = document.createElement("input");
+          stage1SummaryInput.type = "text";
+          stage1SummaryInput.value = dataValues.stage1Summary || "undefined";
+          stage1SummaryInput.dataset.id = dataValues.id;
+          stage1SummaryInput.dataset.field = "stage1Summary";
+          stage1SummaryInput.classList.add("responsive-input");
+          if (document.body.classList.contains("dark-mode")) {
+            stage1SummaryInput.classList.add("dark-mode");
           }
-          row.appendChild(summaryCell);
+          stage1SummaryCell.appendChild(stage1SummaryInput);
+          row.appendChild(stage1SummaryCell);
 
-          const approvedCell = document.createElement("td");
-          const approvedCheckbox = document.createElement("input");
-          approvedCheckbox.type = "checkbox";
-          approvedCheckbox.checked = dataValues.approved;
-          approvedCheckbox.dataset.id = dataValues.id;
-          approvedCheckbox.dataset.field = "approved";
-          approvedCell.appendChild(approvedCheckbox);
-          row.appendChild(approvedCell);
+          const stage1EditCell = document.createElement("td");
+          const stage1EditButton = document.createElement("button");
+          stage1EditButton.classList.add("summarize-btn");
+          stage1EditButton.dataset.id = dataValues.id;
+          stage1EditButton.dataset.stage = "1";
+          stage1EditButton.textContent = "AI Edit";
+          stage1EditCell.appendChild(stage1EditButton);
+          row.appendChild(stage1EditCell);
+
+          const stage1ApprovalCell = document.createElement("td");
+          const stage1ApprovalCheckbox = document.createElement("input");
+          stage1ApprovalCheckbox.type = "checkbox";
+          stage1ApprovalCheckbox.checked = dataValues.approvalStage1;
+          stage1ApprovalCheckbox.dataset.id = dataValues.id;
+          stage1ApprovalCheckbox.dataset.field = "approvalStage1";
+          stage1ApprovalCell.appendChild(stage1ApprovalCheckbox);
+          row.appendChild(stage1ApprovalCell);
+
+          // Stage 2 Summary and Approval
+          const stage2SummaryCell = document.createElement("td");
+          const stage2SummaryInput = document.createElement("input");
+          stage2SummaryInput.type = "text";
+          stage2SummaryInput.value = dataValues.stage2Summary || "undefined";
+          stage2SummaryInput.dataset.id = dataValues.id;
+          stage2SummaryInput.dataset.field = "stage2Summary";
+          stage2SummaryInput.classList.add("responsive-input");
+          if (document.body.classList.contains("dark-mode")) {
+            stage2SummaryInput.classList.add("dark-mode");
+          }
+          stage2SummaryCell.appendChild(stage2SummaryInput);
+          row.appendChild(stage2SummaryCell);
+
+          const stage2EditCell = document.createElement("td");
+          const stage2EditButton = document.createElement("button");
+          stage2EditButton.classList.add("summarize-btn");
+          stage2EditButton.dataset.id = dataValues.id;
+          stage2EditButton.dataset.stage = "2";
+          stage2EditButton.textContent = "Edit";
+          stage2EditCell.appendChild(stage2EditButton);
+          row.appendChild(stage2EditCell);
+
+          const stage2ApprovalCell = document.createElement("td");
+          const stage2ApprovalCheckbox = document.createElement("input");
+          stage2ApprovalCheckbox.type = "checkbox";
+          stage2ApprovalCheckbox.checked = dataValues.approvalStage2;
+          stage2ApprovalCheckbox.dataset.id = dataValues.id;
+          stage2ApprovalCheckbox.dataset.field = "approvalStage2";
+          stage2ApprovalCell.appendChild(stage2ApprovalCheckbox);
+          row.appendChild(stage2ApprovalCell);
+
+          // Stage 3 Summary and Approval
+          const stage3SummaryCell = document.createElement("td");
+          const stage3SummaryInput = document.createElement("input");
+          stage3SummaryInput.type = "text";
+          stage3SummaryInput.value = dataValues.stage3Summary || "undefined";
+          stage3SummaryInput.dataset.id = dataValues.id;
+          stage3SummaryInput.dataset.field = "stage3Summary";
+          stage3SummaryInput.classList.add("responsive-input");
+          if (document.body.classList.contains("dark-mode")) {
+            stage3SummaryInput.classList.add("dark-mode");
+          }
+          stage3SummaryCell.appendChild(stage3SummaryInput);
+          row.appendChild(stage3SummaryCell);
+
+          const stage3ApprovalCell = document.createElement("td");
+          const stage3ApprovalCheckbox = document.createElement("input");
+          stage3ApprovalCheckbox.type = "checkbox";
+          stage3ApprovalCheckbox.checked = dataValues.approvalStage3;
+          stage3ApprovalCheckbox.dataset.id = dataValues.id;
+          stage3ApprovalCheckbox.dataset.field = "approvalStage3";
+          stage3ApprovalCell.appendChild(stage3ApprovalCheckbox);
+          row.appendChild(stage3ApprovalCell);
+
+          const exportCell = document.createElement("td");
+          const exportButton = document.createElement("button");
+          exportButton.classList.add("export-btn");
+          exportButton.dataset.id = dataValues.id;
+          exportButton.textContent = "Export";
+          exportCell.appendChild(exportButton);
+          row.appendChild(exportCell);
 
           tableBody.appendChild(row);
         });
@@ -196,10 +262,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
 
-  // Attach event listeners to inputs and summarize buttons
+
+    // Attach event listeners to inputs, summarize buttons, and export buttons
   function attachEventListeners() {
     const inputs = tableBody.querySelectorAll("input[type='text'], input[type='checkbox']");
     const summarizeButtons = tableBody.querySelectorAll(".summarize-btn");
+    const exportButtons = tableBody.querySelectorAll(".export-btn");
 
     // Inline editing
     inputs.forEach((input) => {
@@ -213,6 +281,26 @@ document.addEventListener("DOMContentLoaded", () => {
           const response = await window.dbAPI.updateDocument(id, { [field]: value });
           if (!response.success) {
             console.error("Failed to update document:", response.error);
+          } else {
+            // Handle stage transitions
+            if (field.startsWith("approvalStage") && value) {
+              const stage = parseInt(field.replace("approvalStage", ""), 10);
+              if (stage === 1) {
+                await window.dbAPI.updateDocument(id, {
+                  stage2Summary: (target.closest("tr")?.querySelector("input[data-field='stage1Summary']") as HTMLInputElement)?.value,
+                  approvalStage2: false
+                });
+              } else if (stage === 2) {
+                await window.dbAPI.updateDocument(id, {
+                  stage3Summary: (target.closest("tr")?.querySelector("input[data-field='stage2Summary']") as HTMLInputElement)?.value,
+                  approvalStage3: false
+                });
+              }
+              loadDocuments(); // Refresh the table to reflect changes
+            } else if (field === "approvalStage3" && !value) {
+              await window.dbAPI.updateDocument(id, { approvalStage2: false });
+              loadDocuments(); // Refresh the table to reflect changes
+            }
           }
         } catch (error) {
           console.error("Error updating document:", error);
@@ -224,10 +312,22 @@ document.addEventListener("DOMContentLoaded", () => {
     summarizeButtons.forEach((button) => {
       button.addEventListener("click", async (event) => {
         const paperId = parseInt(button.getAttribute("data-id") ?? "0", 10);
-        console.log("Opening summarization modal for paper ID:", paperId);
+        const stage = button.getAttribute("data-stage");
+        console.log(`Opening summarization modal for paper ID: ${paperId}, Stage: ${stage}`);
 
         // Ask the main process to open the modal
-        await window.modalAPI.openSummarizationModal(paperId);
+        await window.modalAPI.openSummarizationModal(paperId, stage);
+      });
+    });
+
+    // Export buttons
+    exportButtons.forEach((button) => {
+      button.addEventListener("click", async (event) => {
+        const paperId = parseInt(button.getAttribute("data-id") ?? "0", 10);
+        console.log(`Exporting document with ID: ${paperId}`);
+
+        // Ask the main process to handle the export
+        await window.exportAPI.exportDocument(paperId);
       });
     });
   }
@@ -267,7 +367,7 @@ document.body.addEventListener("click", (event) => {
 
   if (target.classList.contains("summary-preview")) {
     const id = target.dataset.id;
-    const summary = target.textContent?.trim() || "";
+    const summary = target.textContent?.trim() ?? "";
 
     // Request the main process to open the editor window
     window.electronAPI.openEditor({ id: parseInt(id!), summary });

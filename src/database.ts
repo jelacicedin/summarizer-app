@@ -90,7 +90,6 @@ export class Document extends Model<DocumentAttributes, DocumentCreationAttribut
     public approvalStage2?: boolean;
 
     // Stage 3
-    public stage3Summary?: string;
     public approvalStage3?: boolean;
 
     public imageLinks?: string[];
