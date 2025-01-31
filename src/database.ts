@@ -1,4 +1,4 @@
-import { Sequelize, DataTypes, Model, QueryTypes, Optional, Dialect } from "sequelize";
+import { Sequelize, DataTypes, Model, Optional, Dialect } from "sequelize";
 import 'dotenv/config'
 
 // Loading of auth from .env
@@ -47,21 +47,29 @@ interface DocumentAttributes {
     filePath: string;
     title?: string;
     authors?: string;
-    metadata?: object;
-    summarized?: boolean;
-    summary?: string;
+    datetimeAdded?: Date;
+    datetimeCreated?: Date;
+
+    // Stage 1
+    stage1Summary?: string;
+    approvalStage1?: boolean;
+
+    // Stage 2
+    stage2Summary?: string;
+    approvalStage2?: boolean;
+
+    // Stage 3
+    stage3Summary?: string;
+    approvalStage3?: boolean;
+
+    imageLinks?: string[];
+
     published?: boolean;
     notes?: string;
     wherePublished?: string;
-    approved?: boolean;
-    approvedSummary?: string;
-    refinedText?: string;
-    imageLinks?: string[];
-    createdAt?: Date;
-    finalApproval?: boolean;
 }
 
-interface DocumentCreationAttributes extends Optional<DocumentAttributes, "id" | "createdAt"> { }
+interface DocumentCreationAttributes extends Optional<DocumentAttributes, "id" | "datetimeAdded"> { }
 
 // Extend the Sequelize Model class
 export class Document extends Model<DocumentAttributes, DocumentCreationAttributes> implements DocumentAttributes {
@@ -70,18 +78,26 @@ export class Document extends Model<DocumentAttributes, DocumentCreationAttribut
     public filePath!: string;
     public title?: string;
     public authors?: string;
-    public datetimeAdded?: object;
+    public datetimeAdded?: Date;
+    public datetimeCreated?: Date;
+
+    // Stage 1
     public stage1Summary?: string;
     public approvalStage1?: boolean;
+
+    // Stage 2
     public stage2Summary?: string;
     public approvalStage2?: boolean;
+
+    // Stage 3
     public stage3Summary?: string;
+    public approvalStage3?: boolean;
+
     public imageLinks?: string[];
-    public createdAt?: Date;
+
     public published?: boolean;
     public notes?: string;
     public wherePublished?: string;
-    public finalApproval?: boolean;
 }
 
 // Define the Sequelize model
@@ -92,14 +108,13 @@ Document.init(
         filePath: { type: DataTypes.STRING, allowNull: false },
         title: { type: DataTypes.STRING, allowNull: true },
         authors: { type: DataTypes.STRING, allowNull: true },
-        metadata: { type: DataTypes.JSON, allowNull: true },
-        summarized: { type: DataTypes.BOOLEAN, defaultValue: false },
-        summary: { type: DataTypes.TEXT, allowNull: true },
-        approved: { type: DataTypes.BOOLEAN, defaultValue: false },
-        approvedSummary: { type: DataTypes.TEXT, allowNull: true },
-        refinedText: { type: DataTypes.TEXT, allowNull: true },
+        datetimeAdded: { type: DataTypes.DATE, allowNull: true, defaultValue: DataTypes.NOW },
+        approvalStage1: { type: DataTypes.BOOLEAN, defaultValue: false },
+        stage1Summary: { type: DataTypes.TEXT, allowNull: true }, approvalStage2: { type: DataTypes.BOOLEAN, defaultValue: false },
+        stage2Summary: { type: DataTypes.TEXT, allowNull: true }, approvalStage3: { type: DataTypes.BOOLEAN, defaultValue: false },
+        stage3Summary: { type: DataTypes.TEXT, allowNull: true },
         imageLinks: { type: DataTypes.ARRAY(DataTypes.STRING), allowNull: true },
-        createdAt: { type: DataTypes.DATE, defaultValue: DataTypes.NOW },
+        datetimeCreated: { type: DataTypes.DATE, allowNull: true },
     },
     {
         sequelize,
@@ -119,20 +134,20 @@ export async function addDocument(data: {
     filePath: string;
     title?: string;
     authors?: string;
-    metadata?: object;
+    datetimeAdded?: Date;
 }): Promise<void> {
     const document = await Document.create({
         filename: data.filename,
         filePath: data.filePath,
         title: data.title,
         authors: data.authors,
-        metadata: data.metadata,
+        datetimeAdded: data.datetimeAdded,
     });
 
     // Log the created document to verify the ID
     console.log("Document created:", document.toJSON());
 
-    // retuKrn document;
+    // return document;
 }
 
 

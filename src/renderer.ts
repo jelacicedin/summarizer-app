@@ -67,20 +67,93 @@ document.addEventListener("DOMContentLoaded", () => {
           if (document.body.classList.contains("dark-mode")) {
             row.classList.add("dark-mode");
           }
-          row.innerHTML = `
-          <td>${dataValues.id || "undefined"}</td>
-          <td>${dataValues.filename || "undefined"}</td>
-          <td><input type="text" value="${dataValues.title || "undefined"}" data-id="${dataValues.id}" data-field="title" class="responsive-input ${document.body.classList.contains("dark-mode") ? "dark-mode" : ""}"></td>
-          <td><input type="text" value="${dataValues.authors || "undefined"}" data-id="${dataValues.id}" data-field="authors" class="responsive-input ${document.body.classList.contains("dark-mode") ? "dark-mode" : ""}"></td>
-          <td>${dataValues.metadata ? JSON.stringify(dataValues.metadata) : "No Metadata"}</td>
-          <td>${dataValues.imageLinks
-              ? dataValues.imageLinks.map((link: string) => `<a href="${link}" target="_blank">Image</a>`).join(", ")
-              : "No Images"
-            }</td>
-          <td><button class="summarize-btn" data-id="${dataValues.id}">Summary Editing</button></td>
-          <td>${dataValues.summary ? `<span class="summary-preview" data-id="${dataValues.id}">${dataValues.summary.substring(0, 50)}...</span>` : "No Summary Available"}</td>
-          <td><input type="checkbox" ${dataValues.approved ? "checked" : ""} data-id="${dataValues.id}" data-field="approved"></td>
-        `;
+
+          const idCell = document.createElement("td");
+          idCell.textContent = dataValues.id || "undefined";
+          row.appendChild(idCell);
+
+          const filenameCell = document.createElement("td");
+          filenameCell.textContent = dataValues.filename || "undefined";
+          row.appendChild(filenameCell);
+
+          const titleCell = document.createElement("td");
+          const titleInput = document.createElement("input");
+          titleInput.type = "text";
+          titleInput.value = dataValues.title || "undefined";
+          titleInput.dataset.id = dataValues.id;
+          titleInput.dataset.field = "title";
+          titleInput.classList.add("responsive-input");
+          if (document.body.classList.contains("dark-mode")) {
+            titleInput.classList.add("dark-mode");
+          }
+          titleCell.appendChild(titleInput);
+          row.appendChild(titleCell);
+
+          const authorsCell = document.createElement("td");
+          const authorsInput = document.createElement("input");
+          authorsInput.type = "text";
+          authorsInput.value = dataValues.authors || "undefined";
+          authorsInput.dataset.id = dataValues.id;
+          authorsInput.dataset.field = "authors";
+          authorsInput.classList.add("responsive-input");
+          if (document.body.classList.contains("dark-mode")) {
+            authorsInput.classList.add("dark-mode");
+          }
+          authorsCell.appendChild(authorsInput);
+          row.appendChild(authorsCell);
+
+          const metadataCell = document.createElement("td");
+          metadataCell.textContent = dataValues.metadata ? JSON.stringify(dataValues.metadata) : "No Metadata";
+          row.appendChild(metadataCell);
+
+          const imageLinksCell = document.createElement("td");
+          if (dataValues.imageLinks) {
+            dataValues.imageLinks.forEach((link: string) => {
+              const anchor = document.createElement("a");
+              anchor.href = link;
+              anchor.target = "_blank";
+              anchor.textContent = "Image";
+              imageLinksCell.appendChild(anchor);
+              imageLinksCell.appendChild(document.createTextNode(", "));
+            });
+            // Remove the last comma and space
+            if (imageLinksCell.lastChild) {
+              imageLinksCell.removeChild(imageLinksCell.lastChild);
+            }
+          } else {
+            imageLinksCell.textContent = "No Images";
+          }
+          row.appendChild(imageLinksCell);
+
+          const actionsCell = document.createElement("td");
+          const summarizeButton = document.createElement("button");
+          summarizeButton.classList.add("summarize-btn");
+          summarizeButton.dataset.id = dataValues.id;
+          summarizeButton.textContent = "Summary Editing";
+          actionsCell.appendChild(summarizeButton);
+          row.appendChild(actionsCell);
+
+          const summaryCell = document.createElement("td");
+          if (dataValues.summary) {
+            const summarySpan = document.createElement("span");
+            summarySpan.classList.add("summary-preview");
+            summarySpan.dataset.id = dataValues.id;
+            summarySpan.textContent = `${dataValues.summary.substring(0, 50)}...`;
+            summaryCell.appendChild(summarySpan);
+          } else {
+            summaryCell.textContent = "No Summary Available";
+          }
+          row.appendChild(summaryCell);
+
+          const approvedCell = document.createElement("td");
+          const approvedCheckbox = document.createElement("input");
+          approvedCheckbox.type = "checkbox";
+          approvedCheckbox.checked = dataValues.approved;
+          approvedCheckbox.dataset.id = dataValues.id;
+          approvedCheckbox.dataset.field = "approved";
+          approvedCell.appendChild(approvedCheckbox);
+          row.appendChild(approvedCell);
+
           tableBody.appendChild(row);
         });
 
