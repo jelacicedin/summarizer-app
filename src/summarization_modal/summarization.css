@@ -8,7 +8,7 @@
   padding: 20px;
   box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
   z-index: 1000;
-  font-family: 'Helvetica Neue', Arial, sans-serif;
+  font-family: Roboto, Arial, sans-serif;
   font-size: 16px;
   width: 95%;
   height: 95%;
@@ -52,7 +52,7 @@ textarea {
 }
 
 button {
-  background-color: #FF9800;
+  background-color: #fc8c5c;
   color: white;
   padding: 10px 20px;
   border: none;
@@ -61,7 +61,7 @@ button {
 }
 
 button:hover {
-  background-color: #FB8C00;
+  background-color: #fc8c5c;
 }
 
 /* Dark Mode Styles for Modal */

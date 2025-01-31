@@ -230,7 +230,7 @@ function createSummarizationModal(paperId: number) {
   }
 
   chatModal = new BrowserWindow({
-    width: 800,
+    width: 1000,
     height: 600,
     modal: true,
     parent: BrowserWindow.getFocusedWindow() || undefined,

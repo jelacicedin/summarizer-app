@@ -95,7 +95,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function makeTableSortable() {
     const table = document.getElementById("documentsTable") as HTMLTableElement;
-    const headers = table.querySelectorAll("thead th") as NodeListOf<HTMLTableCellElement>;
+    const headers = table.querySelectorAll("thead th");
 
     headers.forEach((header) => {
       header.addEventListener("click", () => {
@@ -132,8 +132,8 @@ document.addEventListener("DOMContentLoaded", () => {
     inputs.forEach((input) => {
       input.addEventListener("change", async (event) => {
         const target = event.target as HTMLInputElement;
-        const id = parseInt(target.dataset.id || "0", 10);
-        const field = target.dataset.field || "";
+        const id = parseInt(target.dataset.id ?? "0", 10);
+        const field = target.dataset.field ?? "";
         const value = target.type === "checkbox" ? target.checked : target.value;
 
         try {
@@ -150,7 +150,7 @@ document.addEventListener("DOMContentLoaded", () => {
     // Summarize buttons
     summarizeButtons.forEach((button) => {
       button.addEventListener("click", async (event) => {
-        const paperId = parseInt(button.getAttribute("data-id") || "0", 10);
+        const paperId = parseInt(button.getAttribute("data-id") ?? "0", 10);
         console.log("Opening summarization modal for paper ID:", paperId);
 
         // Ask the main process to open the modal

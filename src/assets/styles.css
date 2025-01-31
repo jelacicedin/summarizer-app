@@ -1,168 +1,183 @@
-/* Default (light mode) styles */
+/* General Styles */
 body {
-  background-color: #ffffff;
-  color: #000000;
-  font-family: Arial, sans-serif;
-  transition: background-color 0.3s, color 0.3s; /* Smooth transition */
+  font-family: Roboto, Arial, Verdana, Geneva, Tahoma, sans-serif;
+  font-size: 16px;
+  margin: 20px;
+  background-color: #f4f4f4;
+  color: #333;
+  overflow-x: hidden; /* Prevent horizontal overflow */
 }
 
 h1 {
-  text-align: center;
+  color: #333;
 }
 
-button,
-label.custom-file-input {
-  display: inline-block;
-  margin: 10px;
+button {
+  background-color: #fc8c5c;
+  color: white;
   padding: 10px 20px;
-  background-color: #007bff;
-  color: white;
   border: none;
-  border-radius: 5px;
   cursor: pointer;
-  text-align: center;
-  transition: background-color 0.3s;
+  margin-bottom: 20px;
+  font-size: 16px;
 }
 
-button:hover,
-label.custom-file-input:hover {
-  background-color: #0056b3;
+button:hover {
+  background-color: #fc8c5c;
 }
 
-pre {
-  background-color: #f4f4f4;
-  border: 1px solid #ddd;
-  padding: 10px;
-  border-radius: 5px;
-  max-height: 300px;
-  overflow-y: auto;
+.separator {
+  border: 0;
+  height: 1px;
+  background: #333;
+  background-image: linear-gradient(to right, #ccc, #333, #ccc);
+  margin: 20px 0;
 }
 
-/* Dark mode styles */
-body.dark-mode {
-  background-color: #121212;
-  color: #ffffff;
-}
-
-button.dark-mode,
-label.custom-file-input.dark-mode {
-  background-color: #444444;
-  color: white;
-}
-
-pre.dark-mode {
-  background-color: #333333;
-  color: #ffffff;
-  border-color: #444444;
-}
-
-/* Table styles */
 table {
   width: 100%;
   border-collapse: collapse;
-  margin-top: 20px;
+  margin-bottom: 20px;
+  font-size: 16px;
+  table-layout: fixed; /* Ensure table fits within the container */
 }
 
-table th,
-table td {
+th, td {
   border: 1px solid #ddd;
   padding: 8px;
   text-align: left;
-}
-
-table th {
-  background-color: #007bff;
-  color: white;
-}
-
-table tr:nth-child(even) {
-  background-color: #f2f2f2;
-}
-
-table tr:hover {
-  background-color: #ddd;
-}
-
-input[type="text"] {
-  width: 90%;
-  padding: 5px;
+  word-wrap: break-word; /* Prevent overflow of table content */
+  font-size: 16px; /* Ensure consistent font size */
 }
 
 th {
-  cursor: pointer;
+  background-color: #fc8c5c;
+  color: white;
 }
 
-th.asc::after {
-  content: " ▲";
+tr:nth-child(even) {
+  background-color: #f2f2f2;
 }
 
-th.desc::after {
-  content: " ▼";
+tr:nth-child(odd) {
+  background-color: #ffffff;
 }
 
-/* Table styles for dark mode */
-body.dark-mode table {
-  border-color: #444444;
+tr:hover {
+  background-color: #ddd;
 }
 
-body.dark-mode table th {
-  background-color: #333333;
-  color: #ffffff;
-}
-
-body.dark-mode table td {
-  background-color: #222222;
-  color: #ffffff;
-}
-
-body.dark-mode table tr:nth-child(even) {
-  background-color: #1a1a1a;
-}
-
-body.dark-mode table tr:hover {
-  background-color: #333333;
-}
-
-/* Modal styles */
-.modal {
-  display: none; /* Hidden by default */
-  position: fixed;
-  z-index: 1000;
-  left: 0;
-  top: 0;
+.responsive-input {
   width: 100%;
-  height: 100%;
-  overflow: auto;
-  background-color: rgba(0, 0, 0, 0.4);
+  box-sizing: border-box;
+  font-size: 16px;
 }
 
-.modal-content {
-  background-color: #fff;
-  margin: 10% auto;
-  padding: 20px;
-  border: 1px solid #888;
-  width: 50%;
-  border-radius: 10px;
-}
-
-body.dark-mode .modal-content {
-  background-color: #222222;
-  color: #ffffff;
-  border-color: #444444;
-}
-
-.close-button {
-  float: right;
-  font-size: 28px;
-  font-weight: bold;
+#darkModeToggle {
+  background-color: #333;
+  color: white;
+  padding: 10px 20px;
+  border: none;
   cursor: pointer;
+  font-size: 16px;
 }
 
-#modalSummaryInput {
-  width: 100%;
-  height: 200px;
+#darkModeToggle:hover {
+  background-color: #555;
 }
 
-#saveSummaryButton {
-  margin-top: 10px;
+/* Dark Mode Styles */
+body.dark-mode {
+  background-color: #121212;
+  color: #e0e0e0;
+}
+
+button.dark-mode {
+  background-color: #424242;
+  color: #e0e0e0;
+}
+
+button.dark-mode:hover {
+  background-color: #616161;
+}
+
+.separator.dark-mode {
+  background: #e0e0e0;
+  background-image: linear-gradient(to right, #616161, #e0e0e0, #616161);
+}
+
+table.dark-mode {
+  border-color: #424242;
+}
+
+th.dark-mode, td.dark-mode {
+  border-color: #424242;
+}
+
+th.dark-mode {
+  background-color: #424242;
+  color: #e0e0e0;
+}
+
+tr.dark-mode:nth-child(even) {
+  background-color: #333333;
+  color: #ccc;
+}
+
+tr.dark-mode:nth-child(odd) {
+  background-color: #1e1e1e; /* Darker background for odd rows */
+  color: #ccc;
+}
+
+tr.dark-mode:hover {
+  background-color: #424242;
+}
+
+.responsive-input.dark-mode {
+  background-color: #333333;
+  color: #e0e0e0;
+  border: 1px solid #424242;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  body {
+    margin: 10px;
+  }
+
+  button {
+    width: 100%;
+    padding: 15px;
+    font-size: 18px;
+  }
+
+  table, th, td {
+    font-size: 14px;
+  }
+
+  #darkModeToggle {
+    width: 100%;
+    padding: 15px;
+    font-size: 18px;
+  }
+}
+
+@media (max-width: 480px) {
+  h1 {
+    font-size: 20px;
+  }
+
+  button {
+    padding: 10px;
+    font-size: 16px;
+  }
+
+  table, th, td {
+    font-size: 12px;
+  }
+
+  #darkModeToggle {
+    padding: 10px;
+    font-size: 16px;
+  }
 }

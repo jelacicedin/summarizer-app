@@ -50,11 +50,15 @@ interface DocumentAttributes {
     metadata?: object;
     summarized?: boolean;
     summary?: string;
+    published?: boolean;
+    notes?: string;
+    wherePublished?: string;
     approved?: boolean;
     approvedSummary?: string;
     refinedText?: string;
     imageLinks?: string[];
     createdAt?: Date;
+    finalApproval?: boolean;
 }
 
 interface DocumentCreationAttributes extends Optional<DocumentAttributes, "id" | "createdAt"> { }
@@ -66,14 +70,18 @@ export class Document extends Model<DocumentAttributes, DocumentCreationAttribut
     public filePath!: string;
     public title?: string;
     public authors?: string;
-    public metadata?: object;
-    public summarized?: boolean;
-    public summary?: string;
-    public approved?: boolean;
-    public approvedSummary?: string;
-    public refinedText?: string;
+    public datetimeAdded?: object;
+    public stage1Summary?: string;
+    public approvalStage1?: boolean;
+    public stage2Summary?: string;
+    public approvalStage2?: boolean;
+    public stage3Summary?: string;
     public imageLinks?: string[];
     public createdAt?: Date;
+    public published?: boolean;
+    public notes?: string;
+    public wherePublished?: string;
+    public finalApproval?: boolean;
 }
 
 // Define the Sequelize model
