@@ -6,10 +6,9 @@ let currentSortOrder: 'asc' | 'desc' = 'asc';
 document.addEventListener("DOMContentLoaded", () => {
   const uploadButton = document.getElementById("uploadButton") as HTMLButtonElement;
   const tableBody = document.querySelector("#documentsTable tbody") as HTMLElement;
-  const darkModeToggle = document.getElementById("darkModeToggle") as HTMLButtonElement;
   const fileLabel = document.querySelector("label.custom-file-input") as HTMLLabelElement;
 
-  if (!uploadButton || !tableBody || !darkModeToggle) {
+  if (!uploadButton || !tableBody) {
     console.error("Required elements not found in the DOM.");
     return;
   }
@@ -17,6 +16,8 @@ document.addEventListener("DOMContentLoaded", () => {
   // Dark Mode Toggle
   // const darkModeToggle = document.getElementById("darkModeToggle");
   // const fileLabel = document.querySelector(".custom-file-input");
+
+  window.electronAPI?.
 
   darkModeToggle.addEventListener("click", () => {
     document.body.classList.toggle("dark-mode");

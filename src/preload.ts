@@ -1,41 +1,5 @@
 import { contextBridge, ipcRenderer } from "electron";
 
-// Define types for the modalAPI
-interface ModalAPI {
-  openSummarizationModal: (paperId: number) => Promise<void>;
-  fetchSummary: (paperId: number) => Promise<string | null>;
-  fetchFilePath: (paperId: number) => Promise<string>;
-  extractText: (filePath: string) => Promise<string>;
-  generateSummary: (paperId: number, text: string) => Promise<string>;
-  updateSummary: (paperId: number, correction: string) => Promise<string>;
-  sendSummaryToDb: (paperId: number, text: string) => void;
-}
-
-// Define types for the dbAPI
-interface DbAPI {
-  uploadFile: () => Promise<void>;
-  fetchDocuments: () => Promise<any[]>;
-  fetchDocument: (id: number) => Promise<any>;
-  updateDocument: (id: number, updates: object) => Promise<void>;
-  summarizeTextForPaper: (
-    paperId: number,
-    text: string,
-    correction?: string
-  ) => Promise<string>;
-  resetContextForPaper: (paperId: number) => Promise<void>;
-}
-
-// Define types for the electronAPI
-interface ElectronAPI {
-  uploadPdf: (fileData: { name: string; content: ArrayBuffer }) => Promise<any>;
-  openEditor: (data: { id: number; summary: string }) => void;
-  loadSummary: (callback: (summary: string) => void) => void;
-  saveSummary: (updatedSummary: string) => void;
-  onRefreshTable: (callback: () => void) => void;
-  summarizeText: (text: string) => Promise<string>;
-  extractText: (filePath: string) => Promise<string>;
-}
-
 // Expose APIs to the Renderer process
 contextBridge.exposeInMainWorld("electronAPI", <ElectronAPI>{
   uploadPdf: async (fileData) => ipcRenderer.invoke("upload-pdf", fileData),
@@ -45,6 +9,8 @@ contextBridge.exposeInMainWorld("electronAPI", <ElectronAPI>{
   onRefreshTable: (callback) => ipcRenderer.on("refresh-table", callback),
   summarizeText: (text) => ipcRenderer.invoke("summarize-text", text),
   extractText: (filePath) => ipcRenderer.invoke("extract-text", filePath),
+  on: (channel: string, callback: (...args: any[]) => void) =>
+    ipcRenderer.on(channel, (event, ...args) => callback(...args))
 });
 
 contextBridge.exposeInMainWorld("dbAPI", <DbAPI>{

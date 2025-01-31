@@ -1,4 +1,4 @@
-import { app, BrowserWindow, ipcMain, nativeTheme, dialog } from "electron";
+import { app, BrowserWindow, ipcMain, nativeTheme, dialog, Menu } from "electron";
 import path from "path";
 import { addDocument, getDocuments, updateDocument, fetchDocument } from "./database.js";
 import { startDockerServices } from "./check-docker.js";
@@ -50,12 +50,41 @@ function createMainWindow(): void {
 
   mainWindow.loadFile(path.join(__dirname, "index.html"));
 
-  // Handle dark mode toggle
-  ipcMain.handle("dark-mode:toggle", (): boolean => {
-    const isDarkMode = nativeTheme.shouldUseDarkColors;
-    nativeTheme.themeSource = isDarkMode ? "light" : "dark"; // Toggle between light & dark
-    return nativeTheme.shouldUseDarkColors;
-  });
+  // Fire up the menu
+  const menu = Menu.buildFromTemplate([
+    {
+      label: "File",
+      submenu: [
+        { role: "quit" },
+      ],
+    },
+    {
+      label: "View",
+      submenu: [
+        {
+          label: "Toggle Dark Mode",
+          click: () => {
+            mainWindow?.webContents.send("dark-mode:toggle");
+          },
+        },
+        { role: "reload" },
+        { role: "toggleDevTools" },
+      ],
+    },
+    {
+      label: "Help",
+      submenu: [
+        {
+          label: "About",
+          click: () => {
+            mainWindow?.webContents.send("about-dialog");
+          },
+        },
+      ],
+    },
+  ]);
+
+  Menu.setApplicationMenu(menu);
 
   // Handle startup sequence
   mainWindow.once("ready-to-show", () => {
