@@ -1,0 +1,173 @@
+/* General Styles */
+body {
+  font-family: 'Helvetica Neue', Arial, sans-serif;
+  font-size: 16px;
+  margin: 20px;
+  background-color: #f4f4f4;
+  color: #333;
+  overflow-x: hidden; /* Prevent horizontal overflow */
+}
+
+h1 {
+  color: #333;
+}
+
+button {
+  background-color: #fc8c5c;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  cursor: pointer;
+  margin-bottom: 20px;
+  font-size: 16px;
+}
+
+button:hover {
+  background-color: #fc8c5c;
+}
+
+.separator {
+  border: 0;
+  height: 1px;
+  background: #333;
+  background-image: linear-gradient(to right, #ccc, #333, #ccc);
+  margin: 20px 0;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 20px;
+  font-size: 16px;
+  table-layout: fixed; /* Ensure table fits within the container */
+}
+
+th, td {
+  border: 1px solid #ddd;
+  padding: 8px;
+  text-align: left;
+  word-wrap: break-word; /* Prevent overflow of table content */
+  font-size: 16px; /* Ensure consistent font size */
+}
+
+th {
+  background-color: #fc8c5c;
+  color: white;
+}
+
+tr:nth-child(even) {
+  background-color: #f2f2f2;
+}
+
+tr:hover {
+  background-color: #ddd;
+}
+
+.responsive-input {
+  width: 100%;
+  box-sizing: border-box;
+  font-size: 16px;
+}
+
+#darkModeToggle {
+  background-color: #333;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+#darkModeToggle:hover {
+  background-color: #555;
+}
+
+/* Dark Mode Styles */
+body.dark-mode {
+  background-color: #121212;
+  color: #e0e0e0;
+}
+
+button.dark-mode {
+  background-color: #424242;
+  color: #e0e0e0;
+}
+
+button.dark-mode:hover {
+  background-color: #616161;
+}
+
+.separator.dark-mode {
+  background: #e0e0e0;
+  background-image: linear-gradient(to right, #616161, #e0e0e0, #616161);
+}
+
+table.dark-mode {
+  border-color: #424242;
+}
+
+th.dark-mode, td.dark-mode {
+  border-color: #424242;
+}
+
+th.dark-mode {
+  background-color: #424242;
+  color: #e0e0e0;
+}
+
+tr.dark-mode:nth-child(even) {
+  background-color: #333333;
+}
+
+tr.dark-mode:hover {
+  background-color: #424242;
+}
+
+.responsive-input.dark-mode {
+  background-color: #333333;
+  color: #e0e0e0;
+  border: 1px solid #424242;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  body {
+    margin: 10px;
+  }
+
+  button {
+    width: 100%;
+    padding: 15px;
+    font-size: 18px;
+  }
+
+  table, th, td {
+    font-size: 14px;
+  }
+
+  #darkModeToggle {
+    width: 100%;
+    padding: 15px;
+    font-size: 18px;
+  }
+}
+
+@media (max-width: 480px) {
+  h1 {
+    font-size: 20px;
+  }
+
+  button {
+    padding: 10px;
+    font-size: 16px;
+  }
+
+  table, th, td {
+    font-size: 12px;
+  }
+
+  #darkModeToggle {
+    padding: 10px;
+    font-size: 16px;
+  }
+}

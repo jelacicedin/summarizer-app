@@ -1,3 +1,7 @@
 {
-    "workbench.editor.revealIfOpen": true
+  "workbench.editor.revealIfOpen": true,
+  "sonarlint.connectedMode.project": {
+    "connectionId": "http-localhost-9000",
+    "projectKey": "MDU-Summarizer-App"
+  }
 }

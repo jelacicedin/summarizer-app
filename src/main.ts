@@ -7,10 +7,10 @@ import { summarizeTextForPaper, resetContextForPaper } from "./llm_api.js";
 import fs from "fs";
 import { fileURLToPath } from 'url';
 
-
 // Get __dirname equivalent in ES Modules
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+
 
 // Global variables for windows
 let mainWindow: BrowserWindow | null;
@@ -108,7 +108,7 @@ app.whenReady().then(() => {
 // Handle adding a document (triggered by file upload)
 ipcMain.handle("upload-file", async () => {
   try {
-    const result: any = await dialog.showOpenDialog({
+    const result: any = dialog.showOpenDialog({
       properties: ["openFile"],
       filters: [{ name: "PDFs", extensions: ["pdf"] }],
     });

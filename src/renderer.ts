@@ -32,57 +32,58 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   // Fetch and display documents
-  async function loadDocuments() {
-    try {
-      const response = await window.dbAPI.fetchDocuments();
+  // Fetch and display documents
+async function loadDocuments() {
+  try {
+    const response = await window.dbAPI.fetchDocuments();
 
-      if (response.success) {
-        console.log("Loaded documents:", response.documents);
+    if (response.success) {
+      console.log("Loaded documents:", response.documents);
 
-        tableBody.innerHTML = ""; // Clear the table
+      tableBody.innerHTML = ""; // Clear the table
 
-        // Sort documents based on the current sort state
-        if (currentSortColumn) {
-          response.documents.sort((a: any, b: any) => {
-            const valA = a.dataValues[currentSortColumn];
-            const valB = b.dataValues[currentSortColumn];
+      // Sort documents based on the current sort state
+      if (currentSortColumn) {
+        response.documents.sort((a: any, b: any) => {
+          const valA = a.dataValues[currentSortColumn];
+          const valB = b.dataValues[currentSortColumn];
 
-            if (valA < valB) return currentSortOrder === "asc" ? -1 : 1;
-            if (valA > valB) return currentSortOrder === "asc" ? 1 : -1;
-            return 0;
-          });
-        }
+          if (valA < valB) return currentSortOrder === "asc" ? -1 : 1;
+          if (valA > valB) return currentSortOrder === "asc" ? 1 : -1;
+          return 0;
+        });
+      }
 
-        // Populate the table
-        response.documents.forEach((doc: any) => {
-          const dataValues = doc.dataValues;
+      // Populate the table
+      response.documents.forEach((doc:any) => {
+        const dataValues = doc.dataValues;
 
-          const row = document.createElement("tr");
-          row.innerHTML = `
+        const row = document.createElement("tr");
+        row.innerHTML = `
           <td>${dataValues.id || "undefined"}</td>
           <td>${dataValues.filename || "undefined"}</td>
-          <td><input type="text" value="${dataValues.title || "undefined"}" data-id="${dataValues.id}" data-field="title"></td>
-          <td><input type="text" value="${dataValues.authors || "undefined"}" data-id="${dataValues.id}" data-field="authors"></td>
+          <td><input type="text" value="${dataValues.title || "undefined"}" data-id="${dataValues.id}" data-field="title" class="responsive-input"></td>
+          <td><input type="text" value="${dataValues.authors || "undefined"}" data-id="${dataValues.id}" data-field="authors" class="responsive-input"></td>
           <td>${dataValues.metadata ? JSON.stringify(dataValues.metadata) : "No Metadata"}</td>
           <td>${dataValues.imageLinks
-              ? dataValues.imageLinks.map((link: string) => `<a href="${link}" target="_blank">Image</a>`).join(", ")
-              : "No Images"
-            }</td>
+            ? dataValues.imageLinks.map((link: string) => `<a href="${link}" target="_blank">Image</a>`).join(", ")
+            : "No Images"
+          }</td>
           <td><button class="summarize-btn" data-id="${dataValues.id}">Summary Editing</button></td>
-          <td>${dataValues.summary ? `<span class="summary-preview" data-id="${dataValues.id}">${dataValues.summary.substring(0, 200)}...</span>` : "No Summary Available"}</td>
+          <td>${dataValues.summary ? `<span class="summary-preview" data-id="${dataValues.id}">${dataValues.summary.substring(0, 50)}...</span>` : "No Summary Available"}</td>
           <td><input type="checkbox" ${dataValues.approved ? "checked" : ""} data-id="${dataValues.id}" data-field="approved"></td>
         `;
-          tableBody.appendChild(row);
-        });
+        tableBody.appendChild(row);
+      });
 
-        attachEventListeners(); // Attach event listeners to inputs and buttons
-      } else {
-        console.error("Failed to fetch documents:", response.error);
-      }
-    } catch (error) {
-      console.error("Error loading documents:", error);
+      attachEventListeners(); // Attach event listeners to inputs and buttons
+    } else {
+      console.error("Failed to fetch documents:", response.error);
     }
+  } catch (error) {
+    console.error("Error loading documents:", error);
   }
+}
 
   
 function makeTableSortable() {

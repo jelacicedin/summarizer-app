@@ -2,38 +2,37 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>PDF Summarizer</title>
-    <link rel="stylesheet" href="assets/styles.css" />
-    <!-- Link to your CSS file -->
+    <link rel="stylesheet" href="assets/styles_2.css" />
   </head>
   <body>
     <h1>PDF Summarizer</h1>
-    <!-- Styled file input
-    <label for="fileInput" class="custom-file-input">Choose File</label>
-    <input type="file" id="fileInput" hidden /> -->
     <button id="uploadButton">Upload file...</button>
-    <pre id="summaryOutput"></pre>
-    <!-- Display the summary here -->
-
+    
+    <!-- Separator line -->
+    <hr class="separator" />
+    
     <!-- Documents table -->
     <table id="documentsTable">
       <thead>
         <tr> 
           <th data-sort="id">ID</th>
-      <th data-sort="id">Filename</th>
-      <th data-sort="title">Title</th>
-      <th data-sort="authors">Authors</th>
-      <th data-sort="metadata">Metadata</th>
-      <th>Image Links</th>
-      <th data-sort="actions">Actions</th>
-      <th data-sort="summary">Summary</th>
-      <th data-sort="approved">Approved</th>
+          <th data-sort="id">Filename</th>
+          <th data-sort="title">Title</th>
+          <th data-sort="authors">Authors</th>
+          <th data-sort="metadata">Metadata</th>
+          <th>Image Links</th>
+          <th data-sort="actions">Actions</th>
+          <th data-sort="summary">Summary</th>
+          <th data-sort="approved">Approved</th>
         </tr>
       </thead>
       <tbody>
-        <!-- Rows will be dynamically added here -->
+        <!-- be dynamically added here -->
       </tbody>
     </table>
+    
     <!-- Add a dark mode toggle -->
     <button id="darkModeToggle">Toggle Dark Mode</button>
     <script src="./renderer.js"></script>

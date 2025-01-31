@@ -33,6 +33,7 @@ export async function summarizeTextForPaper(
           - Avoid unnecessary jargon, keeping it accessible to a broad audience.
           - Focus exclusively on the key findings, contributions, or implications of the research.
           - Avoid conversational phrases like "here's the summary" or "let's dive in." Provide only the final, polished text.
+          - Make the output presentable, as if you were posting it on a website. Thus, you don't need to make it ultra-short. You can go into detail on important things.
           
           Output only the summary. Do not include any extra comments, explanations, or text.`,
         },
@@ -64,9 +65,9 @@ export async function summarizeTextForPaper(
 
     // Call OpenAI API
     const response = await openai.chat.completions.create({
-      model: 'gpt-3.5-turbo',
+      model: 'gpt-4o',
       messages: conversationHistory,
-      max_tokens: 2000,
+      max_tokens: 5000,
     });
 
     // Get the assistant's reply
