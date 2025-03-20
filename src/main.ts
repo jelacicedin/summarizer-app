@@ -36,7 +36,7 @@ function createSplashScreen(): void {
 
 function createMainWindow(): void {
   mainWindow = new BrowserWindow({
-    width: 1200,
+    width: 1400,
     height: 800,
     show: false, // Hide until splash disappears
     webPreferences: {

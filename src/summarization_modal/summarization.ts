@@ -1,4 +1,4 @@
-import {getElementById} from "../utils";
+import {getElementById} from "../utils.js";
 
 // Track initialized paper ID to prevent reinitialization
 let initializedPaperId: number | null = null;
