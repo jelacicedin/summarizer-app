@@ -15,8 +15,8 @@ table, th, td {
 }
 
 /* For dark mode, override with a contrasting border */
-body.dark-mode table, 
-body.dark-mode th, 
+body.dark-mode table,
+body.dark-mode th,
 body.dark-mode td {
   border: 1px solid #888 !important;
 }
@@ -37,7 +37,6 @@ button {
   padding: 10px 20px;
   border: none;
   cursor: pointer;
-  /* Remove margin-bottom when used in header */
   font-size: 16px;
 }
 
@@ -61,24 +60,52 @@ button:hover {
   margin: 20px 0;
 }
 
-
-/* By default, truncate text in cells */
-td {
-  overflow: hidden;
+/* Default: Limit text cells to one line with ellipsis */
+table td {
   white-space: nowrap;
+  overflow: hidden;
   text-overflow: ellipsis;
+  transition: all 0.3s ease;
+  padding: 8px; /* Adjust padding as needed */
+  box-sizing: border-box;
 }
 
-/* Text input boxes fill the cell width */
-td input[type="text"] {
+/* Ensure buttons fill their table cells */
+td button {
+  width: 100%; /* Fill the width of the cell */
+  height: 100%; /* Fill the height of the cell */
+  padding: 8px; /* Add some padding for better appearance */
+  box-sizing: border-box; /* Include padding in width/height calculations */
+  white-space: nowrap; /* Prevent text from wrapping */
+  overflow: hidden; /* Hide overflow text */
+  text-overflow: ellipsis; /* Show ellipsis for overflow text */
+}
+
+/* Ensure buttons don't overflow their cells */
+td {
+  overflow: hidden; /* Prevent content from overflowing */
+}
+
+/* Ensure input boxes grow with the row */
+td input[type="text"].expandable-input {
   width: 100%;
   box-sizing: border-box;
-  overflow: hidden;
-  white-space: nowrap;
-  text-overflow: ellipsis;
   padding: 4px;
   border: 1px solid #ccc;
   transition: all 0.3s ease;
+  white-space: nowrap; /* Keep text on one line by default */
+  overflow: hidden; /* Hide overflow text */
+  text-overflow: ellipsis; /* Show ellipsis for overflow text */
+  resize: vertical; /* Allow vertical resizing */
+  min-height: 30px; /* Set a minimum height */
+}
+
+/* Expand input boxes on row hover */
+tr:hover td input[type="text"].expandable-input {
+  white-space: normal; /* Allow text to wrap */
+  overflow: visible; /* Show all text */
+  height: auto; /* Allow height to grow */
+  min-height: 30px; /* Set a minimum height to ensure it expands */
 }
 
 /* Expand text and input boxes on row hover */
@@ -94,34 +121,6 @@ tr:hover td input[type="text"] {
   overflow: visible;
 }
 
-/* Default: Limit text cells to one line with ellipsis */
-table td {
-  max-width: 150px;  /* Adjust this value to roughly 20-25 characters */
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  transition: all 0.3s ease;
-  padding: 8px; /* Adjust padding as needed */
-  box-sizing: border-box;
-}
-
-
-button {
-  width: 100%;
-  box-sizing: border-box;
-  padding: 4px 8px;
-  margin: 0;
-  overflow: hidden;
-  white-space: nowrap;
-  text-overflow: ellipsis;
-}
-
-td button {
-  display: block;
-}
-
-
-
 /* On hover: Allow text wrapping so the full text is visible */
 table tr:hover td {
   max-width: none;
@@ -134,10 +133,33 @@ table {
   border-collapse: collapse;
   margin-bottom: 20px;
   font-size: 16px;
-  /* If resizable columns behave unexpectedly, consider removing or adjusting this property */
-  table-layout: fixed;
+  table-layout: fixed; /* Change to auto to allow flexible column widths */
+}
+/* Style for expandable textareas */
+.expandable-textarea {
+  width: 100%; /* Fill the cell width */
+  box-sizing: border-box; /* Include padding and border in width/height */
+  padding: 4px;
+  border: 1px solid #ccc;
+  font-family: inherit; /* Use the same font as the rest of the table */
+  font-size: 16px;
+  resize: vertical; /* Allow vertical resizing */
+  min-height: 30px; /* Minimum height */
+  overflow: hidden; /* Hide scrollbars by default */
+  white-space: pre-wrap; /* Preserve line breaks and wrap text */
 }
 
+/* Ensure textareas expand to fit content */
+.expandable-textarea:focus {
+  overflow: auto; /* Show scrollbars when focused */
+}
+
+/* Dark mode styles for textareas */
+body.dark-mode .expandable-textarea {
+  background-color: #333333;
+  color: #e0e0e0;
+  border: 1px solid #424242;
+}
 th, td {
   border: 1px solid #ddd;
   padding: 8px;

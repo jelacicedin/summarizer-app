@@ -57,13 +57,12 @@ async function loadDocuments() {
         });
       }
 
-      // Populate the table
-      response.documents.forEach((doc: { dataValues: any; }, index: number) => {
+       // Populate the table
+       response.documents.forEach((doc: { dataValues: any; }, index: number) => {
         const dataValues = doc.dataValues;
 
         const row = document.createElement("tr");
         row.classList.add(index % 2 === 0 ? "even" : "odd");
-        // Apply dark mode to row if needed
         if (document.body.classList.contains("dark-mode")) {
           row.classList.add("dark-mode");
         }
@@ -78,32 +77,24 @@ async function loadDocuments() {
         filenameCell.textContent = dataValues.filename || "undefined";
         row.appendChild(filenameCell);
 
-        // Title cell with input
+        // Title cell with textarea
         const titleCell = document.createElement("td");
-        const titleInput = document.createElement("input");
-        titleInput.type = "text";
-        titleInput.value = dataValues.title || "undefined";
-        titleInput.dataset.id = dataValues.id;
-        titleInput.dataset.field = "title";
-        titleInput.classList.add("responsive-input");
-        if (document.body.classList.contains("dark-mode")) {
-          titleInput.classList.add("dark-mode");
-        }
-        titleCell.appendChild(titleInput);
+        const titleTextarea = document.createElement("textarea");
+        titleTextarea.classList.add("expandable-textarea");
+        titleTextarea.value = dataValues.title || "undefined";
+        titleTextarea.dataset.id = dataValues.id;
+        titleTextarea.dataset.field = "title";
+        titleCell.appendChild(titleTextarea);
         row.appendChild(titleCell);
 
-        // Authors cell with input
+        // Authors cell with textarea
         const authorsCell = document.createElement("td");
-        const authorsInput = document.createElement("input");
-        authorsInput.type = "text";
-        authorsInput.value = dataValues.authors || "undefined";
-        authorsInput.dataset.id = dataValues.id;
-        authorsInput.dataset.field = "authors";
-        authorsInput.classList.add("responsive-input");
-        if (document.body.classList.contains("dark-mode")) {
-          authorsInput.classList.add("dark-mode");
-        }
-        authorsCell.appendChild(authorsInput);
+        const authorsTextarea = document.createElement("textarea");
+        authorsTextarea.classList.add("expandable-textarea");
+        authorsTextarea.value = dataValues.authors || "undefined";
+        authorsTextarea.dataset.id = dataValues.id;
+        authorsTextarea.dataset.field = "authors";
+        authorsCell.appendChild(authorsTextarea);
         row.appendChild(authorsCell);
 
         // Datetime Added cell
@@ -133,17 +124,14 @@ async function loadDocuments() {
 
         // Stage 1 Summary and Approval
         const stage1SummaryCell = document.createElement("td");
-        const stage1SummaryInput = document.createElement("input");
-        stage1SummaryInput.type = "text";
-        stage1SummaryInput.value = dataValues.stage1Summary || "undefined";
-        stage1SummaryInput.dataset.id = dataValues.id;
-        stage1SummaryInput.dataset.field = "stage1Summary";
-        stage1SummaryInput.classList.add("responsive-input");
-        if (document.body.classList.contains("dark-mode")) {
-          stage1SummaryInput.classList.add("dark-mode");
-        }
-        stage1SummaryCell.appendChild(stage1SummaryInput);
+        const stage1SummaryTextarea = document.createElement("textarea");
+        stage1SummaryTextarea.classList.add("expandable-textarea");
+        stage1SummaryTextarea.value = dataValues.stage1Summary || "undefined";
+        stage1SummaryTextarea.dataset.id = dataValues.id;
+        stage1SummaryTextarea.dataset.field = "stage1Summary";
+        stage1SummaryCell.appendChild(stage1SummaryTextarea);
         row.appendChild(stage1SummaryCell);
+
 
         const stage1EditCell = document.createElement("td");
         const stage1EditButton = document.createElement("button");
@@ -151,7 +139,6 @@ async function loadDocuments() {
         stage1EditButton.dataset.id = dataValues.id;
         stage1EditButton.dataset.stage = "1";
         stage1EditButton.textContent = "AI Edit";
-        // Explicitly set dark mode on the button
         if (document.body.classList.contains("dark-mode")) {
           stage1EditButton.classList.add("dark-mode");
         } else {
@@ -171,16 +158,12 @@ async function loadDocuments() {
 
         // Stage 2 Summary and Approval
         const stage2SummaryCell = document.createElement("td");
-        const stage2SummaryInput = document.createElement("input");
-        stage2SummaryInput.type = "text";
-        stage2SummaryInput.value = dataValues.stage2Summary || "undefined";
-        stage2SummaryInput.dataset.id = dataValues.id;
-        stage2SummaryInput.dataset.field = "stage2Summary";
-        stage2SummaryInput.classList.add("responsive-input");
-        if (document.body.classList.contains("dark-mode")) {
-          stage2SummaryInput.classList.add("dark-mode");
-        }
-        stage2SummaryCell.appendChild(stage2SummaryInput);
+        const stage2SummaryTextarea = document.createElement("textarea");
+        stage2SummaryTextarea.classList.add("expandable-textarea");
+        stage2SummaryTextarea.value = dataValues.stage2Summary || "undefined";
+        stage2SummaryTextarea.dataset.id = dataValues.id;
+        stage2SummaryTextarea.dataset.field = "stage2Summary";
+        stage2SummaryCell.appendChild(stage2SummaryTextarea);
         row.appendChild(stage2SummaryCell);
 
         const stage2EditCell = document.createElement("td");
@@ -209,16 +192,12 @@ async function loadDocuments() {
 
         // Stage 3 Summary and Approval
         const stage3SummaryCell = document.createElement("td");
-        const stage3SummaryInput = document.createElement("input");
-        stage3SummaryInput.type = "text";
-        stage3SummaryInput.value = dataValues.stage3Summary || "undefined";
-        stage3SummaryInput.dataset.id = dataValues.id;
-        stage3SummaryInput.dataset.field = "stage3Summary";
-        stage3SummaryInput.classList.add("responsive-input");
-        if (document.body.classList.contains("dark-mode")) {
-          stage3SummaryInput.classList.add("dark-mode");
-        }
-        stage3SummaryCell.appendChild(stage3SummaryInput);
+        const stage3SummaryTextarea = document.createElement("textarea");
+        stage3SummaryTextarea.classList.add("expandable-textarea");
+        stage3SummaryTextarea.value = dataValues.stage3Summary || "undefined";
+        stage3SummaryTextarea.dataset.id = dataValues.id;
+        stage3SummaryTextarea.dataset.field = "stage3Summary";
+        stage3SummaryCell.appendChild(stage3SummaryTextarea);
         row.appendChild(stage3SummaryCell);
 
         const stage3ApprovalCell = document.createElement("td");
