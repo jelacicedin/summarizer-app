@@ -1,4 +1,4 @@
-import pdfParse from "pdf-parse";
+import pdfParse from 'pdf-parse';
 import fs from 'fs';
 
 export async function extractText(filePath: fs.PathOrFileDescriptor) {
@@ -12,7 +12,7 @@ export async function extractText(filePath: fs.PathOrFileDescriptor) {
         }
         console.debug(`******* ${data.text}`)
         return data.text;
-    } catch (error: any) {
+    } catch (error: unknown) {
         console.error(`Could not read text from the pdf at ${filePath}`);
         throw error;
     }

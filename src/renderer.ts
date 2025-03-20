@@ -36,7 +36,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
 
-    // Fetch and display documents
+  // Fetch and display documents
   async function loadDocuments() {
     try {
       const response = await window.dbAPI.fetchDocuments();
@@ -263,7 +263,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
 
-    // Attach event listeners to inputs, summarize buttons, and export buttons
+  // Attach event listeners to inputs, summarize buttons, and export buttons
   function attachEventListeners() {
     const inputs = tableBody.querySelectorAll("input[type='text'], input[type='checkbox']");
     const summarizeButtons = tableBody.querySelectorAll(".summarize-btn");
@@ -310,9 +310,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Summarize buttons
     summarizeButtons.forEach((button) => {
-      button.addEventListener("click", async (event) => {
+      button.addEventListener("click", async () => {
         const paperId = parseInt(button.getAttribute("data-id") ?? "0", 10);
-        const stage = button.getAttribute("data-stage");
+        const stage = parseInt(button.getAttribute("data-stage") ?? "1", 10);
         console.log(`Opening summarization modal for paper ID: ${paperId}, Stage: ${stage}`);
 
         // Ask the main process to open the modal

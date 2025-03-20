@@ -1,11 +1,4 @@
-// Safely get an element by ID
-function getElementById<T extends HTMLElement>(id: string): T {
-  const element = document.getElementById(id);
-  if (!element) {
-    throw new Error(`Element with ID "${id}" not found.`);
-  }
-  return element as T;
-}
+import {getElementById} from "../utils";
 
 // Track initialized paper ID to prevent reinitialization
 let initializedPaperId: number | null = null;

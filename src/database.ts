@@ -6,7 +6,7 @@ let database: string;
 let username: string;
 let password: string;
 let host: string;
-let dialect: Dialect = "postgres";
+const dialect: Dialect = "postgres";
 
 
 
@@ -69,7 +69,7 @@ interface DocumentAttributes {
     wherePublished?: string;
 }
 
-interface DocumentCreationAttributes extends Optional<DocumentAttributes, "id" | "datetimeAdded"> { }
+type DocumentCreationAttributes = Optional<DocumentAttributes, "id" | "datetimeAdded">
 
 // Extend the Sequelize Model class
 export class Document extends Model<DocumentAttributes, DocumentCreationAttributes> implements DocumentAttributes {

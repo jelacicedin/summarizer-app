@@ -10,7 +10,7 @@ export interface IElectronAPI {
 }
 
 export interface IModalAPI {
-    openSummarizationModal: (paperId: number) => Promise<void>;
+    openSummarizationModal: (paperId: number, stage: number) => Promise<void>;
     fetchSummary: (paperId: number) => Promise<string | null>;
     fetchFilePath: (paperId: number) => Promise<string>;
     extractText: (filePath: string) => Promise<string>;
@@ -34,10 +34,15 @@ export interface IDBAPI {
     resetContextForPaper: (paperId: number) => Promise<void>;
 }
 
+export interface IExportAPI {
+    exportDocument: (paperId: number) => Promise<any>;
+}
+
 declare global {
     interface Window {
         electronAPI: IElectronAPI,
         dbAPI: IDBAPI,
-        modalAPI: IModalAPI
+        modalAPI: IModalAPI,
+        exportAPI: IExportAPI
     }
 }

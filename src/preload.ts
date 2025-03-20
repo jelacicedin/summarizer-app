@@ -1,5 +1,5 @@
 import { contextBridge, ipcRenderer } from "electron";
-import { IElectronAPI, IDBAPI, IModalAPI } from "./interface";
+import { IElectronAPI, IDBAPI, IModalAPI, IExportAPI } from "./interface";
 // Expose APIs to the Renderer process
 contextBridge.exposeInMainWorld("electronAPI", <IElectronAPI>{
   uploadPdf: async (fileData) => ipcRenderer.invoke("upload-pdf", fileData),
@@ -24,7 +24,7 @@ contextBridge.exposeInMainWorld("dbAPI", <IDBAPI>{
 });
 
 contextBridge.exposeInMainWorld("modalAPI", <IModalAPI>{
-  openSummarizationModal: (paperId) => ipcRenderer.invoke("open-summarization-modal", paperId),
+  openSummarizationModal: (paperId, stage) => ipcRenderer.invoke("open-summarization-modal", paperId, stage),
   fetchSummary: (paperId) => ipcRenderer.invoke("fetch-summary", paperId),
   fetchFilePath: (paperId) => ipcRenderer.invoke("fetch-file-path", paperId),
   extractText: (filePath) => ipcRenderer.invoke("extract-text", filePath),
@@ -38,4 +38,10 @@ contextBridge.exposeInMainWorld("modalAPI", <IModalAPI>{
   refreshTable: () => ipcRenderer.send("refresh-table"), // Notify the main process to refresh the table
   sendSummaryToDb: (paperId, text) => ipcRenderer.invoke("send-summary-to-db", paperId, text),
 
+});
+
+contextBridge.exposeInMainWorld("exportAPI", <IExportAPI>{
+  exportDocument(paperId) {
+      ipcRenderer.invoke("export-document", paperId)
+  },
 });
