@@ -7,9 +7,11 @@
     <link rel="stylesheet" href="assets/styles.css" />
   </head>
   <body>
-    <h1>PDF Summarizer</h1>
-    <button id="uploadButton">Upload file...</button>
-    
+    <div class="header">
+      <h1>PDF Summarizer</h1>
+      <button id="uploadButton">Upload file...</button>
+    </div>
+
     <!-- Separator line -->
     <hr class="separator" />
     
@@ -17,21 +19,21 @@
     <table id="documentsTable">
       <thead>
         <tr> 
-          <th data-sort="id">ID</th>
-          <th data-sort="filename">Filename</th>
-          <th data-sort="title">Title</th>
-          <th data-sort="authors">Authors</th>
-          <th data-sort="datetimeAdded">Date Added</th>
-          <th>Image Links</th>
-          <th>Stage 1 Summary</th>
-          <th>AI Edit</th>
-          <th>Stage 1 Approval</th>
-          <th>Stage 2 Summary</th>
-          <th>Stage 2 Edit</th>
-          <th>Stage 2 Approval</th>
-          <th>Stage 3 Summary</th>
-          <th>Stage 3 Approval</th>
-          <th>Export</th>
+          <th class="resizeable" data-sort="id">ID</th>
+          <th class="resizeable" data-sort="filename">Filename</th>
+          <th class="resizeable" data-sort="title">Title</th>
+          <th class="resizeable" data-sort="authors">Authors</th>
+          <th class="resizeable" data-sort="datetimeAdded">Date Added</th>
+          <th class="resizeable">Image Links</th>
+          <th class="resizeable">Stage 1 Summary</th>
+          <th class="resizeable">AI Edit</th>
+          <th class="resizeable">Stage 1 Approval</th>
+          <th class="resizeable">Stage 2 Summary</th>
+          <th class="resizeable">Stage 2 Edit</th>
+          <th class="resizeable">Stage 2 Approval</th>
+          <th class="resizeable">Stage 3 Summary</th>
+          <th class="resizeable">Stage 3 Approval</th>
+          <th class="resizeable">Export</th>
         </tr>
       </thead>
       <tbody>

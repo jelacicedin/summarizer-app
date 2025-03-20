@@ -35,202 +35,227 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
+// Fetch and display documents
+async function loadDocuments() {
+  try {
+    const response = await window.dbAPI.fetchDocuments();
 
-  // Fetch and display documents
-  async function loadDocuments() {
-    try {
-      const response = await window.dbAPI.fetchDocuments();
+    if (response.success) {
+      console.log("Loaded documents:", response.documents);
 
-      if (response.success) {
-        console.log("Loaded documents:", response.documents);
+      tableBody.innerHTML = ""; // Clear the table
 
-        tableBody.innerHTML = ""; // Clear the table
+      // Sort documents based on the current sort state
+      if (currentSortColumn) {
+        response.documents.sort((a: { dataValues: { [x: string]: any; }; }, b: { dataValues: { [x: string]: any; }; }) => {
+          const valA = a.dataValues[currentSortColumn];
+          const valB = b.dataValues[currentSortColumn];
 
-        // Sort documents based on the current sort state
-        if (currentSortColumn) {
-          response.documents.sort((a: any, b: any) => {
-            const valA = a.dataValues[currentSortColumn];
-            const valB = b.dataValues[currentSortColumn];
+          if (valA < valB) return currentSortOrder === "asc" ? -1 : 1;
+          if (valA > valB) return currentSortOrder === "asc" ? 1 : -1;
+          return 0;
+        });
+      }
 
-            if (valA < valB) return currentSortOrder === "asc" ? -1 : 1;
-            if (valA > valB) return currentSortOrder === "asc" ? 1 : -1;
-            return 0;
-          });
+      // Populate the table
+      response.documents.forEach((doc: { dataValues: any; }, index: number) => {
+        const dataValues = doc.dataValues;
+
+        const row = document.createElement("tr");
+        row.classList.add(index % 2 === 0 ? "even" : "odd");
+        // Apply dark mode to row if needed
+        if (document.body.classList.contains("dark-mode")) {
+          row.classList.add("dark-mode");
         }
 
-        // Populate the table
-        response.documents.forEach((doc: any, index: number) => {
-          const dataValues = doc.dataValues;
+        // ID cell
+        const idCell = document.createElement("td");
+        idCell.textContent = dataValues.id || "undefined";
+        row.appendChild(idCell);
 
-          const row = document.createElement("tr");
-          row.classList.add(index % 2 === 0 ? "even" : "odd");
-          if (document.body.classList.contains("dark-mode")) {
-            row.classList.add("dark-mode");
+        // Filename cell
+        const filenameCell = document.createElement("td");
+        filenameCell.textContent = dataValues.filename || "undefined";
+        row.appendChild(filenameCell);
+
+        // Title cell with input
+        const titleCell = document.createElement("td");
+        const titleInput = document.createElement("input");
+        titleInput.type = "text";
+        titleInput.value = dataValues.title || "undefined";
+        titleInput.dataset.id = dataValues.id;
+        titleInput.dataset.field = "title";
+        titleInput.classList.add("responsive-input");
+        if (document.body.classList.contains("dark-mode")) {
+          titleInput.classList.add("dark-mode");
+        }
+        titleCell.appendChild(titleInput);
+        row.appendChild(titleCell);
+
+        // Authors cell with input
+        const authorsCell = document.createElement("td");
+        const authorsInput = document.createElement("input");
+        authorsInput.type = "text";
+        authorsInput.value = dataValues.authors || "undefined";
+        authorsInput.dataset.id = dataValues.id;
+        authorsInput.dataset.field = "authors";
+        authorsInput.classList.add("responsive-input");
+        if (document.body.classList.contains("dark-mode")) {
+          authorsInput.classList.add("dark-mode");
+        }
+        authorsCell.appendChild(authorsInput);
+        row.appendChild(authorsCell);
+
+        // Datetime Added cell
+        const datetimeAddedCell = document.createElement("td");
+        datetimeAddedCell.textContent = dataValues.datetimeAdded || "undefined";
+        row.appendChild(datetimeAddedCell);
+
+        // Image Links cell
+        const imageLinksCell = document.createElement("td");
+        if (dataValues.imageLinks) {
+          dataValues.imageLinks.forEach((link: string) => {
+            const anchor = document.createElement("a");
+            anchor.href = link;
+            anchor.target = "_blank";
+            anchor.textContent = "Image";
+            imageLinksCell.appendChild(anchor);
+            imageLinksCell.appendChild(document.createTextNode(", "));
+          });
+          // Remove the last comma and space
+          if (imageLinksCell.lastChild) {
+            imageLinksCell.removeChild(imageLinksCell.lastChild);
           }
+        } else {
+          imageLinksCell.textContent = "No Images";
+        }
+        row.appendChild(imageLinksCell);
 
-          const idCell = document.createElement("td");
-          idCell.textContent = dataValues.id || "undefined";
-          row.appendChild(idCell);
+        // Stage 1 Summary and Approval
+        const stage1SummaryCell = document.createElement("td");
+        const stage1SummaryInput = document.createElement("input");
+        stage1SummaryInput.type = "text";
+        stage1SummaryInput.value = dataValues.stage1Summary || "undefined";
+        stage1SummaryInput.dataset.id = dataValues.id;
+        stage1SummaryInput.dataset.field = "stage1Summary";
+        stage1SummaryInput.classList.add("responsive-input");
+        if (document.body.classList.contains("dark-mode")) {
+          stage1SummaryInput.classList.add("dark-mode");
+        }
+        stage1SummaryCell.appendChild(stage1SummaryInput);
+        row.appendChild(stage1SummaryCell);
 
-          const filenameCell = document.createElement("td");
-          filenameCell.textContent = dataValues.filename || "undefined";
-          row.appendChild(filenameCell);
+        const stage1EditCell = document.createElement("td");
+        const stage1EditButton = document.createElement("button");
+        stage1EditButton.classList.add("summarize-btn");
+        stage1EditButton.dataset.id = dataValues.id;
+        stage1EditButton.dataset.stage = "1";
+        stage1EditButton.textContent = "AI Edit";
+        // Explicitly set dark mode on the button
+        if (document.body.classList.contains("dark-mode")) {
+          stage1EditButton.classList.add("dark-mode");
+        } else {
+          stage1EditButton.classList.remove("dark-mode");
+        }
+        stage1EditCell.appendChild(stage1EditButton);
+        row.appendChild(stage1EditCell);
 
-          const titleCell = document.createElement("td");
-          const titleInput = document.createElement("input");
-          titleInput.type = "text";
-          titleInput.value = dataValues.title || "undefined";
-          titleInput.dataset.id = dataValues.id;
-          titleInput.dataset.field = "title";
-          titleInput.classList.add("responsive-input");
-          if (document.body.classList.contains("dark-mode")) {
-            titleInput.classList.add("dark-mode");
-          }
-          titleCell.appendChild(titleInput);
-          row.appendChild(titleCell);
+        const stage1ApprovalCell = document.createElement("td");
+        const stage1ApprovalCheckbox = document.createElement("input");
+        stage1ApprovalCheckbox.type = "checkbox";
+        stage1ApprovalCheckbox.checked = dataValues.approvalStage1;
+        stage1ApprovalCheckbox.dataset.id = dataValues.id;
+        stage1ApprovalCheckbox.dataset.field = "approvalStage1";
+        stage1ApprovalCell.appendChild(stage1ApprovalCheckbox);
+        row.appendChild(stage1ApprovalCell);
 
-          const authorsCell = document.createElement("td");
-          const authorsInput = document.createElement("input");
-          authorsInput.type = "text";
-          authorsInput.value = dataValues.authors || "undefined";
-          authorsInput.dataset.id = dataValues.id;
-          authorsInput.dataset.field = "authors";
-          authorsInput.classList.add("responsive-input");
-          if (document.body.classList.contains("dark-mode")) {
-            authorsInput.classList.add("dark-mode");
-          }
-          authorsCell.appendChild(authorsInput);
-          row.appendChild(authorsCell);
+        // Stage 2 Summary and Approval
+        const stage2SummaryCell = document.createElement("td");
+        const stage2SummaryInput = document.createElement("input");
+        stage2SummaryInput.type = "text";
+        stage2SummaryInput.value = dataValues.stage2Summary || "undefined";
+        stage2SummaryInput.dataset.id = dataValues.id;
+        stage2SummaryInput.dataset.field = "stage2Summary";
+        stage2SummaryInput.classList.add("responsive-input");
+        if (document.body.classList.contains("dark-mode")) {
+          stage2SummaryInput.classList.add("dark-mode");
+        }
+        stage2SummaryCell.appendChild(stage2SummaryInput);
+        row.appendChild(stage2SummaryCell);
 
-          const datetimeAddedCell = document.createElement("td");
-          datetimeAddedCell.textContent = dataValues.datetimeAdded || "undefined";
-          row.appendChild(datetimeAddedCell);
+        const stage2EditCell = document.createElement("td");
+        const stage2EditButton = document.createElement("button");
+        stage2EditButton.classList.add("summarize-btn");
+        stage2EditButton.dataset.id = dataValues.id;
+        stage2EditButton.dataset.stage = "2";
+        stage2EditButton.textContent = "Edit";
+        // Explicitly set dark mode on the button
+        if (document.body.classList.contains("dark-mode")) {
+          stage2EditButton.classList.add("dark-mode");
+        } else {
+          stage2EditButton.classList.remove("dark-mode");
+        }
+        stage2EditCell.appendChild(stage2EditButton);
+        row.appendChild(stage2EditCell);
 
-          const imageLinksCell = document.createElement("td");
-          if (dataValues.imageLinks) {
-            dataValues.imageLinks.forEach((link: string) => {
-              const anchor = document.createElement("a");
-              anchor.href = link;
-              anchor.target = "_blank";
-              anchor.textContent = "Image";
-              imageLinksCell.appendChild(anchor);
-              imageLinksCell.appendChild(document.createTextNode(", "));
-            });
-            // Remove the last comma and space
-            if (imageLinksCell.lastChild) {
-              imageLinksCell.removeChild(imageLinksCell.lastChild);
-            }
-          } else {
-            imageLinksCell.textContent = "No Images";
-          }
-          row.appendChild(imageLinksCell);
+        const stage2ApprovalCell = document.createElement("td");
+        const stage2ApprovalCheckbox = document.createElement("input");
+        stage2ApprovalCheckbox.type = "checkbox";
+        stage2ApprovalCheckbox.checked = dataValues.approvalStage2;
+        stage2ApprovalCheckbox.dataset.id = dataValues.id;
+        stage2ApprovalCheckbox.dataset.field = "approvalStage2";
+        stage2ApprovalCell.appendChild(stage2ApprovalCheckbox);
+        row.appendChild(stage2ApprovalCell);
 
-          // Stage 1 Summary and Approval
-          const stage1SummaryCell = document.createElement("td");
-          const stage1SummaryInput = document.createElement("input");
-          stage1SummaryInput.type = "text";
-          stage1SummaryInput.value = dataValues.stage1Summary || "undefined";
-          stage1SummaryInput.dataset.id = dataValues.id;
-          stage1SummaryInput.dataset.field = "stage1Summary";
-          stage1SummaryInput.classList.add("responsive-input");
-          if (document.body.classList.contains("dark-mode")) {
-            stage1SummaryInput.classList.add("dark-mode");
-          }
-          stage1SummaryCell.appendChild(stage1SummaryInput);
-          row.appendChild(stage1SummaryCell);
+        // Stage 3 Summary and Approval
+        const stage3SummaryCell = document.createElement("td");
+        const stage3SummaryInput = document.createElement("input");
+        stage3SummaryInput.type = "text";
+        stage3SummaryInput.value = dataValues.stage3Summary || "undefined";
+        stage3SummaryInput.dataset.id = dataValues.id;
+        stage3SummaryInput.dataset.field = "stage3Summary";
+        stage3SummaryInput.classList.add("responsive-input");
+        if (document.body.classList.contains("dark-mode")) {
+          stage3SummaryInput.classList.add("dark-mode");
+        }
+        stage3SummaryCell.appendChild(stage3SummaryInput);
+        row.appendChild(stage3SummaryCell);
 
-          const stage1EditCell = document.createElement("td");
-          const stage1EditButton = document.createElement("button");
-          stage1EditButton.classList.add("summarize-btn");
-          stage1EditButton.dataset.id = dataValues.id;
-          stage1EditButton.dataset.stage = "1";
-          stage1EditButton.textContent = "AI Edit";
-          stage1EditCell.appendChild(stage1EditButton);
-          row.appendChild(stage1EditCell);
+        const stage3ApprovalCell = document.createElement("td");
+        const stage3ApprovalCheckbox = document.createElement("input");
+        stage3ApprovalCheckbox.type = "checkbox";
+        stage3ApprovalCheckbox.checked = dataValues.approvalStage3;
+        stage3ApprovalCheckbox.dataset.id = dataValues.id;
+        stage3ApprovalCheckbox.dataset.field = "approvalStage3";
+        stage3ApprovalCell.appendChild(stage3ApprovalCheckbox);
+        row.appendChild(stage3ApprovalCell);
 
-          const stage1ApprovalCell = document.createElement("td");
-          const stage1ApprovalCheckbox = document.createElement("input");
-          stage1ApprovalCheckbox.type = "checkbox";
-          stage1ApprovalCheckbox.checked = dataValues.approvalStage1;
-          stage1ApprovalCheckbox.dataset.id = dataValues.id;
-          stage1ApprovalCheckbox.dataset.field = "approvalStage1";
-          stage1ApprovalCell.appendChild(stage1ApprovalCheckbox);
-          row.appendChild(stage1ApprovalCell);
+        const exportCell = document.createElement("td");
+        const exportButton = document.createElement("button");
+        exportButton.classList.add("export-btn");
+        exportButton.dataset.id = dataValues.id;
+        exportButton.textContent = "Export";
+        // Explicitly set dark mode on the export button
+        if (document.body.classList.contains("dark-mode")) {
+          exportButton.classList.add("dark-mode");
+        } else {
+          exportButton.classList.remove("dark-mode");
+        }
+        exportCell.appendChild(exportButton);
+        row.appendChild(exportCell);
 
-          // Stage 2 Summary and Approval
-          const stage2SummaryCell = document.createElement("td");
-          const stage2SummaryInput = document.createElement("input");
-          stage2SummaryInput.type = "text";
-          stage2SummaryInput.value = dataValues.stage2Summary || "undefined";
-          stage2SummaryInput.dataset.id = dataValues.id;
-          stage2SummaryInput.dataset.field = "stage2Summary";
-          stage2SummaryInput.classList.add("responsive-input");
-          if (document.body.classList.contains("dark-mode")) {
-            stage2SummaryInput.classList.add("dark-mode");
-          }
-          stage2SummaryCell.appendChild(stage2SummaryInput);
-          row.appendChild(stage2SummaryCell);
+        tableBody.appendChild(row);
+      });
 
-          const stage2EditCell = document.createElement("td");
-          const stage2EditButton = document.createElement("button");
-          stage2EditButton.classList.add("summarize-btn");
-          stage2EditButton.dataset.id = dataValues.id;
-          stage2EditButton.dataset.stage = "2";
-          stage2EditButton.textContent = "Edit";
-          stage2EditCell.appendChild(stage2EditButton);
-          row.appendChild(stage2EditCell);
-
-          const stage2ApprovalCell = document.createElement("td");
-          const stage2ApprovalCheckbox = document.createElement("input");
-          stage2ApprovalCheckbox.type = "checkbox";
-          stage2ApprovalCheckbox.checked = dataValues.approvalStage2;
-          stage2ApprovalCheckbox.dataset.id = dataValues.id;
-          stage2ApprovalCheckbox.dataset.field = "approvalStage2";
-          stage2ApprovalCell.appendChild(stage2ApprovalCheckbox);
-          row.appendChild(stage2ApprovalCell);
-
-          // Stage 3 Summary and Approval
-          const stage3SummaryCell = document.createElement("td");
-          const stage3SummaryInput = document.createElement("input");
-          stage3SummaryInput.type = "text";
-          stage3SummaryInput.value = dataValues.stage3Summary || "undefined";
-          stage3SummaryInput.dataset.id = dataValues.id;
-          stage3SummaryInput.dataset.field = "stage3Summary";
-          stage3SummaryInput.classList.add("responsive-input");
-          if (document.body.classList.contains("dark-mode")) {
-            stage3SummaryInput.classList.add("dark-mode");
-          }
-          stage3SummaryCell.appendChild(stage3SummaryInput);
-          row.appendChild(stage3SummaryCell);
-
-          const stage3ApprovalCell = document.createElement("td");
-          const stage3ApprovalCheckbox = document.createElement("input");
-          stage3ApprovalCheckbox.type = "checkbox";
-          stage3ApprovalCheckbox.checked = dataValues.approvalStage3;
-          stage3ApprovalCheckbox.dataset.id = dataValues.id;
-          stage3ApprovalCheckbox.dataset.field = "approvalStage3";
-          stage3ApprovalCell.appendChild(stage3ApprovalCheckbox);
-          row.appendChild(stage3ApprovalCell);
-
-          const exportCell = document.createElement("td");
-          const exportButton = document.createElement("button");
-          exportButton.classList.add("export-btn");
-          exportButton.dataset.id = dataValues.id;
-          exportButton.textContent = "Export";
-          exportCell.appendChild(exportButton);
-          row.appendChild(exportCell);
-
-          tableBody.appendChild(row);
-        });
-
-        attachEventListeners(); // Attach event listeners to inputs and buttons
-      } else {
-        console.error("Failed to fetch documents:", response.error);
-      }
-    } catch (error) {
-      console.error("Error loading documents:", error);
+      attachEventListeners(); // Attach event listeners to inputs and buttons
+    } else {
+      console.error("Failed to fetch documents:", response.error);
     }
+  } catch (error) {
+    console.error("Error loading documents:", error);
   }
+}
+
 
   function makeTableSortable() {
     const table = document.getElementById("documentsTable") as HTMLTableElement;

@@ -155,13 +155,13 @@ app.whenReady().then(() => {
 // Handle adding a document (triggered by file upload)
 ipcMain.handle("upload-file", async () => {
   try {
-    const result: any = dialog.showOpenDialog({
+    const result: any = await dialog.showOpenDialog({
       properties: ["openFile"],
       filters: [{ name: "PDFs", extensions: ["pdf"] }],
     });
-
+    console.log(result)
     // Check for user cancellation or empty selection
-    if (!result.canceled && result.filePaths.length > 0) {
+    if (result && !result.canceled && result.filePaths.length > 0) {
       const filePath = result.filePaths[0];
       const filename = path.basename(filePath);
 

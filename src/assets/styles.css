@@ -8,6 +8,20 @@ body {
   overflow-x: hidden; /* Prevent horizontal overflow */
 }
 
+/* Ensure gridlines are always visible */
+table, th, td {
+  border: 1px solid #ddd !important;
+  border-collapse: collapse;
+}
+
+/* For dark mode, override with a contrasting border */
+body.dark-mode table, 
+body.dark-mode th, 
+body.dark-mode td {
+  border: 1px solid #888 !important;
+}
+
+
 h1 {
   color: #333;
 }
@@ -18,12 +32,20 @@ button {
   padding: 10px 20px;
   border: none;
   cursor: pointer;
-  margin-bottom: 20px;
+  /* Remove margin-bottom when used in header */
   font-size: 16px;
 }
 
 button:hover {
-  background-color: #fc8c5c;
+  background-color: #ce6132;
+}
+
+/* Header container for aligning h1 and button */
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
 }
 
 .separator {
@@ -34,12 +56,29 @@ button:hover {
   margin: 20px 0;
 }
 
+/* Default: Limit text cells to one line with ellipsis */
+table td {
+  max-width: 150px;  /* Adjust this value to roughly 20-25 characters */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transition: all 0.3s ease;
+}
+
+/* On hover: Allow text wrapping so the full text is visible */
+table tr:hover td {
+  max-width: none;
+  white-space: normal;
+  overflow: visible;
+}
+
 table {
   width: 100%;
   border-collapse: collapse;
   margin-bottom: 20px;
   font-size: 16px;
-  table-layout: fixed; /* Ensure table fits within the container */
+  /* If resizable columns behave unexpectedly, consider removing or adjusting this property */
+  table-layout: fixed;
 }
 
 th, td {
@@ -86,6 +125,23 @@ tr:hover {
   background-color: #555;
 }
 
+/* Resizable Columns Styles */
+th.resizeable {
+  position: relative;
+  user-select: none;
+}
+
+th.resizeable::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 5px;
+  cursor: col-resize;
+  background-color: transparent;
+}
+
 /* Dark Mode Styles */
 body.dark-mode {
   background-color: #121212;
@@ -93,7 +149,7 @@ body.dark-mode {
 }
 
 button.dark-mode {
-  background-color: #424242;
+  background-color: #727272;
   color: #e0e0e0;
 }
 
