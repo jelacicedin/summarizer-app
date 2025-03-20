@@ -21,6 +21,11 @@ body.dark-mode td {
   border: 1px solid #888 !important;
 }
 
+/* Exclude the "Upload file" button */
+button.upload-button {
+  width: auto; /* Allow it to size naturally */
+  display: inline-block;
+}
 
 h1 {
   color: #333;
@@ -56,6 +61,39 @@ button:hover {
   margin: 20px 0;
 }
 
+
+/* By default, truncate text in cells */
+td {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+/* Text input boxes fill the cell width */
+td input[type="text"] {
+  width: 100%;
+  box-sizing: border-box;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  padding: 4px;
+  border: 1px solid #ccc;
+  transition: all 0.3s ease;
+}
+
+/* Expand text and input boxes on row hover */
+tr:hover td {
+  white-space: normal;
+  overflow: visible;
+  height: auto; /* Ensure row height expands */
+}
+
+tr:hover td input[type="text"] {
+  white-space: normal;
+  height: auto;
+  overflow: visible;
+}
+
 /* Default: Limit text cells to one line with ellipsis */
 table td {
   max-width: 150px;  /* Adjust this value to roughly 20-25 characters */
@@ -63,7 +101,26 @@ table td {
   overflow: hidden;
   text-overflow: ellipsis;
   transition: all 0.3s ease;
+  padding: 8px; /* Adjust padding as needed */
+  box-sizing: border-box;
 }
+
+
+button {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 4px 8px;
+  margin: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+td button {
+  display: block;
+}
+
+
 
 /* On hover: Allow text wrapping so the full text is visible */
 table tr:hover td {
