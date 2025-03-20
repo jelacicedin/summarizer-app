@@ -204,6 +204,17 @@ tr:hover {
   background-color: #555;
 }
 
+/* Grey out disabled elements */
+.disabled {
+  opacity: 0.5; /* Make elements semi-transparent */
+  pointer-events: none; /* Disable pointer events */
+}
+
+/* Style for checkboxes */
+td input[type="checkbox"] {
+  cursor: pointer; /* Show pointer cursor on checkboxes */
+}
+
 /* Resizable Columns Styles */
 th.resizeable {
   position: relative;
