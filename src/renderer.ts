@@ -57,6 +57,8 @@ let saveTimeout: ReturnType<typeof setTimeout> | null = null;
 
 let currentSortColumn: string = ""; // Default to an empty string
 let currentSortOrder: "asc" | "desc" = "asc";
+let currentDocuments: Record<number, Document> = {};
+
 
 document.addEventListener("DOMContentLoaded", () => {
   const uploadButton = document.getElementById(
@@ -100,7 +102,18 @@ document.addEventListener("DOMContentLoaded", () => {
   async function loadDocuments() {
     try {
       const response = await window.dbAPI.fetchDocuments();
+      const newDocuments = response.documents;
 
+      // Build an indexed map for comparison
+      const newDocsMap: Record<number, Document> = {};
+      newDocuments.forEach((doc: Document) => {
+        newDocsMap[doc.dataValues.id] = doc;
+      });
+
+      // Replace entire table (simple approach)
+      // If you want diffing, see below
+      tableBody.innerHTML = "";
+      currentDocuments = newDocsMap;
       if (response.success) {
         console.log("Loaded documents:", response.documents);
 
@@ -195,7 +208,8 @@ document.addEventListener("DOMContentLoaded", () => {
           const stage1SummaryTextarea = document.createElement("textarea");
           stage1SummaryTextarea.classList.add(
             "expandable-textarea",
-            "stage1-summary"
+            "stage1-summary",
+            "non-resizable"
           );
           stage1SummaryTextarea.value = dataValues.stage1Summary || "undefined";
           stage1SummaryTextarea.dataset.id = dataValues.id.toString();
@@ -205,7 +219,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
           const stage1EditCell = document.createElement("td");
           const stage1EditButton = document.createElement("button");
-          stage1EditButton.classList.add("summarize-btn");
+          stage1EditButton.classList.add("summarize-btn","non-resizable");
           stage1EditButton.dataset.id = dataValues.id.toString();
           stage1EditButton.dataset.stage = "1";
           stage1EditButton.textContent = "AI Edit";
@@ -221,7 +235,7 @@ document.addEventListener("DOMContentLoaded", () => {
           const stage1ApprovalCell = document.createElement("td");
           const stage1ApprovalCheckbox = document.createElement("input");
           stage1ApprovalCheckbox.type = "checkbox";
-          stage1ApprovalCheckbox.classList.add("stage1-approval");
+          stage1ApprovalCheckbox.classList.add("stage1-approval","non-resizable");
           stage1ApprovalCheckbox.checked = dataValues.approvalStage1 ?? false;
           stage1ApprovalCell.appendChild(stage1ApprovalCheckbox);
           row.appendChild(stage1ApprovalCell);
@@ -261,7 +275,7 @@ document.addEventListener("DOMContentLoaded", () => {
           const stage3ApprovalCell = document.createElement("td");
           const stage3ApprovalCheckbox = document.createElement("input");
           stage3ApprovalCheckbox.type = "checkbox";
-          stage3ApprovalCheckbox.classList.add("stage3-approval");
+          stage3ApprovalCheckbox.classList.add("stage3-approval","non-resizable");
           stage3ApprovalCheckbox.checked = dataValues.approvalStage3 ?? false;
           stage3ApprovalCell.appendChild(stage3ApprovalCheckbox);
           row.appendChild(stage3ApprovalCell);
@@ -269,7 +283,7 @@ document.addEventListener("DOMContentLoaded", () => {
           // Export cell
           const exportCell = document.createElement("td");
           const exportButton = document.createElement("button");
-          exportButton.classList.add("export-btn");
+          exportButton.classList.add("export-btn","non-resizable");
           exportButton.textContent = "Export";
           exportButton.disabled = dataValues.approvalStage3 ?? false;
           if (document.body.classList.contains("dark-mode")) {
@@ -324,6 +338,8 @@ document.addEventListener("DOMContentLoaded", () => {
           });
 
           tableBody.appendChild(row);
+
+          makeTableHeadersResizable(document.querySelector('table')!);
 
           // Update the disabled state for this row
           updateDisabledState(row);
@@ -398,10 +414,10 @@ document.addEventListener("DOMContentLoaded", () => {
     // Enable/disable Stage 1 elements based on Stage 1 approval
     stage1Summary.disabled = stage1Approval;
     stage1EditButton.disabled = stage1Approval;
-
+    stage1ApprovalCheckbox.disabled = stage2Approval;
     // Enable/disable Stage 2 elements based on Stage 1 Approval
-    stage2Summary.disabled = !stage1Approval;
-    stage2ApprovalCheckbox.disabled = !stage1Approval;
+    stage2Summary.disabled = !stage1Approval || stage3Approval;
+    stage2ApprovalCheckbox.disabled = !stage1Approval || stage3Approval;
 
     // Enable/disable Stage 3 elements based on Stage 2 Approval
     stage3Summary.disabled = !stage2Approval || !stage1Approval;
@@ -656,3 +672,48 @@ window.addEventListener("click", (event) => {
     modal.style.display = "none";
   }
 });
+
+function makeTableHeadersResizable(table: HTMLTableElement) {
+  const thElements = table.querySelectorAll('th');
+
+  thElements.forEach((th) => {
+    // Skip if marked as non-resizable
+    if (th.classList.contains('non-resizable')) return;
+
+    // Create a resize handle
+    const resizer = document.createElement('div');
+    resizer.style.width = '5px';
+    resizer.style.height = '100%';
+    resizer.style.position = 'absolute';
+    resizer.style.top = '0';
+    resizer.style.right = '0';
+    resizer.style.cursor = 'col-resize';
+    resizer.style.userSelect = 'none';
+    resizer.style.zIndex = '10';
+
+    // Make the parent th position relative
+    th.style.position = 'relative';
+    th.appendChild(resizer);
+
+    let startX = 0;
+    let startWidth = 0;
+
+    resizer.addEventListener('mousedown', (e) => {
+      startX = e.pageX;
+      startWidth = th.offsetWidth;
+      document.addEventListener('mousemove', onMouseMove);
+      document.addEventListener('mouseup', onMouseUp);
+      e.preventDefault(); // Prevent text selection
+    });
+
+    const onMouseMove = (e: MouseEvent) => {
+      const newWidth = startWidth + (e.pageX - startX);
+      th.style.width = `${newWidth}px`;
+    };
+
+    const onMouseUp = () => {
+      document.removeEventListener('mousemove', onMouseMove);
+      document.removeEventListener('mouseup', onMouseUp);
+    };
+  });
+}
