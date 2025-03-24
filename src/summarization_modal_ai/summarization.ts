@@ -1,4 +1,4 @@
-import {getElementById} from "../utils.js";
+import { getElementById } from "../utils/getElement.js";
 
 // Track initialized paper ID to prevent reinitialization
 let initializedPaperId: number | null = null;
@@ -25,7 +25,10 @@ async function handleModalInitialization(paperId: number) {
     } else {
       const filePath = await window.modalAPI.fetchFilePath(paperId);
       const extractedText = await window.modalAPI.extractText(filePath);
-      const generatedSummary = await window.modalAPI.generateSummary(paperId, extractedText);
+      const generatedSummary = await window.modalAPI.generateSummary(
+        paperId,
+        extractedText
+      );
       summaryTextarea.value = generatedSummary || "Error generating summary.";
     }
   } catch (error: any) {
@@ -62,8 +65,8 @@ document.addEventListener("DOMContentLoaded", () => {
   const saveSummaryButton = getElementById<HTMLButtonElement>("save-summary");
   saveSummaryButton.addEventListener("click", handleSaveSummary);
 
-
-  const sendCorrectionButton = getElementById<HTMLButtonElement>("send-correction");
+  const sendCorrectionButton =
+    getElementById<HTMLButtonElement>("send-correction");
   sendCorrectionButton.addEventListener("click", async () => {
     const chatboxInput = getElementById<HTMLTextAreaElement>("chatbox-input");
     const summaryTextarea = getElementById<HTMLTextAreaElement>("summary");
@@ -75,14 +78,20 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
-    const paperId = parseInt(paperIdElement.textContent?.replace("Paper ID: ", "") ?? "0", 10);
+    const paperId = parseInt(
+      paperIdElement.textContent?.replace("Paper ID: ", "") ?? "0",
+      10
+    );
     if (!paperId) {
       console.error("Invalid paper ID.");
       alert("An error occurred. Please try again.");
       return;
     }
 
-    const updatedSummary = await window.modalAPI.updateSummary(paperId, correction);
+    const updatedSummary = await window.modalAPI.updateSummary(
+      paperId,
+      correction
+    );
     if (updatedSummary) {
       summaryTextarea.value = updatedSummary;
       chatboxInput.value = ""; // Clear the input box
@@ -92,7 +101,6 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 });
 
-
 // Save Summary Function
 async function handleSaveSummary() {
   try {
@@ -100,7 +108,10 @@ async function handleSaveSummary() {
     const paperIdElement = getElementById<HTMLParagraphElement>("paper-id");
 
     const updatedSummary = summaryTextarea.value.trim();
-    const paperId = parseInt(paperIdElement.textContent?.replace("Paper ID: ", "") ?? "0", 10);
+    const paperId = parseInt(
+      paperIdElement.textContent?.replace("Paper ID: ", "") ?? "0",
+      10
+    );
 
     if (!updatedSummary || !paperId) {
       alert("No valid summary or paper ID found.");
@@ -123,4 +134,3 @@ async function handleSaveSummary() {
     console.error("Error saving summary:", error.message);
   }
 }
-

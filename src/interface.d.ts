@@ -1,48 +1,50 @@
 export interface IElectronAPI {
-    uploadPdf: (fileData: { name: string; content: ArrayBuffer }) => Promise<any>;
-    openEditor: (data: { id: number; summary: string }) => void;
-    loadSummary: (callback: (summary: string) => void) => void;
-    saveSummary: (updatedSummary: string) => void;
-    onRefreshTable: (callback: () => void) => void;
-    summarizeText: (text: string) => Promise<string>;
-    extractText: (filePath: string) => Promise<string>;
-    on: (channel: string, callback: (args: any[]) => void) => void;
+  uploadPdf: (fileData: { name: string; content: ArrayBuffer }) => Promise<any>;
+  openEditor: (data: { id: number; summary: string }) => void;
+  loadSummary: (callback: (summary: string) => void) => void;
+  saveSummary: (updatedSummary: string) => void;
+  onRefreshTable: (callback: () => void) => void;
+  summarizeText: (text: string) => Promise<string>;
+  extractText: (filePath: string) => Promise<string>;
+  on: (channel: string, callback: (args: any[]) => void) => void;
 }
 
 export interface IModalAPI {
-    openSummarizationModal: (paperId: number, stage: number) => Promise<void>;
-    fetchSummary: (paperId: number) => Promise<string | null>;
-    fetchFilePath: (paperId: number) => Promise<string>;
-    extractText: (filePath: string) => Promise<string>;
-    generateSummary: (paperId: number, text: string) => Promise<string>;
-    updateSummary: (paperId: number, correction: string) => Promise<string>;
-    sendSummaryToDb: (paperId: number, text: string) => void;
-    onSummarizationModal: (callback: (paperId: number) => void) => void; // Add this
-    refreshTable: () => void,
+  openSummarizationModal: (paperId: number, stage: number) => Promise<void>;
+  fetchSummary: (paperId: number) => Promise<string | null>;
+  fetchFilePath: (paperId: number) => Promise<string>;
+  extractText: (filePath: string) => Promise<string>;
+  generateSummary: (paperId: number, text: string) => Promise<string>;
+  updateSummary: (paperId: number, correction: string) => Promise<string>;
+  sendSummaryToDb: (paperId: number, text: string) => void;
+  onSummarizationModal: (callback: (paperId: number) => void) => void; // Add this
+  refreshTable: () => void;
 }
 
 export interface IDBAPI {
-    uploadFile: () => Promise<any>;
-    fetchDocuments: () => Promise<any>;
-    fetchDocument: (id: number) => Promise<any>;
-    updateDocument: (id: number, updates: object) => Promise<any>;
-    summarizeTextForPaper: (
-        paperId: number,
-        text: string,
-        correction?: string
-    ) => Promise<string>;
-    resetContextForPaper: (paperId: number) => Promise<void>;
+  uploadFile: () => Promise<any>;
+  fetchDocuments: () => Promise<any>;
+  fetchDocument: (id: number) => Promise<any>;
+  updateDocument: (id: number, updates: object) => Promise<any>;
+  summarizeTextForPaper: (
+    paperId: number,
+    text: string,
+    correction?: string
+  ) => Promise<string>;
+  resetContextForPaper: (paperId: number) => Promise<void>;
+  getStage3Summary: (paperId: number) => Promise<string>;
+  copyStage1ToStage2: (paperId: number) => Promise<boolean>
 }
 
 export interface IExportAPI {
-    exportDocument: (paperId: number) => Promise<any>;
+  exportDocument: (paperId: number) => Promise<void>;
 }
 
 declare global {
-    interface Window {
-        electronAPI: IElectronAPI,
-        dbAPI: IDBAPI,
-        modalAPI: IModalAPI,
-        exportAPI: IExportAPI
-    }
+  interface Window {
+    electronAPI: IElectronAPI;
+    dbAPI: IDBAPI;
+    modalAPI: IModalAPI;
+    exportAPI: IExportAPI;
+  }
 }

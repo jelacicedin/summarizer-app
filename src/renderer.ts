@@ -123,11 +123,9 @@ document.addEventListener("DOMContentLoaded", () => {
           );
         }
 
-        
-
         // Populate the table
         response.documents.forEach((doc: Document, index: number) => {
-          console.log("DOCUMENT:",doc);
+          console.log("DOCUMENT:", doc);
           const dataValues = doc.dataValues;
 
           const row = document.createElement("tr");
@@ -195,7 +193,10 @@ document.addEventListener("DOMContentLoaded", () => {
           // Stage 1 Summary and Approval
           const stage1SummaryCell = document.createElement("td");
           const stage1SummaryTextarea = document.createElement("textarea");
-          stage1SummaryTextarea.classList.add("expandable-textarea");
+          stage1SummaryTextarea.classList.add(
+            "expandable-textarea",
+            "stage1-summary"
+          );
           stage1SummaryTextarea.value = dataValues.stage1Summary || "undefined";
           stage1SummaryTextarea.dataset.id = dataValues.id.toString();
           stage1SummaryTextarea.dataset.field = "stage1Summary";
@@ -221,7 +222,7 @@ document.addEventListener("DOMContentLoaded", () => {
           const stage1ApprovalCheckbox = document.createElement("input");
           stage1ApprovalCheckbox.type = "checkbox";
           stage1ApprovalCheckbox.classList.add("stage1-approval");
-          stage1ApprovalCheckbox.checked = doc.approvalStage1;
+          stage1ApprovalCheckbox.checked = dataValues.approvalStage1 ?? false;
           stage1ApprovalCell.appendChild(stage1ApprovalCheckbox);
           row.appendChild(stage1ApprovalCell);
 
@@ -232,24 +233,16 @@ document.addEventListener("DOMContentLoaded", () => {
             "expandable-textarea",
             "stage2-summary"
           );
-          stage2SummaryTextarea.value = doc.stage2Summary ?? "";
+          stage2SummaryTextarea.value = dataValues.stage2Summary ?? "";
           stage2SummaryCell.appendChild(stage2SummaryTextarea);
           row.appendChild(stage2SummaryCell);
-
-          // Stage 2 Edit cell
-          // const stage2EditCell = document.createElement("td");
-          // const stage2EditButton = document.createElement("button");
-          // stage2EditButton.classList.add("stage2-edit");
-          // stage2EditButton.textContent = "Edit";
-          // stage2EditCell.appendChild(stage2EditButton);
-          // row.appendChild(stage2EditCell);
 
           // Stage 2 Approval cell
           const stage2ApprovalCell = document.createElement("td");
           const stage2ApprovalCheckbox = document.createElement("input");
           stage2ApprovalCheckbox.type = "checkbox";
           stage2ApprovalCheckbox.classList.add("stage2-approval");
-          stage2ApprovalCheckbox.checked = doc.approvalStage2;
+          stage2ApprovalCheckbox.checked = dataValues.approvalStage2 ?? false;
           stage2ApprovalCell.appendChild(stage2ApprovalCheckbox);
           row.appendChild(stage2ApprovalCell);
 
@@ -260,7 +253,7 @@ document.addEventListener("DOMContentLoaded", () => {
             "expandable-textarea",
             "stage3-summary"
           );
-          stage3SummaryTextarea.value = doc.stage3Summary ?? "";
+          stage3SummaryTextarea.value = dataValues.stage3Summary ?? "";
           stage3SummaryCell.appendChild(stage3SummaryTextarea);
           row.appendChild(stage3SummaryCell);
 
@@ -269,7 +262,7 @@ document.addEventListener("DOMContentLoaded", () => {
           const stage3ApprovalCheckbox = document.createElement("input");
           stage3ApprovalCheckbox.type = "checkbox";
           stage3ApprovalCheckbox.classList.add("stage3-approval");
-          stage3ApprovalCheckbox.checked = doc.approvalStage3;
+          stage3ApprovalCheckbox.checked = dataValues.approvalStage3 ?? false;
           stage3ApprovalCell.appendChild(stage3ApprovalCheckbox);
           row.appendChild(stage3ApprovalCell);
 
@@ -278,7 +271,7 @@ document.addEventListener("DOMContentLoaded", () => {
           const exportButton = document.createElement("button");
           exportButton.classList.add("export-btn");
           exportButton.textContent = "Export";
-          exportButton.disabled = !doc.approvalStage3;
+          exportButton.disabled = dataValues.approvalStage3 ?? false;
           if (document.body.classList.contains("dark-mode")) {
             exportButton.classList.add("dark-mode");
           }
@@ -485,23 +478,50 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
-    const paperId:number  = parseInt(row.children[0].textContent!);
+    const paperId: number = parseInt(row.children[0].textContent!);
 
     stage1ApprovalCheckbox.addEventListener("change", async () => {
+      // Unlock Stage 2 if Stage 1 passed
       updateDisabledState(row);
-      await window.dbAPI.updateDocument(paperId, { ["approvalStage1"]: stage1ApprovalCheckbox.checked });
-      // handleApprovalChange(row, 1);
+      await window.dbAPI.updateDocument(paperId, {
+        ["approvalStage1"]: stage1ApprovalCheckbox.checked,
+      });
+      if (stage1ApprovalCheckbox.checked) {
+        // Store the Stage 1 Summary to Stage 2 Summary
+        const stage1Summary = row.querySelector(
+          ".stage1-summary"
+        ) as HTMLTextAreaElement | null;
+        const stage2Summary = row.querySelector(
+          ".stage2-summary"
+        ) as HTMLTextAreaElement | null;
+        // const stage1Summary = row?.querySelector(".stage1-summary")?.textContent;
+        const success = await window.dbAPI.copyStage1ToStage2(paperId);
+
+        console.log(
+          `Stage 1 summary for paperId: ${paperId} is ${stage1Summary?.value} and the stage 2 summary ${stage2Summary?.value}`
+        );
+        if (success && stage1Summary && stage2Summary) {
+          console.log(``);
+          stage2Summary.value = stage1Summary.value;
+        } else {
+          console.error("Failed to copy Stage 1 Summary to Stage 2.");
+        }
+      }
     });
 
     stage2ApprovalCheckbox.addEventListener("change", async () => {
       updateDisabledState(row);
-      await window.dbAPI.updateDocument(paperId, { ["approvalStage2"]: stage2ApprovalCheckbox.checked });
+      await window.dbAPI.updateDocument(paperId, {
+        ["approvalStage2"]: stage2ApprovalCheckbox.checked,
+      });
       // handleApprovalChange(row, 2);
     });
 
     stage3ApprovalCheckbox.addEventListener("change", async () => {
       updateDisabledState(row);
-      await window.dbAPI.updateDocument(paperId, { ["approvalStage3"]: stage3ApprovalCheckbox.checked });
+      await window.dbAPI.updateDocument(paperId, {
+        ["approvalStage3"]: stage3ApprovalCheckbox.checked,
+      });
 
       // handleApprovalChange(row, 3);
     });
