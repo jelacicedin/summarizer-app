@@ -221,6 +221,13 @@ th.resizeable {
   user-select: none;
 }
 
+/* Grey out disabled elements */
+textarea:disabled,
+button:disabled {
+  opacity: 0.5; /* Make elements semi-transparent */
+  pointer-events: none; /* Disable pointer events */
+}
+
 th.resizeable::after {
   content: "";
   position: absolute;

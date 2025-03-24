@@ -17,7 +17,7 @@ if (process.env.DATABASE != undefined) {
 }
 
 if (process.env.USERNAME != undefined) {
-    username = process.env.USERNAME;
+    username = "user";
 } else {
     throw new Error("Username not defined in .env");
 }
@@ -83,14 +83,15 @@ export class Document extends Model<DocumentAttributes, DocumentCreationAttribut
 
     // Stage 1
     public stage1Summary?: string;
-    public approvalStage1?: boolean;
+    public approvalStage1: boolean = false;
 
     // Stage 2
     public stage2Summary?: string;
-    public approvalStage2?: boolean;
+    public approvalStage2: boolean = false;
 
     // Stage 3
-    public approvalStage3?: boolean;
+    public stage3Summary?: string;
+    public approvalStage3: boolean = false;
 
     public imageLinks?: string[];
 
