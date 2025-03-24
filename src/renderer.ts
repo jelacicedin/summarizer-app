@@ -633,6 +633,42 @@ document.addEventListener("DOMContentLoaded", () => {
   // Initial Table Load
   loadDocuments();
   makeTableSortable();
+
+  // Reload the table every 10 secs
+  setInterval(async () => {
+    try {
+      const response = await window.dbAPI.fetchDocuments();
+      if (response.success) {
+        const newDocuments = response.documents;
+  
+        let hasChanges = false;
+  
+        for (const newDoc of newDocuments) {
+          const id = newDoc.dataValues.id;
+          const oldDoc = currentDocuments[id];
+  
+          if (!oldDoc || JSON.stringify(oldDoc.dataValues) !== JSON.stringify(newDoc.dataValues)) {
+            hasChanges = true;
+            break;
+          }
+        }
+  
+        if (hasChanges) {
+          console.debug("Changes detected in DB, reloading table...");
+          await loadDocuments();
+        }
+      }
+    } catch (err) {
+      console.error("Polling error:", err);
+    }
+  }, 10000); // every 10 seconds
+
+
+  document.getElementById('reloadButton')!.addEventListener('click', async () => {
+    console.debug("Manual table reload triggered");
+    await loadDocuments();
+  });
+  
 });
 
 document.body.addEventListener("click", (event) => {
@@ -664,6 +700,7 @@ document.getElementById("modalSave")!.addEventListener("click", async () => {
 document.getElementById("modalClose")!.addEventListener("click", () => {
   document.getElementById("summaryModal")!.style.display = "none";
 });
+
 
 // Close modal when clicking outside
 window.addEventListener("click", (event) => {

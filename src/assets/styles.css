@@ -44,6 +44,20 @@ button:hover {
   background-color: #ce6132;
 }
 
+.reload-button {
+  background-color: #5c9ffc;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+  margin-left: 10px;
+}
+
+.reload-button:hover {
+  background-color: #4788dc;
+}
+
 /* Header container for aligning h1 and button */
 .header {
   display: flex;
