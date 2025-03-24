@@ -27,6 +27,7 @@ contextBridge.exposeInMainWorld("dbAPI", <IDBAPI>{
   getStage3Summary: (paperId) =>
     ipcRenderer.invoke("get-stage3-summary", paperId),
   copyStage1ToStage2: (paperId) => ipcRenderer.invoke("copy-stage1-to-stage2", paperId),
+  copyStage2ToStage3: (paperId) => ipcRenderer.invoke("copy-stage2-to-stage3", paperId),
 });
 
 contextBridge.exposeInMainWorld("modalAPI", <IModalAPI>{

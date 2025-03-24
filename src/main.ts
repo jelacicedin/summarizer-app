@@ -15,6 +15,7 @@ import {
   getPdfFolderPath,
   getStage3Summary,
   copyStage1ToStage2,
+  copyStage2ToStage3,
 } from "./database.js";
 import { startDockerServices } from "./check-docker.js";
 import { extractText } from "./pdf-handler.js";
@@ -419,4 +420,8 @@ ipcMain.handle("export-document", async (event, paperId: number) => {
 
 ipcMain.handle('copy-stage1-to-stage2', async (_, id: number) => {
   return await copyStage1ToStage2(id);
+});
+
+ipcMain.handle('copy-stage2-to-stage3', async (_, id: number) => {
+  return await copyStage2ToStage3(id);
 });

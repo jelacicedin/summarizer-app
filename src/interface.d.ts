@@ -34,6 +34,7 @@ export interface IDBAPI {
   resetContextForPaper: (paperId: number) => Promise<void>;
   getStage3Summary: (paperId: number) => Promise<string>;
   copyStage1ToStage2: (paperId: number) => Promise<boolean>
+  copyStage2ToStage3: (paperId: number) => Promise<boolean>
 }
 
 export interface IExportAPI {

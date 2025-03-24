@@ -290,3 +290,33 @@ export async function copyStage1ToStage2(id: number): Promise<boolean> {
     return false;
   }
 }
+
+
+/**
+ * Copies the Stage 2 Summary into Stage 3 Summary for a document by ID.
+ * @param id - The ID of the document.
+ * @returns A Promise that resolves to true if successful.
+ */
+export async function copyStage2ToStage3(id: number): Promise<boolean> {
+  try {
+    console.debug("Copying Stage 2 Summary to Stage 3 for document ID:", id);
+
+    const document = await Document.findByPk(id);
+    if (!document || !document.stage2Summary) {
+      console.error(
+        `Document with ID ${id} not found or missing Stage 2 Summary.`
+      );
+      return false;
+    }
+
+    document.stage3Summary = document.stage2Summary;
+    await document.save();
+    return true;
+  } catch (error) {
+    console.error(
+      `Error copying Stage 2 Summary to Stage 3 for document ID: ${id}`,
+      error
+    );
+    return false;
+  }
+}

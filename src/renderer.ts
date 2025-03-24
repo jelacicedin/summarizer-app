@@ -1,4 +1,4 @@
-import { Document } from "./database.js";
+import { copyStage1ToStage2, Document } from "./database.js";
 
 // Add to your CSS (create a new <style> tag or add to existing styles.css)
 const modalCSS = `
@@ -340,23 +340,33 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function updateDisabledState(row: HTMLTableRowElement): void {
+    // Stage 1 elements
     const stage1ApprovalCheckbox = row.querySelector(
       ".stage1-approval"
     ) as HTMLInputElement | null;
+    const stage1Summary = row.querySelector(
+      ".stage1-summary"
+    ) as HTMLTextAreaElement | null;
+    const stage1EditButton = row.querySelector(
+      ".summarize-btn"
+    ) as HTMLButtonElement | null;
+
+    // Stage 2 elements
     const stage2ApprovalCheckbox = row.querySelector(
       ".stage2-approval"
     ) as HTMLInputElement | null;
+    const stage2Summary = row.querySelector(
+      ".stage2-summary"
+    ) as HTMLTextAreaElement | null;
 
     // Stage 3 elements
     const stage3ApprovalCheckbox = row.querySelector(
       ".stage3-approval"
     ) as HTMLInputElement;
     const exportButton = row.querySelector(".export-btn") as HTMLButtonElement;
-
-    if (stage3ApprovalCheckbox && exportButton) {
-      exportButton.disabled = !stage3ApprovalCheckbox.checked;
-    }
-
+    const stage3Summary = row.querySelector(
+      ".stage3-summary"
+    ) as HTMLTextAreaElement | null;
     if (
       !stage1ApprovalCheckbox ||
       !stage2ApprovalCheckbox ||
@@ -366,31 +376,37 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
-    const stage1Approval = stage1ApprovalCheckbox.checked;
-    const stage2Approval = stage2ApprovalCheckbox.checked;
-
-    // Stage 2 elements
-    const stage2Summary = row.querySelector(
-      ".stage2-summary"
-    ) as HTMLTextAreaElement | null;
-
-    // Stage 3 elements
-    const stage3Summary = row.querySelector(
-      ".stage3-summary"
-    ) as HTMLTextAreaElement | null;
-
-    if (!stage2Summary || !stage3Summary) {
-      console.error("One or more elements not found in row:", row);
+    if (!exportButton) {
+      console.error("Export button not found in row.");
       return;
     }
+
+    if (!stage1EditButton) {
+      console.error("AI Edit button not found in row.");
+      return;
+    }
+
+    if (!stage1Summary || !stage2Summary || !stage3Summary) {
+      console.error("One or more summaries not found in row:", row);
+      return;
+    }
+
+    const stage1Approval = stage1ApprovalCheckbox.checked;
+    const stage2Approval = stage2ApprovalCheckbox.checked;
+    const stage3Approval = stage3ApprovalCheckbox.checked;
+
+    // Enable/disable Stage 1 elements based on Stage 1 approval
+    stage1Summary.disabled = stage1Approval;
+    stage1EditButton.disabled = stage1Approval;
 
     // Enable/disable Stage 2 elements based on Stage 1 Approval
     stage2Summary.disabled = !stage1Approval;
     stage2ApprovalCheckbox.disabled = !stage1Approval;
 
     // Enable/disable Stage 3 elements based on Stage 2 Approval
-    stage3Summary.disabled = !stage2Approval;
-    stage3ApprovalCheckbox.disabled = !stage2Approval;
+    stage3Summary.disabled = !stage2Approval || !stage1Approval;
+    stage3ApprovalCheckbox.disabled = !stage2Approval || !stage1Approval;
+    exportButton.disabled = !stage3Approval;
   }
 
   function makeTableSortable() {
@@ -494,7 +510,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const stage2Summary = row.querySelector(
           ".stage2-summary"
         ) as HTMLTextAreaElement | null;
-        // const stage1Summary = row?.querySelector(".stage1-summary")?.textContent;
+
         const success = await window.dbAPI.copyStage1ToStage2(paperId);
 
         console.log(
@@ -514,7 +530,27 @@ document.addEventListener("DOMContentLoaded", () => {
       await window.dbAPI.updateDocument(paperId, {
         ["approvalStage2"]: stage2ApprovalCheckbox.checked,
       });
-      // handleApprovalChange(row, 2);
+      if (stage2ApprovalCheckbox.checked) {
+        // Store the Stage 2 Summary to Stage 3 Summary
+        const stage2Summary = row.querySelector(
+          ".stage2-summary"
+        ) as HTMLTextAreaElement | null;
+        const stage3Summary = row.querySelector(
+          ".stage3-summary"
+        ) as HTMLTextAreaElement | null;
+
+        const success = await window.dbAPI.copyStage2ToStage3(paperId);
+
+        console.log(
+          `Stage 2 summary for paperId: ${paperId} is ${stage2Summary?.value} and the stage 3 summary ${stage3Summary?.value}`
+        );
+        if (success && stage2Summary && stage3Summary) {
+          console.log(``);
+          stage3Summary.value = stage2Summary.value;
+        } else {
+          console.error("Failed to copy Stage 2 Summary to Stage 3.");
+        }
+      }
     });
 
     stage3ApprovalCheckbox.addEventListener("change", async () => {
