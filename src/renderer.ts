@@ -609,9 +609,26 @@ document.addEventListener("DOMContentLoaded", () => {
       exportButton.addEventListener("click", async () => {
         const paperId = parseInt(exportButton.dataset.id || "0", 10);
         console.log(`Exporting document with ID: ${paperId}`);
-        await window.exportAPI.exportDocument(paperId);
+        const exportResult = await window.exportAPI.exportDocument(paperId);
+        if (exportResult.success)
+        {
+          showToast(`✅ Markdown summary saved to ${exportResult.path} for paper ID ${paperId}`);
+
+        }
       });
     }
+  }
+
+  function showToast(message: string, duration = 3000) {
+    const toast = document.getElementById("toast");
+    if (!toast) return;
+  
+    toast.textContent = message;
+    toast.classList.add("show");
+  
+    setTimeout(() => {
+      toast.classList.remove("show");
+    }, duration);
   }
 
   // Upload File and Refresh Table
