@@ -247,7 +247,9 @@ document.addEventListener("DOMContentLoaded", () => {
             "expandable-textarea",
             "stage2-summary"
           );
-          stage2SummaryTextarea.value = dataValues.stage2Summary ?? "";
+          stage2SummaryTextarea.value = dataValues.stage2Summary || "undefined";
+          stage2SummaryTextarea.dataset.id = dataValues.id.toString();
+          stage2SummaryTextarea.dataset.field = "stage2Summary";
           stage2SummaryCell.appendChild(stage2SummaryTextarea);
           row.appendChild(stage2SummaryCell);
 
@@ -267,7 +269,9 @@ document.addEventListener("DOMContentLoaded", () => {
             "expandable-textarea",
             "stage3-summary"
           );
-          stage3SummaryTextarea.value = dataValues.stage3Summary ?? "";
+          stage3SummaryTextarea.value = dataValues.stage3Summary || "undefined";
+          stage3SummaryTextarea.dataset.id = dataValues.id.toString();
+          stage3SummaryTextarea.dataset.field = "stage3Summary";
           stage3SummaryCell.appendChild(stage3SummaryTextarea);
           row.appendChild(stage3SummaryCell);
 
@@ -315,9 +319,8 @@ document.addEventListener("DOMContentLoaded", () => {
           });
 
           // Add auto-save functionality to textareas
-          const editableTextareas = row.querySelectorAll(
-            "textarea[data-field]"
-          );
+          const editableTextareas = [stage1SummaryTextarea,stage2SummaryTextarea,stage3SummaryTextarea];
+          console.log(`EDITABLE TEXT AREAS that we can write to: ${editableTextareas}`);
           editableTextareas.forEach((textarea) => {
             textarea.addEventListener("input", (e) => {
               if (saveTimeout) clearTimeout(saveTimeout);
@@ -325,7 +328,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 const target = e.target as HTMLTextAreaElement;
                 const id = parseInt(target.dataset.id || "0", 10);
                 const field = target.dataset.field || "";
-
+                console.log(`NOW UPDATING ${id} paper field ${field} with ${target.value}`);
                 try {
                   await window.dbAPI.updateDocument(id, {
                     [field]: target.value,
