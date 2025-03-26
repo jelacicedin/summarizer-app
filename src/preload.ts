@@ -51,7 +51,6 @@ contextBridge.exposeInMainWorld("modalAPI", <IModalAPI>{
 });
 
 contextBridge.exposeInMainWorld("exportAPI", <IExportAPI>{
-  exportDocument(paperId) {
-    ipcRenderer.invoke("export-document", paperId);
-  },
+  exportDocument: (paperId) =>
+    ipcRenderer.invoke("export-document", paperId),
 });

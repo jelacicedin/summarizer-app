@@ -130,3 +130,7 @@ dist
 .pnp.*
 .env
 yarn.lock
+
+
+# Misc generated md files
+test_pdf/*.md

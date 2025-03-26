@@ -399,9 +399,11 @@ ipcMain.handle("export-document", async (event, paperId: number) => {
   try {
     const summary = await getStage3Summary(paperId);
     const folderPath = await getPdfFolderPath(paperId);
-
-    if (!summary || !folderPath) {
-      throw new Error("Missing summary or folder path");
+    if (!summary ){
+      throw new Error(`Missing summary for paper with ID ${paperId}.`);
+    }
+    if (!folderPath) {
+      throw new Error(`Missing folder path for paper with ID ${paperId}.`);
     }
 
     const exportPath = path.join(

@@ -246,8 +246,13 @@ export async function getPdfFolderPath(id: number): Promise<string | null> {
       attributes: ["filePath"],
     });
 
-    if (!document || !document.filePath) {
-      console.error(`Document with ID ${id} not found or missing filePath.`);
+    if (!document) {
+      console.error(`Document with ID ${id} not found.`);
+      return null;
+    }
+
+    if (!document.filePath) {
+      console.error(`Document with ID ${id} missing filePath.`);
       return null;
     }
 

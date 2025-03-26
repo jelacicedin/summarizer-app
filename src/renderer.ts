@@ -293,6 +293,7 @@ document.addEventListener("DOMContentLoaded", () => {
           if (document.body.classList.contains("dark-mode")) {
             exportButton.classList.add("dark-mode");
           }
+          exportButton.dataset.id = dataValues.id.toString();
           exportCell.appendChild(exportButton);
           row.appendChild(exportCell);
 
