@@ -9,19 +9,20 @@
   <body>
     <div id="summarization-modal" class="modal-content">
       <p id="paper-id">Loading...</p>
-
-
-      <textarea
-        id="summary"
-        placeholder="Summary will appear here..."
-      ></textarea>
-      <textarea
-        id="chatbox-input"
-        placeholder="Enter corrections here..."
-      ></textarea>
+    
+      <label><strong>Prompt</strong></label>
+      <textarea id="prompt-input" placeholder="Prompt for the AI..."></textarea>
+    
+      <label><strong>Summary</strong></label>
+      <textarea id="summary" placeholder="Summary will appear here..."></textarea>
+    
+      <label><strong>Correction</strong></label>
+      <textarea id="chatbox-input" placeholder="Enter corrections here..."></textarea>
+    
       <div class="button-container">
         <button id="send-correction">Send Correction</button>
         <button id="save-summary">Save Summary</button>
+        <button id="reload-summary">Reload Summary</button>
       </div>
     </div>
 

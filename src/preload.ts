@@ -8,7 +8,6 @@ contextBridge.exposeInMainWorld("electronAPI", <IElectronAPI>{
   saveSummary: (updatedSummary) =>
     ipcRenderer.send("save-summary", updatedSummary),
   onRefreshTable: (callback) => ipcRenderer.on("refresh-table", callback),
-  summarizeText: (text) => ipcRenderer.invoke("summarize-text", text),
   extractText: (filePath) => ipcRenderer.invoke("extract-text", filePath),
   on: (channel: string, callback: (...args: any[]) => void) =>
     ipcRenderer.on(channel, (event, ...args) => callback(...args)),
@@ -26,8 +25,13 @@ contextBridge.exposeInMainWorld("dbAPI", <IDBAPI>{
     ipcRenderer.invoke("reset-context-for-paper", paperId),
   getStage3Summary: (paperId) =>
     ipcRenderer.invoke("get-stage3-summary", paperId),
-  copyStage1ToStage2: (paperId) => ipcRenderer.invoke("copy-stage1-to-stage2", paperId),
-  copyStage2ToStage3: (paperId) => ipcRenderer.invoke("copy-stage2-to-stage3", paperId),
+  copyStage1ToStage2: (paperId) =>
+    ipcRenderer.invoke("copy-stage1-to-stage2", paperId),
+  copyStage2ToStage3: (paperId) =>
+    ipcRenderer.invoke("copy-stage2-to-stage3", paperId),
+  saveConversation: (paperId, conversation) =>
+    ipcRenderer.invoke("save-conversation", paperId, conversation),
+  getConversation: (paperId) => ipcRenderer.invoke("get-conversation", paperId),
 });
 
 contextBridge.exposeInMainWorld("modalAPI", <IModalAPI>{
@@ -48,9 +52,10 @@ contextBridge.exposeInMainWorld("modalAPI", <IModalAPI>{
   refreshTable: () => ipcRenderer.send("refresh-table"), // Notify the main process to refresh the table
   sendSummaryToDb: (paperId, text) =>
     ipcRenderer.invoke("send-summary-to-db", paperId, text),
+  summarizeDocument: (paperId, messages) =>
+    ipcRenderer.invoke("summarize-document", paperId, messages),
 });
 
 contextBridge.exposeInMainWorld("exportAPI", <IExportAPI>{
-  exportDocument: (paperId) =>
-    ipcRenderer.invoke("export-document", paperId),
+  exportDocument: (paperId) => ipcRenderer.invoke("export-document", paperId),
 });

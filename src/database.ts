@@ -65,6 +65,7 @@ interface DocumentAttributes {
   published?: boolean;
   notes?: string;
   wherePublished?: string;
+  conversations?: string;
 }
 
 type DocumentCreationAttributes = Optional<
@@ -102,6 +103,8 @@ export class Document
   public published?: boolean;
   public notes?: string;
   public wherePublished?: string;
+
+  public conversations?: string;
 }
 
 // Define the Sequelize model
@@ -130,6 +133,7 @@ Document.init(
     stage3Summary: { type: DataTypes.TEXT, allowNull: true },
     imageLinks: { type: DataTypes.ARRAY(DataTypes.STRING), allowNull: true },
     datetimeCreated: { type: DataTypes.DATE, allowNull: true },
+    conversations: { type: DataTypes.TEXT, allowNull: true },
   },
   {
     sequelize,
@@ -296,7 +300,6 @@ export async function copyStage1ToStage2(id: number): Promise<boolean> {
   }
 }
 
-
 /**
  * Copies the Stage 2 Summary into Stage 3 Summary for a document by ID.
  * @param id - The ID of the document.
@@ -323,5 +326,29 @@ export async function copyStage2ToStage3(id: number): Promise<boolean> {
       error
     );
     return false;
+  }
+}
+
+/**
+ * Get the conversation thread for a given document.
+ */
+export async function getConversationById(id: number): Promise<string | null> {
+  const document = await Document.findByPk(id, {
+    attributes: ["conversations"],
+  });
+  return document?.conversations || null;
+}
+
+/**
+ * Save the conversation thread for a given document.
+ */
+export async function saveConversation(
+  id: number,
+  conversation: string
+): Promise<void> {
+  const document = await Document.findByPk(id);
+  if (document) {
+    document.conversations = conversation;
+    await document.save();
   }
 }

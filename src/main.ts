@@ -16,13 +16,17 @@ import {
   getStage3Summary,
   copyStage1ToStage2,
   copyStage2ToStage3,
+  getConversationById,
+  saveConversation,
 } from "./database.js";
 import { startDockerServices } from "./check-docker.js";
 import { extractText } from "./pdf-handler.js";
-import { summarizeTextForPaper, resetContextForPaper } from "./llm_api.js";
-import fs from "fs";
+// import { summarizeTextForPaper, resetContextForPaper } from "./llm_api.js";
+import fs, { PathOrFileDescriptor } from "fs";
 import { fileURLToPath } from "url";
 import { exportStage3Summary } from "./utils/exportSummary.js";
+import { summarizeDocument } from "./llm_api.js";
+import { Message } from "./interface.js";
 
 // Get __dirname equivalent in ES Modules
 const __filename = fileURLToPath(import.meta.url);
@@ -284,19 +288,19 @@ ipcMain.handle(
   }
 );
 
-ipcMain.handle(
-  "summarize-text-for-paper",
-  async (event, paperId: number, text: string, correction?: string) => {
-    try {
-      console.log(`Summarizing text for paper ID: ${paperId}`);
-      const summary = await summarizeTextForPaper(paperId, text, correction);
-      return { success: true, summary };
-    } catch (error: any) {
-      console.error(`Error summarizing text for paper ID: ${paperId}`, error);
-      return { success: false, error: error.message };
-    }
-  }
-);
+// ipcMain.handle(
+//   "summarize-text-for-paper",
+//   async (event, paperId: number, text: string, correction?: string) => {
+//     try {
+//       console.log(`Summarizing text for paper ID: ${paperId}`);
+//       const summary = await summarizeTextForPaper(paperId, text, correction);
+//       return { success: true, summary };
+//     } catch (error: any) {
+//       console.error(`Error summarizing text for paper ID: ${paperId}`, error);
+//       return { success: false, error: error.message };
+//     }
+//   }
+// );
 
 ipcMain.on("refresh-table", () => {
   console.log("Received request to refresh the table.");
@@ -309,35 +313,35 @@ ipcMain.handle("fetch-summary", async (event, paperId: number) => {
   return document?.dataValues.stage1Summary ?? null;
 });
 
-ipcMain.handle(
-  "generate-summary",
-  async (event, paperId: number, extractedText: string) => {
-    console.log(`Generating summary for paper ID ${paperId}`);
-    try {
-      const generatedSummary = await summarizeTextForPaper(
-        paperId,
-        extractedText
-      ); // Replace with your summarization logic
-      // await updateDocument(paperId, { summary: generatedSummary }); // Save the generated summary to the database
-      return generatedSummary;
-    } catch (error: any) {
-      console.error("Error generating summary:", error.message);
-      return "Error generating summary.";
-    }
-  }
-);
+// ipcMain.handle(
+//   "generate-summary",
+//   async (event, paperId: number, extractedText: string) => {
+//     console.log(`Generating summary for paper ID ${paperId}`);
+//     try {
+//       const generatedSummary = await summarizeTextForPaper(
+//         paperId,
+//         extractedText
+//       ); // Replace with your summarization logic
+//       // await updateDocument(paperId, { summary: generatedSummary }); // Save the generated summary to the database
+//       return generatedSummary;
+//     } catch (error: any) {
+//       console.error("Error generating summary:", error.message);
+//       return "Error generating summary.";
+//     }
+//   }
+// );
 
 // Handle context reset requests
-ipcMain.handle("reset-context-for-paper", async (event, paperId: number) => {
-  try {
-    console.log(`Resetting context for paper ID: ${paperId}`);
-    resetContextForPaper(paperId);
-    return { success: true };
-  } catch (error: any) {
-    console.error(`Error resetting context for paper ID: ${paperId}`, error);
-    return { success: false, error: error.message };
-  }
-});
+// ipcMain.handle("reset-context-for-paper", async (event, paperId: number) => {
+//   try {
+//     console.log(`Resetting context for paper ID: ${paperId}`);
+//     resetContextForPaper(paperId);
+//     return { success: true };
+//   } catch (error: any) {
+//     console.error(`Error resetting context for paper ID: ${paperId}`, error);
+//     return { success: false, error: error.message };
+//   }
+// });
 
 ipcMain.handle(
   "send-summary-to-db",
@@ -353,18 +357,18 @@ ipcMain.handle(
   }
 );
 
-ipcMain.handle(
-  "update-summary",
-  async (_, paperId: number, correction: string) => {
-    console.log(`Received correction for paper ID ${paperId}:`, correction);
+// ipcMain.handle(
+//   "update-summary",
+//   async (_, paperId: number, correction: string) => {
+//     console.log(`Received correction for paper ID ${paperId}:`, correction);
 
-    // Call your summarization function with the correction
-    const updatedSummary = await summarizeTextForPaper(paperId, "", correction);
-    return updatedSummary;
-  }
-);
+//     // Call your summarization function with the correction
+//     const updatedSummary = await summarizeTextForPaper(paperId, "", correction);
+//     return updatedSummary;
+//   }
+// );
 
-ipcMain.handle("fetch-document", async (event, id) => {
+ipcMain.handle("fetch-document", async (_, id) => {
   console.log("ID received in fetch-document handler:", id); // Add this log
   if (!id) {
     console.error("Invalid ID received:", id);
@@ -381,7 +385,7 @@ ipcMain.handle("fetch-document", async (event, id) => {
 });
 
 // Handle text extraction
-ipcMain.handle("extract-text", async (event, filePath: string) => {
+ipcMain.handle("extract-text", async (_, filePath: string) => {
   try {
     const text = await extractText(filePath);
     if (text) {
@@ -395,11 +399,11 @@ ipcMain.handle("extract-text", async (event, filePath: string) => {
 });
 
 // Handle document export
-ipcMain.handle("export-document", async (event, paperId: number) => {
+ipcMain.handle("export-document", async (_, paperId: number) => {
   try {
     const summary = await getStage3Summary(paperId);
     const folderPath = await getPdfFolderPath(paperId);
-    if (!summary ){
+    if (!summary) {
       throw new Error(`Missing summary for paper with ID ${paperId}.`);
     }
     if (!folderPath) {
@@ -419,11 +423,48 @@ ipcMain.handle("export-document", async (event, paperId: number) => {
   }
 });
 
-
-ipcMain.handle('copy-stage1-to-stage2', async (_, id: number) => {
+ipcMain.handle("copy-stage1-to-stage2", async (_, id: number) => {
   return await copyStage1ToStage2(id);
 });
 
-ipcMain.handle('copy-stage2-to-stage3', async (_, id: number) => {
+ipcMain.handle("copy-stage2-to-stage3", async (_, id: number) => {
   return await copyStage2ToStage3(id);
 });
+
+ipcMain.handle("get-conversation", async (_, id) => {
+  return await getConversationById(id);
+});
+
+ipcMain.handle("save-conversation", async (_, id, conversation) => {
+  await saveConversation(id, conversation);
+});
+
+ipcMain.handle("summarize-document", async (_, id, messages) => {
+  // Get the filepath of the PDF
+  const pdfFilePath = (await fetchDocument(id))
+    ?.filePath as PathOrFileDescriptor;
+  // 1. Get the extracted text from the PDF (by id)
+  const pdfText = await extractText(pdfFilePath);
+  const cleanText = cleanPdfText(pdfText);
+  const truncatedText = cleanText.slice(0,8000);
+  // 2. Prepend it to the conversation history as a system/user message
+  const combinedMessages: Message[] = [
+    {
+      role: "system",
+      content: "The following is the content of the scientific paper:",
+    },
+    { role: "user", content: truncatedText },
+    ...messages,
+  ];
+  return await summarizeDocument(id, combinedMessages);
+});
+
+function cleanPdfText(text: string): string {
+  return text
+    .replace(/\n/g, " ") // flatten line breaks
+    .replace(/\s{2,}/g, " ") // collapse whitespace
+    .replace(/Page \d+ of \d+/g, "") // remove page indicators
+    .replace(/\[[^\]]*?\]/g, "") // remove inline references like [1], [2]
+    .replace(/(References|Bibliography)[\s\S]+/i, "") // remove bibliography
+    .trim();
+}

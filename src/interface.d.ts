@@ -1,10 +1,14 @@
+export interface Message {
+  role: "system" | "user" | "assistant";
+  content: string;
+}
+
 export interface IElectronAPI {
   uploadPdf: (fileData: { name: string; content: ArrayBuffer }) => Promise<any>;
   openEditor: (data: { id: number; summary: string }) => void;
   loadSummary: (callback: (summary: string) => void) => void;
   saveSummary: (updatedSummary: string) => void;
   onRefreshTable: (callback: () => void) => void;
-  summarizeText: (text: string) => Promise<string>;
   extractText: (filePath: string) => Promise<string>;
   on: (channel: string, callback: (args: any[]) => void) => void;
 }
@@ -19,6 +23,10 @@ export interface IModalAPI {
   sendSummaryToDb: (paperId: number, text: string) => void;
   onSummarizationModal: (callback: (paperId: number) => void) => void; // Add this
   refreshTable: () => void;
+  summarizeDocument: (
+    paperId: number,
+    messages: Message[]
+  ) => Promise<{ summary: string }>;
 }
 
 export interface IDBAPI {
@@ -33,12 +41,16 @@ export interface IDBAPI {
   ) => Promise<string>;
   resetContextForPaper: (paperId: number) => Promise<void>;
   getStage3Summary: (paperId: number) => Promise<string>;
-  copyStage1ToStage2: (paperId: number) => Promise<boolean>
-  copyStage2ToStage3: (paperId: number) => Promise<boolean>
+  copyStage1ToStage2: (paperId: number) => Promise<boolean>;
+  copyStage2ToStage3: (paperId: number) => Promise<boolean>;
+  saveConversation: (paperId: number, conversation: string) => Promise<void>;
+  getConversation: (paperId: number) => Promise<string>;
 }
 
 export interface IExportAPI {
-  exportDocument: (paperId: number) => Promise<void>;
+  exportDocument: (
+    paperId: number
+  ) => Promise<{ success: boolean; path: string }>;
 }
 
 declare global {
