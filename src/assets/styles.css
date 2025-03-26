@@ -1,168 +1,350 @@
-/* Default (light mode) styles */
+/* General Styles */
 body {
-  background-color: #ffffff;
-  color: #000000;
-  font-family: Arial, sans-serif;
-  transition: background-color 0.3s, color 0.3s; /* Smooth transition */
+  font-family: Roboto, Arial, Verdana, Geneva, Tahoma, sans-serif;
+  font-size: 16px;
+  margin: 20px;
+  background-color: #f4f4f4;
+  color: #333;
+  overflow-x: hidden; /* Prevent horizontal overflow */
+}
+
+/* Ensure gridlines are always visible */
+table, th, td {
+  border: 1px solid #ddd !important;
+  border-collapse: collapse;
+}
+
+/* For dark mode, override with a contrasting border */
+body.dark-mode table,
+body.dark-mode th,
+body.dark-mode td {
+  border: 1px solid #888 !important;
+}
+
+/* Exclude the "Upload file" button */
+button.upload-button {
+  width: auto; /* Allow it to size naturally */
+  display: inline-block;
 }
 
 h1 {
-  text-align: center;
+  color: #333;
 }
 
-button,
-label.custom-file-input {
-  display: inline-block;
-  margin: 10px;
+button {
+  background-color: #fc8c5c;
+  color: white;
   padding: 10px 20px;
-  background-color: #007bff;
-  color: white;
   border: none;
-  border-radius: 5px;
   cursor: pointer;
-  text-align: center;
-  transition: background-color 0.3s;
+  font-size: 16px;
 }
 
-button:hover,
-label.custom-file-input:hover {
-  background-color: #0056b3;
+button:hover {
+  background-color: #ce6132;
 }
 
-pre {
-  background-color: #f4f4f4;
-  border: 1px solid #ddd;
-  padding: 10px;
-  border-radius: 5px;
-  max-height: 300px;
-  overflow-y: auto;
-}
-
-/* Dark mode styles */
-body.dark-mode {
-  background-color: #121212;
-  color: #ffffff;
-}
-
-button.dark-mode,
-label.custom-file-input.dark-mode {
-  background-color: #444444;
+.reload-button {
+  background-color: #5c9ffc;
   color: white;
+  padding: 10px 20px;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+  margin-left: 10px;
 }
 
-pre.dark-mode {
-  background-color: #333333;
-  color: #ffffff;
-  border-color: #444444;
+.reload-button:hover {
+  background-color: #4788dc;
 }
 
-/* Table styles */
+/* Header container for aligning h1 and button */
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.separator {
+  border: 0;
+  height: 1px;
+  background: #333;
+  background-image: linear-gradient(to right, #ccc, #333, #ccc);
+  margin: 20px 0;
+}
+
+/* Default: Limit text cells to one line with ellipsis */
+table td {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transition: all 0.3s ease;
+  padding: 8px; /* Adjust padding as needed */
+  box-sizing: border-box;
+}
+
+/* Ensure buttons fill their table cells */
+td button {
+  width: 100%; /* Fill the width of the cell */
+  height: 100%; /* Fill the height of the cell */
+  padding: 8px; /* Add some padding for better appearance */
+  box-sizing: border-box; /* Include padding in width/height calculations */
+  white-space: nowrap; /* Prevent text from wrapping */
+  overflow: hidden; /* Hide overflow text */
+  text-overflow: ellipsis; /* Show ellipsis for overflow text */
+}
+
+/* Ensure buttons don't overflow their cells */
+td {
+  overflow: hidden; /* Prevent content from overflowing */
+}
+
+/* Ensure input boxes grow with the row */
+td input[type="text"].expandable-input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 4px;
+  border: 1px solid #ccc;
+  transition: all 0.3s ease;
+  white-space: nowrap; /* Keep text on one line by default */
+  overflow: hidden; /* Hide overflow text */
+  text-overflow: ellipsis; /* Show ellipsis for overflow text */
+  resize: vertical; /* Allow vertical resizing */
+  min-height: 30px; /* Set a minimum height */
+}
+
+/* Expand input boxes on row hover */
+tr:hover td input[type="text"].expandable-input {
+  white-space: normal; /* Allow text to wrap */
+  overflow: visible; /* Show all text */
+  height: auto; /* Allow height to grow */
+  min-height: 30px; /* Set a minimum height to ensure it expands */
+}
+
+/* Expand text and input boxes on row hover */
+tr:hover td {
+  white-space: normal;
+  overflow: visible;
+  height: auto; /* Ensure row height expands */
+}
+
+tr:hover td input[type="text"] {
+  white-space: normal;
+  height: auto;
+  overflow: visible;
+}
+
+/* On hover: Allow text wrapping so the full text is visible */
+table tr:hover td {
+  max-width: none;
+  white-space: normal;
+  overflow: visible;
+}
+
 table {
   width: 100%;
   border-collapse: collapse;
-  margin-top: 20px;
+  margin-bottom: 20px;
+  font-size: 16px;
+  table-layout: fixed; /* Change to auto to allow flexible column widths */
+}
+/* Style for expandable textareas */
+.expandable-textarea {
+  width: 100%; /* Fill the cell width */
+  box-sizing: border-box; /* Include padding and border in width/height */
+  padding: 4px;
+  border: 1px solid #ccc;
+  font-family: inherit; /* Use the same font as the rest of the table */
+  font-size: 16px;
+  resize: vertical; /* Allow vertical resizing */
+  min-height: 30px; /* Minimum height */
+  overflow: hidden; /* Hide scrollbars by default */
+  white-space: pre-wrap; /* Preserve line breaks and wrap text */
 }
 
-table th,
-table td {
+/* Ensure textareas expand to fit content */
+.expandable-textarea:focus {
+  overflow: auto; /* Show scrollbars when focused */
+}
+
+/* Dark mode styles for textareas */
+body.dark-mode .expandable-textarea {
+  background-color: #333333;
+  color: #e0e0e0;
+  border: 1px solid #424242;
+}
+th, td {
   border: 1px solid #ddd;
   padding: 8px;
   text-align: left;
-}
-
-table th {
-  background-color: #007bff;
-  color: white;
-}
-
-table tr:nth-child(even) {
-  background-color: #f2f2f2;
-}
-
-table tr:hover {
-  background-color: #ddd;
-}
-
-input[type="text"] {
-  width: 90%;
-  padding: 5px;
+  word-wrap: break-word; /* Prevent overflow of table content */
+  font-size: 16px; /* Ensure consistent font size */
 }
 
 th {
+  background-color: #fc8c5c;
+  color: white;
+}
+
+tr:nth-child(even) {
+  background-color: #f2f2f2;
+}
+
+tr:nth-child(odd) {
+  background-color: #ffffff;
+}
+
+tr:hover {
+  background-color: #ddd;
+}
+
+.responsive-input {
+  width: 100%;
+  box-sizing: border-box;
+  font-size: 16px;
+}
+
+#darkModeToggle {
+  background-color: #333;
+  color: white;
+  padding: 10px 20px;
+  border: none;
   cursor: pointer;
+  font-size: 16px;
 }
 
-th.asc::after {
-  content: " ▲";
+#darkModeToggle:hover {
+  background-color: #555;
 }
 
-th.desc::after {
-  content: " ▼";
+/* Grey out disabled elements */
+.disabled {
+  opacity: 0.5; /* Make elements semi-transparent */
+  pointer-events: none; /* Disable pointer events */
 }
 
-/* Table styles for dark mode */
-body.dark-mode table {
-  border-color: #444444;
+/* Style for checkboxes */
+td input[type="checkbox"] {
+  cursor: pointer; /* Show pointer cursor on checkboxes */
 }
 
-body.dark-mode table th {
-  background-color: #333333;
-  color: #ffffff;
+/* Resizable Columns Styles */
+th.resizeable {
+  position: relative;
+  user-select: none;
 }
 
-body.dark-mode table td {
-  background-color: #222222;
-  color: #ffffff;
+/* Grey out disabled elements */
+textarea:disabled,
+button:disabled {
+  opacity: 0.5; /* Make elements semi-transparent */
+  pointer-events: none; /* Disable pointer events */
 }
 
-body.dark-mode table tr:nth-child(even) {
-  background-color: #1a1a1a;
-}
-
-body.dark-mode table tr:hover {
-  background-color: #333333;
-}
-
-/* Modal styles */
-.modal {
-  display: none; /* Hidden by default */
-  position: fixed;
-  z-index: 1000;
-  left: 0;
+th.resizeable::after {
+  content: "";
+  position: absolute;
   top: 0;
-  width: 100%;
-  height: 100%;
-  overflow: auto;
-  background-color: rgba(0, 0, 0, 0.4);
+  right: 0;
+  bottom: 0;
+  width: 5px;
+  cursor: col-resize;
+  background-color: transparent;
 }
 
-.modal-content {
-  background-color: #fff;
-  margin: 10% auto;
-  padding: 20px;
-  border: 1px solid #888;
-  width: 50%;
-  border-radius: 10px;
+/* Dark Mode Styles */
+body.dark-mode {
+  background-color: #121212;
+  color: #e0e0e0;
 }
 
-body.dark-mode .modal-content {
-  background-color: #222222;
-  color: #ffffff;
-  border-color: #444444;
+button.dark-mode {
+  background-color: #727272;
+  color: #e0e0e0;
 }
 
-.close-button {
-  float: right;
-  font-size: 28px;
-  font-weight: bold;
-  cursor: pointer;
+button.dark-mode:hover {
+  background-color: #616161;
 }
 
-#modalSummaryInput {
-  width: 100%;
-  height: 200px;
+.separator.dark-mode {
+  background: #e0e0e0;
+  background-image: linear-gradient(to right, #616161, #e0e0e0, #616161);
 }
 
-#saveSummaryButton {
-  margin-top: 10px;
+table.dark-mode {
+  border-color: #424242;
+}
+
+th.dark-mode, td.dark-mode {
+  border-color: #424242;
+}
+
+th.dark-mode {
+  background-color: #424242;
+  color: #e0e0e0;
+}
+
+tr.dark-mode:nth-child(even) {
+  background-color: #333333;
+  color: #ccc;
+}
+
+tr.dark-mode:nth-child(odd) {
+  background-color: #1e1e1e; /* Darker background for odd rows */
+  color: #ccc;
+}
+
+tr.dark-mode:hover {
+  background-color: #424242;
+}
+
+.responsive-input.dark-mode {
+  background-color: #333333;
+  color: #e0e0e0;
+  border: 1px solid #424242;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  body {
+    margin: 10px;
+  }
+
+  button {
+    width: 100%;
+    padding: 15px;
+    font-size: 18px;
+  }
+
+  table, th, td {
+    font-size: 14px;
+  }
+
+  #darkModeToggle {
+    width: 100%;
+    padding: 15px;
+    font-size: 18px;
+  }
+}
+
+@media (max-width: 480px) {
+  h1 {
+    font-size: 20px;
+  }
+
+  button {
+    padding: 10px;
+    font-size: 16px;
+  }
+
+  table, th, td {
+    font-size: 12px;
+  }
+
+  #darkModeToggle {
+    padding: 10px;
+    font-size: 16px;
+  }
 }

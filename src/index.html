@@ -4,12 +4,15 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>PDF Summarizer</title>
-    <link rel="stylesheet" href="assets/styles_2.css" />
+    <link rel="stylesheet" href="assets/styles.css" />
   </head>
   <body>
-    <h1>PDF Summarizer</h1>
-    <button id="uploadButton">Upload file...</button>
-    
+    <div class="header">
+      <h1>PDF Summarizer</h1>
+      <button  class="upload-button" id="uploadButton">Upload file...</button>
+      <button class="reload-button" id="reloadButton">Reload Table</button>
+    </div>
+
     <!-- Separator line -->
     <hr class="separator" />
     
@@ -17,21 +20,27 @@
     <table id="documentsTable">
       <thead>
         <tr> 
-          <th data-sort="id">ID</th>
-          <th data-sort="id">Filename</th>
-          <th data-sort="title">Title</th>
-          <th data-sort="authors">Authors</th>
-          <th data-sort="metadata">Metadata</th>
-          <th>Image Links</th>
-          <th data-sort="actions">Actions</th>
-          <th data-sort="summary">Summary</th>
-          <th data-sort="approved">Approved</th>
+          <th class="resizeable" data-sort="id">ID</th>
+          <th class="resizeable" data-sort="filename">Filename</th>
+          <th class="resizeable" data-sort="title">Title</th>
+          <th class="resizeable" data-sort="authors">Authors</th>
+          <th class="resizeable" data-sort="datetimeAdded">Date Added</th>
+          <th class="resizeable">Image Links</th>
+          <th class="non-resizable">Stage 1 Summary</th>
+          <th class="non-resizable">AI Edit</th>
+          <th class="non-resizable">Stage 1 Approval</th>
+          <th class="resizeable">Stage 2 Summary</th>
+          <!-- <th class="resizeable">Stage 2 Edit</th> -->
+          <th class="non-resizable">Stage 2 Approval</th>
+          <th class="resizeable">Stage 3 Summary</th>
+          <th class="non-resizable">Stage 3 Approval</th>
+          <th class="non-resizable">Export</th>
         </tr>
       </thead>
       <tbody>
-        <!-- be dynamically added here -->
+        <!-- Rows will be dynamically added here -->
       </tbody>
     </table>
-    <script src="./renderer.js"></script>
+    <script type="module" src="./renderer.js"></script>
   </body>
 </html>

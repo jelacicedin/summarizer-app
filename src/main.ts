@@ -1,16 +1,32 @@
-import { app, BrowserWindow, ipcMain, nativeTheme, dialog, Menu } from "electron";
+import {
+  app,
+  BrowserWindow,
+  ipcMain,
+  nativeTheme,
+  dialog,
+  Menu,
+} from "electron";
 import path from "path";
-import { addDocument, getDocuments, updateDocument, fetchDocument } from "./database.js";
+import {
+  addDocument,
+  getDocuments,
+  updateDocument,
+  fetchDocument,
+  getPdfFolderPath,
+  getStage3Summary,
+  copyStage1ToStage2,
+  copyStage2ToStage3,
+} from "./database.js";
 import { startDockerServices } from "./check-docker.js";
 import { extractText } from "./pdf-handler.js";
 import { summarizeTextForPaper, resetContextForPaper } from "./llm_api.js";
 import fs from "fs";
-import { fileURLToPath } from 'url';
+import { fileURLToPath } from "url";
+import { exportStage3Summary } from "./utils/exportSummary.js";
 
 // Get __dirname equivalent in ES Modules
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-
 
 // Global variables for windows
 let mainWindow: BrowserWindow | null;
@@ -36,7 +52,7 @@ function createSplashScreen(): void {
 
 function createMainWindow(): void {
   mainWindow = new BrowserWindow({
-    width: 1200,
+    width: 1400,
     height: 800,
     show: false, // Hide until splash disappears
     webPreferences: {
@@ -54,9 +70,7 @@ function createMainWindow(): void {
   const menu = Menu.buildFromTemplate([
     {
       label: "File",
-      submenu: [
-        { role: "quit" },
-      ],
+      submenu: [{ role: "quit" }],
     },
     {
       label: "View",
@@ -68,12 +82,11 @@ function createMainWindow(): void {
             chatModal?.webContents.send("toggle-dark-mode");
 
             if (nativeTheme.shouldUseDarkColors) {
-              nativeTheme.themeSource = 'light'
+              nativeTheme.themeSource = "light";
             } else {
-              nativeTheme.themeSource = 'dark'
+              nativeTheme.themeSource = "dark";
             }
-            return nativeTheme.shouldUseDarkColors
-              ;
+            return nativeTheme.shouldUseDarkColors;
           },
         },
         { role: "reload" },
@@ -95,13 +108,13 @@ function createMainWindow(): void {
 
   Menu.setApplicationMenu(menu);
 
-  ipcMain.handle('toggle-dark-mode-theme', () => {
+  ipcMain.handle("toggle-dark-mode-theme", () => {
     if (nativeTheme.shouldUseDarkColors) {
-      nativeTheme.themeSource = 'light'
+      nativeTheme.themeSource = "light";
     } else {
-      nativeTheme.themeSource = 'dark'
+      nativeTheme.themeSource = "dark";
     }
-    return nativeTheme.shouldUseDarkColors
+    return nativeTheme.shouldUseDarkColors;
   });
 
   // Handle startup sequence
@@ -150,18 +163,17 @@ app.whenReady().then(() => {
   });
 });
 
-
 // Register the IPC handler for pdf upload
 // Handle adding a document (triggered by file upload)
 ipcMain.handle("upload-file", async () => {
   try {
-    const result: any = dialog.showOpenDialog({
+    const result: any = await dialog.showOpenDialog({
       properties: ["openFile"],
       filters: [{ name: "PDFs", extensions: ["pdf"] }],
     });
-
+    console.log(result);
     // Check for user cancellation or empty selection
-    if (!result.canceled && result.filePaths.length > 0) {
+    if (result && !result.canceled && result.filePaths.length > 0) {
       const filePath = result.filePaths[0];
       const filename = path.basename(filePath);
 
@@ -198,17 +210,20 @@ ipcMain.handle("fetch-documents", async () => {
 });
 
 // Handle returning a filepath for a document
-ipcMain.handle("fetch-file-path", async (event, paperId: number): Promise<string> => {
-  try {
-    const document = await fetchDocument(paperId);
-    if (document) {
-      return document.filePath;
-    } else throw Error(`Could not fetch document with paperId ${paperId}`);
-  } catch (error: any) {
-    console.error("Error fetching documents:", error);
-    throw error;
+ipcMain.handle(
+  "fetch-file-path",
+  async (event, paperId: number): Promise<string> => {
+    try {
+      const document = await fetchDocument(paperId);
+      if (document) {
+        return document.filePath;
+      } else throw Error(`Could not fetch document with paperId ${paperId}`);
+    } catch (error: any) {
+      console.error("Error fetching documents:", error);
+      throw error;
+    }
   }
-});
+);
 
 // Handle updating a document
 ipcMain.handle("update-document", async (event, { id, updates }) => {
@@ -221,17 +236,17 @@ ipcMain.handle("update-document", async (event, { id, updates }) => {
   }
 });
 
-
 // Function to create the summarization modal
-function createSummarizationModal(paperId: number) {
+function createSummarizationModal(paperId: number, stage: number) {
+  // TODO: implement this stage option for two different modal types.
   if (chatModal) {
     console.log("Modal already open.");
     return; // Prevent creating multiple modals
   }
 
   chatModal = new BrowserWindow({
-    width: 800,
-    height: 600,
+    width: 1400,
+    height: 800,
     modal: true,
     parent: BrowserWindow.getFocusedWindow() || undefined,
     webPreferences: {
@@ -241,13 +256,15 @@ function createSummarizationModal(paperId: number) {
   });
 
   // Load the summarization HTML
-  chatModal.loadFile(path.join(__dirname, "./summarization_modal/summarization.html"));
+  chatModal.loadFile(
+    path.join(__dirname, "./summarization_modal/summarization.html")
+  );
 
   // Send the paper ID to the renderer process when the modal is ready
   chatModal.once("ready-to-show", () => {
     console.log(`Sending paper ID ${paperId} to renderer`);
     chatModal?.webContents.send("open-summarization-modal", paperId);
-    if (nativeTheme.themeSource === 'dark') {
+    if (nativeTheme.themeSource === "dark") {
       chatModal?.webContents.send("toggle-dark-mode");
     }
   });
@@ -260,47 +277,58 @@ function createSummarizationModal(paperId: number) {
 }
 
 // Handle the IPC call to open the modal
-ipcMain.handle("open-summarization-modal", (event, paperId: number) => {
-  createSummarizationModal(paperId);
-});
-
-ipcMain.handle('summarize-text-for-paper', async (event, paperId: number, text: string, correction?: string) => {
-  try {
-    console.log(`Summarizing text for paper ID: ${paperId}`);
-    const summary = await summarizeTextForPaper(paperId, text, correction);
-    return { success: true, summary };
-  } catch (error: any) {
-    console.error(`Error summarizing text for paper ID: ${paperId}`, error);
-    return { success: false, error: error.message };
+ipcMain.handle(
+  "open-summarization-modal",
+  (event, paperId: number, stage: number) => {
+    createSummarizationModal(paperId, stage);
   }
-});
+);
+
+ipcMain.handle(
+  "summarize-text-for-paper",
+  async (event, paperId: number, text: string, correction?: string) => {
+    try {
+      console.log(`Summarizing text for paper ID: ${paperId}`);
+      const summary = await summarizeTextForPaper(paperId, text, correction);
+      return { success: true, summary };
+    } catch (error: any) {
+      console.error(`Error summarizing text for paper ID: ${paperId}`, error);
+      return { success: false, error: error.message };
+    }
+  }
+);
 
 ipcMain.on("refresh-table", () => {
   console.log("Received request to refresh the table.");
   mainWindow?.webContents.send("refresh-table"); // Notify the main window to refresh the table
 });
 
-
 ipcMain.handle("fetch-summary", async (event, paperId: number) => {
   console.log(`Fetching summary for paper ID ${paperId}`);
   const document = await fetchDocument(paperId); // Replace with your database fetch method
-  return document?.dataValues.summary || null;
+  return document?.dataValues.stage1Summary ?? null;
 });
 
-ipcMain.handle("generate-summary", async (event, paperId: number, extractedText: string) => {
-  console.log(`Generating summary for paper ID ${paperId}`);
-  try {
-    const generatedSummary = await summarizeTextForPaper(paperId, extractedText); // Replace with your summarization logic
-    // await updateDocument(paperId, { summary: generatedSummary }); // Save the generated summary to the database
-    return generatedSummary;
-  } catch (error: any) {
-    console.error("Error generating summary:", error.message);
-    return "Error generating summary.";
+ipcMain.handle(
+  "generate-summary",
+  async (event, paperId: number, extractedText: string) => {
+    console.log(`Generating summary for paper ID ${paperId}`);
+    try {
+      const generatedSummary = await summarizeTextForPaper(
+        paperId,
+        extractedText
+      ); // Replace with your summarization logic
+      // await updateDocument(paperId, { summary: generatedSummary }); // Save the generated summary to the database
+      return generatedSummary;
+    } catch (error: any) {
+      console.error("Error generating summary:", error.message);
+      return "Error generating summary.";
+    }
   }
-});
+);
 
 // Handle context reset requests
-ipcMain.handle('reset-context-for-paper', async (event, paperId: number) => {
+ipcMain.handle("reset-context-for-paper", async (event, paperId: number) => {
   try {
     console.log(`Resetting context for paper ID: ${paperId}`);
     resetContextForPaper(paperId);
@@ -311,26 +339,30 @@ ipcMain.handle('reset-context-for-paper', async (event, paperId: number) => {
   }
 });
 
-ipcMain.handle("send-summary-to-db", async (event, paperId: number, text: string) => {
-  console.log(`Received new database summary for paper ID ${paperId}`);
+ipcMain.handle(
+  "send-summary-to-db",
+  async (_, paperId: number, text: string) => {
+    console.log(`Received new database summary for paper ID ${paperId}`);
 
-  try {
-    await updateDocument(paperId, { summary: text });
-  } catch (error: any) {
-    console.error(`Could not update document ${paperId} with text ${text}`);
-    throw error;
+    try {
+      await updateDocument(paperId, { stage1Summary: text });
+    } catch (error: any) {
+      console.error(`Could not update document ${paperId} with text ${text}`);
+      throw error;
+    }
   }
+);
 
-});
+ipcMain.handle(
+  "update-summary",
+  async (_, paperId: number, correction: string) => {
+    console.log(`Received correction for paper ID ${paperId}:`, correction);
 
-ipcMain.handle("update-summary", async (event, paperId: number, correction: string) => {
-  console.log(`Received correction for paper ID ${paperId}:`, correction);
-
-  // Call your summarization function with the correction
-  const updatedSummary = await summarizeTextForPaper(paperId, "", correction);
-  return updatedSummary;
-});
-
+    // Call your summarization function with the correction
+    const updatedSummary = await summarizeTextForPaper(paperId, "", correction);
+    return updatedSummary;
+  }
+);
 
 ipcMain.handle("fetch-document", async (event, id) => {
   console.log("ID received in fetch-document handler:", id); // Add this log
@@ -348,6 +380,7 @@ ipcMain.handle("fetch-document", async (event, id) => {
   }
 });
 
+// Handle text extraction
 ipcMain.handle("extract-text", async (event, filePath: string) => {
   try {
     const text = await extractText(filePath);
@@ -361,3 +394,36 @@ ipcMain.handle("extract-text", async (event, filePath: string) => {
   }
 });
 
+// Handle document export
+ipcMain.handle("export-document", async (event, paperId: number) => {
+  try {
+    const summary = await getStage3Summary(paperId);
+    const folderPath = await getPdfFolderPath(paperId);
+    if (!summary ){
+      throw new Error(`Missing summary for paper with ID ${paperId}.`);
+    }
+    if (!folderPath) {
+      throw new Error(`Missing folder path for paper with ID ${paperId}.`);
+    }
+
+    const exportPath = path.join(
+      folderPath,
+      `document_${paperId}_stage3_summary.md`
+    );
+    fs.writeFileSync(exportPath, `# Stage 3 Summary\n\n${summary}`, "utf8");
+
+    return { success: true, path: exportPath };
+  } catch (error: any) {
+    console.error("Failed to export Stage 3 summary:", error);
+    return { success: false, error: error.message };
+  }
+});
+
+
+ipcMain.handle('copy-stage1-to-stage2', async (_, id: number) => {
+  return await copyStage1ToStage2(id);
+});
+
+ipcMain.handle('copy-stage2-to-stage3', async (_, id: number) => {
+  return await copyStage2ToStage3(id);
+});
