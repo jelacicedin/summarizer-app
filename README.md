@@ -41,7 +41,7 @@ An Electron-based desktop app for uploading, editing, summarizing, and exporting
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/yourusername/pdf-summarizer.git
+   git clone https://github.com/jelacicedin/summarizer-app.git
    cd pdf-summarizer ```
 2. Create a .env file (or copy the example):
 
@@ -142,6 +142,8 @@ Emoji not rendering? Install fonts-noto-color-emoji on Linux or whatever platfor
 Empty search results? Ensure the title/author fields are .value, not .textContent.
 
 🙌 Credits
+
 Created by Edin and the grindset 💪
+
 UI + Data + AI all baked into one focused Electron app.
 
