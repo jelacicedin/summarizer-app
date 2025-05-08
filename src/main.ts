@@ -203,6 +203,64 @@ ipcMain.handle("upload-file", async () => {
   }
 });
 
+// Handle scanning a folder for PDFs
+ipcMain.handle("scan-folder", async () => {
+  try {
+    const result: any = await dialog.showOpenDialog({
+      properties: ["openDirectory"],
+    });
+
+    if (result && !result.canceled && result.filePaths.length > 0) {
+      const folderPath = result.filePaths[0];
+
+      // Recursive function to get all PDFs in a folder and its subfolders
+      function getAllPdfFiles(dir: string): string[] {
+        const entries = fs.readdirSync(dir, { withFileTypes: true });
+        const pdfFiles: string[] = [];
+
+        for (const entry of entries) {
+          const fullPath = path.join(dir, entry.name);
+          if (entry.isDirectory()) {
+            // Recursively scan subfolders
+            pdfFiles.push(...getAllPdfFiles(fullPath));
+          } else if (entry.isFile() && path.extname(entry.name) === ".pdf") {
+            // Add PDF file to the list
+            pdfFiles.push(fullPath);
+          }
+        }
+
+        return pdfFiles;
+      }
+
+      // Get all PDFs in the selected folder and its subfolders
+      const pdfFiles = getAllPdfFiles(folderPath);
+
+      // Process each PDF file
+      const documents = [];
+      for (const filePath of pdfFiles) {
+        const filename = path.basename(filePath);
+        const newDoc = {
+          filename,
+          filePath,
+          title: filename.replace(".pdf", ""),
+          authors: "Unknown",
+          metadata: { uploaded: new Date() },
+        };
+
+        await addDocument(newDoc); // Add document to the database
+        documents.push(newDoc);
+      }
+
+      return { success: true, documents };
+    }
+
+    return { success: false, message: "No folder selected" };
+  } catch (error: any) {
+    console.error("Error scanning folder:", error);
+    return { success: false, error: error.message };
+  }
+});
+
 // Handle fetching all documents
 ipcMain.handle("fetch-documents", async () => {
   try {
@@ -374,7 +432,7 @@ ipcMain.handle("export-document", async (_, paperId: number) => {
     fs.writeFileSync(exportPath, `# Stage 3 Summary\n\n${summary}`, "utf8");
 
     return { success: true, path: exportPath };
-  } catch (error: any) { 
+  } catch (error: any) {
     // Handle errors
     console.error("Failed to export Stage 3 summary:", error);
     return { success: false, error: error.message };

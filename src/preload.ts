@@ -3,6 +3,7 @@ import { IElectronAPI, IDBAPI, IModalAPI, IExportAPI } from "./interface";
 // Expose APIs to the Renderer process
 contextBridge.exposeInMainWorld("electronAPI", <IElectronAPI>{
   uploadPdf: async (fileData) => ipcRenderer.invoke("upload-pdf", fileData),
+  scanFolder: async () => ipcRenderer.invoke("scan-folder"),
   openEditor: (data) => ipcRenderer.send("open-editor", data),
   loadSummary: () => ipcRenderer.invoke("load-summary"),
   saveSummary: (updatedSummary) =>

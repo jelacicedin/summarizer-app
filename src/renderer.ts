@@ -7,15 +7,11 @@ let currentSortOrder: "asc" | "desc" = "asc";
 let currentDocuments: Record<number, Document> = {};
 let pendingDeleteId: number | null = null;
 
-// Image modal
-const imageModal = document.getElementById("imageModal") as HTMLDivElement;
-const modalImage = document.getElementById("modalImage") as HTMLImageElement;
-const closeModal = document.querySelector(".close") as HTMLSpanElement;
-
 // Deletion modal
 const deletionModal = document.getElementById(
   "deleteConfirmModal"
 ) as HTMLDivElement;
+
 // Summary editing modal
 const summaryModal = document.getElementById("summaryModal") as HTMLDivElement;
 const summaryModalTextarea = document.getElementById(
@@ -31,8 +27,12 @@ const authorSearchBox = document.getElementById(
 ) as HTMLInputElement;
 const stageFilter = document.getElementById("stageFilter") as HTMLSelectElement;
 
+// Image modal
+const imageModal = document.getElementById("imageModal") as HTMLDivElement;
+const modalImage = document.getElementById("modalImage") as HTMLImageElement;
+const closeModal = document.querySelector(".close") as HTMLSpanElement;
+
 // Image modal event listeners
-// Open the modal when an image link is clicked
 document.body.addEventListener("click", (event) => {
   const target = event.target as HTMLElement;
   if (target.classList.contains("image-link")) {
@@ -52,6 +52,10 @@ document.addEventListener("DOMContentLoaded", () => {
   const uploadButton = document.getElementById(
     "uploadButton"
   ) as HTMLButtonElement;
+  const scanFolderButton = document.getElementById(
+    "scanFolderButton"
+  ) as HTMLButtonElement;
+
   const tableBody = document.querySelector(
     "#documentsTable tbody"
   ) as HTMLElement;
@@ -64,16 +68,24 @@ document.addEventListener("DOMContentLoaded", () => {
     return;
   }
 
+  // Delete button confirmation
   document
     .getElementById("confirmDeleteBtn")!
     .addEventListener("click", async () => {
       if (pendingDeleteId !== null) {
-        await window.dbAPI.deleteDocument(pendingDeleteId); // your backend method
+        await window.dbAPI.deleteDocument(pendingDeleteId); // Delete the document
+        showToast("✅ Document deleted successfully", 2000);
+        // Refresh the table
         await loadDocuments();
         pendingDeleteId = null;
       }
       document.getElementById("deleteConfirmModal")!.style.display = "none";
     });
+  // Cancel delete button
+  document.getElementById("cancelDeleteBtn")!.addEventListener("click", () => {
+    pendingDeleteId = null;
+    document.getElementById("deleteConfirmModal")!.style.display = "none";
+  });
 
   // Title search box functionality
   function filterTable() {
@@ -644,7 +656,7 @@ document.addEventListener("DOMContentLoaded", () => {
           `Stage 2 summary for paperId: ${paperId} is ${stage2Summary?.value} and the stage 3 summary ${stage3Summary?.value}`
         );
         if (success && stage2Summary && stage3Summary) {
-          console.log(``);
+          console.log("Copying Stage 2 Summary to Stage 3");
           stage3Summary.value = stage2Summary.value;
         } else {
           console.error("Failed to copy Stage 2 Summary to Stage 3.");
@@ -738,6 +750,20 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     } catch (error) {
       console.error("Error uploading file:", error);
+    }
+  });
+
+  // Scan Folder and Refresh Table
+  scanFolderButton.addEventListener("click", async () => {
+    try {
+      const response = await window.electronAPI.scanFolder();
+      if (response.success) {
+        await loadDocuments(); // Refresh the table
+      } else {
+        console.error("Folder scan failed:", response.message);
+      }
+    } catch (error) {
+      console.error("Error scanning folder:", error);
     }
   });
 

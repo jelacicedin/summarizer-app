@@ -5,6 +5,7 @@ export interface Message {
 
 export interface IElectronAPI {
   uploadPdf: (fileData: { name: string; content: ArrayBuffer }) => Promise<any>;
+  scanFolder: () => Promise<any>;
   openEditor: (data: { id: number; summary: string }) => void;
   loadSummary: (callback: (summary: string) => void) => void;
   saveSummary: (updatedSummary: string) => void;
