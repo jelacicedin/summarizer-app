@@ -151,21 +151,6 @@ table tr:hover {
   background-color: #ddd; /* Keep the hover color */
 }
 
-/* Add padding to create a hover zone */
-table tr::before {
-  content: ""; /* Create an invisible hover zone */
-  position: absolute;
-  top: -5px; /* Extend the hover zone slightly above the row */
-  bottom: -5px; /* Extend the hover zone slightly below the row */
-  left: 0;
-  right: 0;
-  z-index: -1; /* Ensure it doesn't interfere with content */
-  background-color: transparent; /* Invisible by default */
-}
-
-table tr:hover::before {
-  background-color: #ddd; /* Apply the hover color */
-}
 
 /* Expand input boxes on row hover */
 tr:hover td input[type="text"].expandable-input {
@@ -474,4 +459,11 @@ tr.dark-mode:hover {
   width: 300px;
   border: 1px solid #ccc;
   border-radius: 4px;
+}
+
+.delete-btn {
+  display: inline-block;
+  padding: 5px;
+  font-size: 14px;
+  cursor: pointer;
 }
