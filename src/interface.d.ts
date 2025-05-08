@@ -15,6 +15,7 @@ export interface IElectronAPI {
   onToggleDarkMode: (callback: () => void) => void;
   getPrompts: () => Promise<Record<string, string>>;
   setPrompt: (prompt: string) => void;
+  getDefaultRole: () => Promise<string>;
 }
 
 export interface IModalAPI {

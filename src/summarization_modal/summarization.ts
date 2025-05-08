@@ -18,21 +18,15 @@ const saveButton = document.getElementById("save-summary") as HTMLButtonElement;
 
 let messageThread: Message[] = [];
 
-const defaultSystemMessage: Message = {
-  role: "system",
-  content: `You are a helpful assistant tasked with writing a Markdown-formatted summary of a research paper that is optimized for sharing on social media (e.g., LinkedIn, Twitter, or a blog). 
+let defaultSystemMessage: Message;
 
-Please:
-
-- Use a **concise, engaging tone** suitable for a technical but non-expert audience.
-- Start with a short, attention-grabbing one-line summary or title.
-- Follow with **key contributions**, **methods**, and **results** in separate bullet points or short paragraphs.
-- Include any interesting findings or implications.
-- Format the response in **Markdown**, using headers, bullet points, and bold text where appropriate.
-- Avoid overly technical jargon unless essential.
-
-This summary will be seen by researchers, engineers, and decision-makers who want to quickly grasp the value of the paper.`,
-};
+document.addEventListener("DOMContentLoaded", async () => {
+  const defaultRoleContent = await window.electronAPI.getDefaultRole();
+  defaultSystemMessage = {
+    role: "system",
+    content: defaultRoleContent,
+  };
+});
 
 const defaultPrompt =
   "Please summarize the key contributions, methods, and results of this scientific paper.";
@@ -45,7 +39,6 @@ window.modalAPI.onSummarizationModal((paperId: number) => {
   console.log("Received paperId in renderer:", paperId);
   handleModalInitialization(paperId);
 });
-
 
 // Reload summary with new prompt
 reloadButton.addEventListener("click", async () => {
@@ -142,8 +135,12 @@ function toggleDarkMode() {
 }
 
 document.addEventListener("DOMContentLoaded", async () => {
-  const dropdown = document.getElementById("prompt-dropdown") as HTMLSelectElement;
-  const promptInput = document.getElementById("prompt-input") as HTMLTextAreaElement;
+  const dropdown = document.getElementById(
+    "prompt-dropdown"
+  ) as HTMLSelectElement;
+  const promptInput = document.getElementById(
+    "prompt-input"
+  ) as HTMLTextAreaElement;
 
   // Fetch prompts from the main process
   const prompts: Record<string, string> = await window.electronAPI.getPrompts();

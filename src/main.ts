@@ -349,6 +349,10 @@ function createSummarizationModal(paperId: number, stage: number) {
     };
   });
 
+  ipcMain.handle("get-default-role", () => {
+    return process.env.DEFAULT_ROLE_CHATGPT || "";
+  });
+
   // Handle modal close
   chatModal.on("closed", () => {
     console.log("Modal closed.");

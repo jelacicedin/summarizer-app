@@ -16,6 +16,7 @@ contextBridge.exposeInMainWorld("electronAPI", <IElectronAPI>{
     ipcRenderer.on("toggle-dark-mode", callback),
   getPrompts: () => ipcRenderer.invoke("get-prompts"),
   setPrompt: (prompt: string) => ipcRenderer.send("set-prompt", prompt),
+  getDefaultRole: () => ipcRenderer.invoke("get-default-role"),
 });
 
 contextBridge.exposeInMainWorld("dbAPI", <IDBAPI>{
@@ -37,7 +38,7 @@ contextBridge.exposeInMainWorld("dbAPI", <IDBAPI>{
   saveConversation: (paperId, conversation) =>
     ipcRenderer.invoke("save-conversation", paperId, conversation),
   getConversation: (paperId) => ipcRenderer.invoke("get-conversation", paperId),
-  deleteDocument : (paperId) => ipcRenderer.invoke("delete-document", paperId)
+  deleteDocument: (paperId) => ipcRenderer.invoke("delete-document", paperId),
 });
 
 contextBridge.exposeInMainWorld("modalAPI", <IModalAPI>{

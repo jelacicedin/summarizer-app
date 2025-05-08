@@ -116,6 +116,57 @@ td input[type="text"].expandable-input {
   min-height: 30px; /* Set a minimum height */
 }
 
+/* Ensure consistent row height */
+table tr {
+  height: 50px; /* Set a fixed height for rows */
+  transition: background-color 0.3s ease; /* Smooth hover effect */
+}
+
+/* Prevent hover effects from changing row height */
+table tr:hover {
+  background-color: #ddd; /* Keep the hover color */
+}
+
+/* Ensure checkboxes don't affect row height */
+td input[type="checkbox"] {
+  margin: 0; /* Remove extra margin */
+  vertical-align: middle; /* Align checkbox vertically */
+  height: auto; /* Prevent resizing */
+}
+
+/* Prevent input boxes from expanding row height */
+td input[type="text"].expandable-input {
+  height: 30px; /* Set a consistent height */
+  overflow: hidden; /* Prevent overflow */
+  white-space: nowrap; /* Prevent wrapping */
+}
+
+/* Add a hover zone around the edges of the row */
+table tr {
+  position: relative; /* Ensure the row is positioned for pseudo-elements */
+  transition: background-color 0.3s ease; /* Smooth hover effect */
+}
+
+table tr:hover {
+  background-color: #ddd; /* Keep the hover color */
+}
+
+/* Add padding to create a hover zone */
+table tr::before {
+  content: ""; /* Create an invisible hover zone */
+  position: absolute;
+  top: -5px; /* Extend the hover zone slightly above the row */
+  bottom: -5px; /* Extend the hover zone slightly below the row */
+  left: 0;
+  right: 0;
+  z-index: -1; /* Ensure it doesn't interfere with content */
+  background-color: transparent; /* Invisible by default */
+}
+
+table tr:hover::before {
+  background-color: #ddd; /* Apply the hover color */
+}
+
 /* Expand input boxes on row hover */
 tr:hover td input[type="text"].expandable-input {
   white-space: normal; /* Allow text to wrap */
