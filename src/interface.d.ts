@@ -11,6 +11,7 @@ export interface IElectronAPI {
   onRefreshTable: (callback: () => void) => void;
   extractText: (filePath: string) => Promise<string>;
   on: (channel: string, callback: (args: any[]) => void) => void;
+  onToggleDarkMode: (callback: () => void) => void;
 }
 
 export interface IModalAPI {

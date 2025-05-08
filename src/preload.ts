@@ -11,6 +11,8 @@ contextBridge.exposeInMainWorld("electronAPI", <IElectronAPI>{
   extractText: (filePath) => ipcRenderer.invoke("extract-text", filePath),
   on: (channel: string, callback: (...args: any[]) => void) =>
     ipcRenderer.on(channel, (event, ...args) => callback(...args)),
+  onToggleDarkMode: (callback: () => void) =>
+    ipcRenderer.on("toggle-dark-mode", callback),
 });
 
 contextBridge.exposeInMainWorld("dbAPI", <IDBAPI>{

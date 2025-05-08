@@ -12,6 +12,10 @@ const summaryModalTextarea = document.getElementById(
   "modalTextarea"
 ) as HTMLTextAreaElement;
 
+// Search boxes
+const titleSearchBox = document.getElementById("titleSearchInput") as HTMLInputElement;
+const  authorSearchBox = document.getElementById("authorSearchInput") as HTMLInputElement;
+
 
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -30,7 +34,31 @@ document.addEventListener("DOMContentLoaded", () => {
     return;
   }
 
-  window.electronAPI?.on("toggle-dark-mode", () => toggleDarkMode());
+  // Title search box functionality
+  
+function filterTable() {
+  const titleQuery = titleSearchBox.value.toLowerCase();
+  const authorQuery = authorSearchBox.value.toLowerCase();
+
+  const rows = document.querySelectorAll("#documentsTable tbody tr") as NodeListOf<HTMLTableRowElement>;
+
+  
+  rows.forEach((row) => {
+    const titleCell = row.children[2];   // 3rd cell = Title
+    const authorCell = row.children[3];  // 4th cell = Authors
+
+    const title = (titleCell.querySelector("textarea") as HTMLTextAreaElement)?.value.toLowerCase() || "";
+    const author = (authorCell.querySelector("textarea") as HTMLTextAreaElement)?.value.toLowerCase() || "";
+
+    const titleMatch = title.includes(titleQuery);
+    const authorMatch = author.includes(authorQuery);
+
+    row.style.display = titleMatch && authorMatch ? "" : "none";
+  });
+}
+
+titleSearchBox.addEventListener("input", filterTable);
+authorSearchBox.addEventListener("input", filterTable);
 
   function toggleDarkMode() {
     document.body.classList.toggle("dark-mode");
@@ -51,6 +79,9 @@ document.addEventListener("DOMContentLoaded", () => {
       fileLabel.classList.toggle("dark-mode");
     }
   }
+  window.electronAPI?.onToggleDarkMode(() => {
+    toggleDarkMode();
+  });
 
   // Fetch and display documents
   async function loadDocuments() {
