@@ -5,7 +5,12 @@ let currentEditingTextarea: HTMLTextAreaElement | null = null;
 let currentSortColumn: string = ""; // Default to an empty string
 let currentSortOrder: "asc" | "desc" = "asc";
 let currentDocuments: Record<number, Document> = {};
+let pendingDeleteId: number | null = null;
 
+// Deletion modal
+const deletionModal = document.getElementById(
+  "deleteConfirmModal"
+) as HTMLDivElement;
 // Summary editing modal
 const summaryModal = document.getElementById("summaryModal") as HTMLDivElement;
 const summaryModalTextarea = document.getElementById(
@@ -20,6 +25,8 @@ const authorSearchBox = document.getElementById(
   "authorSearchInput"
 ) as HTMLInputElement;
 const stageFilter = document.getElementById("stageFilter") as HTMLSelectElement;
+
+
 
 document.addEventListener("DOMContentLoaded", () => {
   const uploadButton = document.getElementById(
@@ -37,8 +44,17 @@ document.addEventListener("DOMContentLoaded", () => {
     return;
   }
 
+  document.getElementById("confirmDeleteBtn")!.addEventListener("click", async () => {
+    if (pendingDeleteId !== null) {
+      await window.dbAPI.deleteDocument(pendingDeleteId); // your backend method
+      await loadDocuments();
+      pendingDeleteId = null;
+    }
+    document.getElementById("deleteConfirmModal")!.style.display = "none";
+  });
+  
+  
   // Title search box functionality
-
   function filterTable() {
     const titleQuery = titleSearchBox.value.toLowerCase();
     const authorQuery = authorSearchBox.value.toLowerCase();
@@ -163,6 +179,14 @@ document.addEventListener("DOMContentLoaded", () => {
           if (document.body.classList.contains("dark-mode")) {
             row.classList.add("dark-mode");
           }
+          // Delete button
+          const deleteButtonCell = document.createElement("td");
+          const deleteButton = document.createElement("button");
+          deleteButton.classList.add("delete-btn", "non-resizable");
+          deleteButton.dataset.id = dataValues.id.toString();
+          deleteButton.textContent = "❌";
+          deleteButtonCell.appendChild(deleteButton);
+          row.appendChild(deleteButtonCell);
 
           // ID cell
           const idCell = document.createElement("td");
@@ -196,12 +220,16 @@ document.addEventListener("DOMContentLoaded", () => {
 
           // Datetime Added cell
           const datetimeAddedCell = document.createElement("td");
-          datetimeAddedCell.textContent = new Date(dataValues.datetimeAdded ?? "").toLocaleString();
+          datetimeAddedCell.textContent = new Date(
+            dataValues.datetimeAdded ?? ""
+          ).toLocaleString();
           row.appendChild(datetimeAddedCell);
 
           // Last Modified cell
           const lastModifiedCell = document.createElement("td");
-          lastModifiedCell.textContent = dataValues.datetimeLastModified ? new Date(dataValues.datetimeLastModified??"").toLocaleString() : "Never";
+          lastModifiedCell.textContent = dataValues.datetimeLastModified
+            ? new Date(dataValues.datetimeLastModified ?? "").toLocaleString()
+            : "Never";
 
           row.appendChild(lastModifiedCell);
 
@@ -224,6 +252,8 @@ document.addEventListener("DOMContentLoaded", () => {
             imageLinksCell.textContent = "No Images";
           }
           row.appendChild(imageLinksCell);
+
+          
 
           // Stage 1 Summary and Approval
           const stage1SummaryCell = document.createElement("td");
@@ -544,7 +574,7 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
-    const paperId: number = parseInt(row.children[0].textContent!);
+    const paperId: number = parseInt(row.children[1].textContent!);
 
     stage1ApprovalCheckbox.addEventListener("change", async () => {
       // Unlock Stage 2 if Stage 1 passed
@@ -567,7 +597,6 @@ document.addEventListener("DOMContentLoaded", () => {
           `Stage 1 summary for paperId: ${paperId} is ${stage1Summary?.value} and the stage 2 summary ${stage2Summary?.value}`
         );
         if (success && stage1Summary && stage2Summary) {
-          console.log(``);
           stage2Summary.value = stage1Summary.value;
         } else {
           console.error("Failed to copy Stage 1 Summary to Stage 2.");
@@ -608,11 +637,8 @@ document.addEventListener("DOMContentLoaded", () => {
       await window.dbAPI.updateDocument(paperId, {
         ["approvalStage3"]: stage3ApprovalCheckbox.checked,
       });
-
-      // handleApprovalChange(row, 3);
     });
 
-    // TODO: this needs to work separately for each button
     // Summarize button
     const summarizeButton = row.querySelector(
       ".summarize-btn"
@@ -645,6 +671,14 @@ document.addEventListener("DOMContentLoaded", () => {
             `✅ Markdown summary saved to ${exportResult.path} for paper ID ${paperId}`
           );
         }
+      });
+    }
+
+    const deleteButton = row.querySelector(".delete-btn") as HTMLButtonElement;
+    if (deleteButton) {
+      deleteButton.addEventListener("click", async () => {
+        pendingDeleteId = parseInt(deleteButton.dataset.id || "0", 10);
+        deletionModal!.style.display = "block";
       });
     }
   }

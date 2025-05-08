@@ -46,6 +46,7 @@ export interface IDBAPI {
   copyStage2ToStage3: (paperId: number) => Promise<boolean>;
   saveConversation: (paperId: number, conversation: string) => Promise<void>;
   getConversation: (paperId: number) => Promise<string>;
+  deleteDocument: (paperId: number) => Promise<void>;
 }
 
 export interface IExportAPI {

@@ -18,6 +18,7 @@ import {
   copyStage2ToStage3,
   getConversationById,
   saveConversation,
+  deleteDocument,
 } from "./database.js";
 import { startDockerServices } from "./check-docker.js";
 import { extractText } from "./pdf-handler.js";
@@ -216,7 +217,7 @@ ipcMain.handle("fetch-documents", async () => {
 // Handle returning a filepath for a document
 ipcMain.handle(
   "fetch-file-path",
-  async (event, paperId: number): Promise<string> => {
+  async (_, paperId: number): Promise<string> => {
     try {
       const document = await fetchDocument(paperId);
       if (document) {
@@ -230,7 +231,7 @@ ipcMain.handle(
 );
 
 // Handle updating a document
-ipcMain.handle("update-document", async (event, { id, updates }) => {
+ipcMain.handle("update-document", async (_, { id, updates }) => {
   try {
     await updateDocument(id, updates);
     return { success: true };
@@ -240,9 +241,18 @@ ipcMain.handle("update-document", async (event, { id, updates }) => {
   }
 });
 
+// Handle deleting a document
+ipcMain.handle("delete-document", async (_, paperId) => {
+  try {
+    await deleteDocument(paperId);
+    console.log("Deleted document with ID: " + paperId);
+  } catch (error: any) {
+    console.error("Error deleting document:", error);
+  }
+});
+
 // Function to create the summarization modal
 function createSummarizationModal(paperId: number, stage: number) {
-  // TODO: implement this stage option for two different modal types.
   if (chatModal) {
     console.log("Modal already open.");
     return; // Prevent creating multiple modals
@@ -288,7 +298,6 @@ ipcMain.handle(
   }
 );
 
-
 ipcMain.on("refresh-table", () => {
   console.log("Received request to refresh the table.");
   mainWindow?.webContents.send("refresh-table"); // Notify the main window to refresh the table
@@ -299,8 +308,6 @@ ipcMain.handle("fetch-summary", async (event, paperId: number) => {
   const document = await fetchDocument(paperId); // Replace with your database fetch method
   return document?.dataValues.stage1Summary ?? null;
 });
-
-
 
 ipcMain.handle(
   "send-summary-to-db",
@@ -315,7 +322,6 @@ ipcMain.handle(
     }
   }
 );
-
 
 ipcMain.handle("fetch-document", async (_, id) => {
   console.log("ID received in fetch-document handler:", id); // Add this log
@@ -395,7 +401,7 @@ ipcMain.handle("summarize-document", async (_, id, messages) => {
   // 1. Get the extracted text from the PDF (by id)
   const pdfText = await extractText(pdfFilePath);
   const cleanText = cleanPdfText(pdfText);
-  const truncatedText = cleanText.slice(0,8000);
+  const truncatedText = cleanText.slice(0, 8000);
   // 2. Prepend it to the conversation history as a system/user message
   const combinedMessages: Message[] = [
     {

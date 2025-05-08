@@ -34,6 +34,7 @@ contextBridge.exposeInMainWorld("dbAPI", <IDBAPI>{
   saveConversation: (paperId, conversation) =>
     ipcRenderer.invoke("save-conversation", paperId, conversation),
   getConversation: (paperId) => ipcRenderer.invoke("get-conversation", paperId),
+  deleteDocument : (paperId) => ipcRenderer.invoke("delete-document", paperId)
 });
 
 contextBridge.exposeInMainWorld("modalAPI", <IModalAPI>{
