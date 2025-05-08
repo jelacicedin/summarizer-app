@@ -1,7 +1,6 @@
 import { copyStage1ToStage2, Document } from "./database.js";
 
 let currentEditingTextarea: HTMLTextAreaElement | null = null;
-let saveTimeout: ReturnType<typeof setTimeout> | null = null;
 
 let currentSortColumn: string = ""; // Default to an empty string
 let currentSortOrder: "asc" | "desc" = "asc";
@@ -12,6 +11,8 @@ const summaryModal = document.getElementById("summaryModal") as HTMLDivElement;
 const summaryModalTextarea = document.getElementById(
   "modalTextarea"
 ) as HTMLTextAreaElement;
+
+
 
 document.addEventListener("DOMContentLoaded", () => {
   const uploadButton = document.getElementById(
@@ -278,29 +279,27 @@ document.addEventListener("DOMContentLoaded", () => {
             stage2SummaryTextarea,
             stage3SummaryTextarea,
           ];
-          console.log(
-            `EDITABLE TEXT AREAS that we can write to: ${editableTextareas}`
-          );
+
           editableTextareas.forEach((textarea) => {
-            textarea.addEventListener("input", (e) => {
-              if (saveTimeout) clearTimeout(saveTimeout);
-              saveTimeout = setTimeout(async () => {
-                const target = e.target as HTMLTextAreaElement;
-                const id = parseInt(target.dataset.id || "0", 10);
-                const field = target.dataset.field || "";
-                console.log(
-                  `NOW UPDATING ${id} paper field ${field} with ${target.value}`
-                );
-                try {
-                  await window.dbAPI.updateDocument(id, {
-                    [field]: target.value,
-                  });
-                } catch (error) {
-                  console.error("Error saving document:", error);
-                }
-              }, 1000); // 1-second debounce
+            textarea.addEventListener("modifiedSummary", async (e: Event) => {
+              const customEvent = e as CustomEvent;
+              const target = customEvent.target as HTMLTextAreaElement;
+              const id = parseInt(target.dataset.id || "0", 10);
+              const field = target.dataset.field || "";
+          
+              target.value = customEvent.detail; // Copy over the modal content
+              console.log(`NOW UPDATING ${id} paper field ${field} with ${target.value}`);
+          
+              try {
+                await window.dbAPI.updateDocument(id, {
+                  [field]: customEvent.detail,
+                });
+              } catch (error) {
+                console.error("Error saving document:", error);
+              }
             });
           });
+          
 
           tableBody.appendChild(row);
 
@@ -653,9 +652,37 @@ document.addEventListener("DOMContentLoaded", () => {
   document
     .getElementById("reloadButton")!
     .addEventListener("click", async () => {
-      console.debug("Manual table reload triggered");
+      showToast("🔄 Manual table reload triggered", 2000);
       await loadDocuments();
     });
+
+
+    // Add modal event listeners
+document.getElementById("modalSave")!.addEventListener("click", async () => {
+  if (currentEditingTextarea) {
+    const id = parseInt(currentEditingTextarea.dataset.id || "0", 10);
+    const field = currentEditingTextarea.dataset.field || "";
+    const newValue = summaryModalTextarea.value;
+
+    console.log(`NOW SAVING ${id} paper field ${field} with ${newValue}`);
+    currentEditingTextarea.value = newValue;
+
+    try {
+      await window.dbAPI.updateDocument(id, { [field]: newValue });
+
+      // Optionally refresh entire row (or whole table if simpler)
+      await loadDocuments();
+
+      // Show a quick confirmation
+      showToast("✅ Summary updated", 2000);
+    } catch (error) {
+      console.error("Error saving summary:", error);
+      showToast("❌ Failed to update summary", 3000);
+    }
+  }
+
+  closeSummaryModal();
+});
 });
 
 document.body.addEventListener("click", (event) => {
@@ -670,17 +697,7 @@ document.body.addEventListener("click", (event) => {
   }
 });
 
-// Add modal event listeners
-document.getElementById("modalSave")!.addEventListener("click", async () => {
-  if (currentEditingTextarea && currentEditingTextarea.value) {
-    currentEditingTextarea.value = summaryModalTextarea.value;
 
-    // Trigger the input event to save changes
-    currentEditingTextarea.dispatchEvent(new Event("input"));
-  }
-  // Close the modal after saving
-  closeSummaryModal();
-});
 
 document.getElementById("modalClose")!.addEventListener("click", () => {
   closeSummaryModal();
@@ -742,3 +759,4 @@ function makeTableHeadersResizable(table: HTMLTableElement) {
     };
   });
 }
+

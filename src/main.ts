@@ -288,19 +288,6 @@ ipcMain.handle(
   }
 );
 
-// ipcMain.handle(
-//   "summarize-text-for-paper",
-//   async (event, paperId: number, text: string, correction?: string) => {
-//     try {
-//       console.log(`Summarizing text for paper ID: ${paperId}`);
-//       const summary = await summarizeTextForPaper(paperId, text, correction);
-//       return { success: true, summary };
-//     } catch (error: any) {
-//       console.error(`Error summarizing text for paper ID: ${paperId}`, error);
-//       return { success: false, error: error.message };
-//     }
-//   }
-// );
 
 ipcMain.on("refresh-table", () => {
   console.log("Received request to refresh the table.");
@@ -313,35 +300,7 @@ ipcMain.handle("fetch-summary", async (event, paperId: number) => {
   return document?.dataValues.stage1Summary ?? null;
 });
 
-// ipcMain.handle(
-//   "generate-summary",
-//   async (event, paperId: number, extractedText: string) => {
-//     console.log(`Generating summary for paper ID ${paperId}`);
-//     try {
-//       const generatedSummary = await summarizeTextForPaper(
-//         paperId,
-//         extractedText
-//       ); // Replace with your summarization logic
-//       // await updateDocument(paperId, { summary: generatedSummary }); // Save the generated summary to the database
-//       return generatedSummary;
-//     } catch (error: any) {
-//       console.error("Error generating summary:", error.message);
-//       return "Error generating summary.";
-//     }
-//   }
-// );
 
-// Handle context reset requests
-// ipcMain.handle("reset-context-for-paper", async (event, paperId: number) => {
-//   try {
-//     console.log(`Resetting context for paper ID: ${paperId}`);
-//     resetContextForPaper(paperId);
-//     return { success: true };
-//   } catch (error: any) {
-//     console.error(`Error resetting context for paper ID: ${paperId}`, error);
-//     return { success: false, error: error.message };
-//   }
-// });
 
 ipcMain.handle(
   "send-summary-to-db",
@@ -357,16 +316,6 @@ ipcMain.handle(
   }
 );
 
-// ipcMain.handle(
-//   "update-summary",
-//   async (_, paperId: number, correction: string) => {
-//     console.log(`Received correction for paper ID ${paperId}:`, correction);
-
-//     // Call your summarization function with the correction
-//     const updatedSummary = await summarizeTextForPaper(paperId, "", correction);
-//     return updatedSummary;
-//   }
-// );
 
 ipcMain.handle("fetch-document", async (_, id) => {
   console.log("ID received in fetch-document handler:", id); // Add this log
