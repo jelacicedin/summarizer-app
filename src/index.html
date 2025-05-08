@@ -1,47 +1,57 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>PDF Summarizer</title>
-    <link rel="stylesheet" href="assets/styles.css" />
-  </head>
-  <body>
-    <div class="header">
-      <h1>PDF Summarizer</h1>
-      <button  class="upload-button" id="uploadButton">Upload file...</button>
-      <button class="reload-button" id="reloadButton">Reload Table</button>
-    </div>
 
-    <!-- Separator line -->
-    <hr class="separator" />
-    
-    <!-- Documents table -->
-    <table id="documentsTable">
-      <thead>
-        <tr> 
-          <th class="resizeable" data-sort="id">ID</th>
-          <th class="resizeable" data-sort="filename">Filename</th>
-          <th class="resizeable" data-sort="title">Title</th>
-          <th class="resizeable" data-sort="authors">Authors</th>
-          <th class="resizeable" data-sort="datetimeAdded">Date Added</th>
-          <th class="resizeable">Image Links</th>
-          <th class="non-resizable">Stage 1 Summary</th>
-          <th class="non-resizable">AI Edit</th>
-          <th class="non-resizable">Stage 1 Approval</th>
-          <th class="resizeable">Stage 2 Summary</th>
-          <!-- <th class="resizeable">Stage 2 Edit</th> -->
-          <th class="non-resizable">Stage 2 Approval</th>
-          <th class="resizeable">Stage 3 Summary</th>
-          <th class="non-resizable">Stage 3 Approval</th>
-          <th class="non-resizable">Export</th>
-        </tr>
-      </thead>
-      <tbody>
-        <!-- Rows will be dynamically added here -->
-      </tbody>
-    </table>
-    <div id="toast" class="toast"></div>
-    <script type="module" src="./renderer.js"></script>
-  </body>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PDF Summarizer</title>
+  <link rel="stylesheet" href="assets/styles.css" />
+</head>
+
+<body>
+  <div class="header">
+    <h1>PDF Summarizer</h1>
+    <button class="upload-button" id="uploadButton">Upload file...</button>
+    <button class="reload-button" id="reloadButton">Reload Table</button>
+  </div>
+
+  <!-- Separator line -->
+  <hr class="separator" />
+
+  <!-- Documents table -->
+  <table id="documentsTable">
+    <thead>
+      <tr>
+        <th class="resizeable" data-sort="id">ID</th>
+        <th class="resizeable" data-sort="filename">Filename</th>
+        <th class="resizeable" data-sort="title">Title</th>
+        <th class="resizeable" data-sort="authors">Authors</th>
+        <th class="resizeable" data-sort="datetimeAdded">Date Added</th>
+        <th class="resizeable">Image Links</th>
+        <th class="non-resizable">Stage 1 Summary</th>
+        <th class="non-resizable">AI Edit</th>
+        <th class="non-resizable">Stage 1 Approval</th>
+        <th class="resizeable">Stage 2 Summary</th>
+        <!-- <th class="resizeable">Stage 2 Edit</th> -->
+        <th class="non-resizable">Stage 2 Approval</th>
+        <th class="resizeable">Stage 3 Summary</th>
+        <th class="non-resizable">Stage 3 Approval</th>
+        <th class="non-resizable">Export</th>
+      </tr>
+    </thead>
+    <tbody>
+      <!-- Rows will be dynamically added here -->
+    </tbody>
+  </table>
+  <div id="toast" class="toast"></div>
+  <div class="modal" id="summaryModal">
+    <div class="modal-content">
+      <textarea class="modal-textarea" id="modalTextarea"></textarea>
+      <button id="modalSave">Save Changes</button>
+      <button id="modalClose">Close</button>
+    </div>
+  </div>
+  <script type="module" src="./renderer.js"></script>
+</body>
+
 </html>

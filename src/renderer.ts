@@ -1,57 +1,5 @@
 import { copyStage1ToStage2, Document } from "./database.js";
 
-// Add to your CSS (create a new <style> tag or add to existing styles.css)
-const modalCSS = `
-.modal {
-  display: none;
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0,0,0,0.5);
-  z-index: 1000;
-}
-
-.modal-content {
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  background-color: white;
-  padding: 20px;
-  border-radius: 5px;
-  width: 80%;
-  max-width: 600px;
-}
-
-.modal-content.dark-mode {
-  background-color: #333;
-  color: white;
-}
-
-.modal-textarea {
-  width: 100%;
-  height: 300px;
-  margin-bottom: 10px;
-}
-`;
-document.head.appendChild(document.createElement("style")).textContent =
-  modalCSS;
-
-// Add modal HTML structure
-const modalHTML = `
-<div class="modal" id="summaryModal">
-  <div class="modal-content">
-    <textarea class="modal-textarea" id="modalTextarea"></textarea>
-    <button id="modalSave">Save Changes</button>
-    <button id="modalClose">Close</button>
-  </div>
-</div>
-`;
-document.body.insertAdjacentHTML("beforeend", modalHTML);
-
-// Add these variables at the top of your file
 let currentEditingTextarea: HTMLTextAreaElement | null = null;
 let saveTimeout: ReturnType<typeof setTimeout> | null = null;
 
@@ -59,6 +7,11 @@ let currentSortColumn: string = ""; // Default to an empty string
 let currentSortOrder: "asc" | "desc" = "asc";
 let currentDocuments: Record<number, Document> = {};
 
+// Summary editing modal
+const summaryModal = document.getElementById("summaryModal") as HTMLDivElement;
+const summaryModalTextarea = document.getElementById(
+  "modalTextarea"
+) as HTMLTextAreaElement;
 
 document.addEventListener("DOMContentLoaded", () => {
   const uploadButton = document.getElementById(
@@ -219,7 +172,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
           const stage1EditCell = document.createElement("td");
           const stage1EditButton = document.createElement("button");
-          stage1EditButton.classList.add("summarize-btn","non-resizable");
+          stage1EditButton.classList.add("summarize-btn", "non-resizable");
           stage1EditButton.dataset.id = dataValues.id.toString();
           stage1EditButton.dataset.stage = "1";
           stage1EditButton.textContent = "AI Edit";
@@ -235,7 +188,10 @@ document.addEventListener("DOMContentLoaded", () => {
           const stage1ApprovalCell = document.createElement("td");
           const stage1ApprovalCheckbox = document.createElement("input");
           stage1ApprovalCheckbox.type = "checkbox";
-          stage1ApprovalCheckbox.classList.add("stage1-approval","non-resizable");
+          stage1ApprovalCheckbox.classList.add(
+            "stage1-approval",
+            "non-resizable"
+          );
           stage1ApprovalCheckbox.checked = dataValues.approvalStage1 ?? false;
           stage1ApprovalCell.appendChild(stage1ApprovalCheckbox);
           row.appendChild(stage1ApprovalCell);
@@ -279,7 +235,10 @@ document.addEventListener("DOMContentLoaded", () => {
           const stage3ApprovalCell = document.createElement("td");
           const stage3ApprovalCheckbox = document.createElement("input");
           stage3ApprovalCheckbox.type = "checkbox";
-          stage3ApprovalCheckbox.classList.add("stage3-approval","non-resizable");
+          stage3ApprovalCheckbox.classList.add(
+            "stage3-approval",
+            "non-resizable"
+          );
           stage3ApprovalCheckbox.checked = dataValues.approvalStage3 ?? false;
           stage3ApprovalCell.appendChild(stage3ApprovalCheckbox);
           row.appendChild(stage3ApprovalCell);
@@ -287,7 +246,7 @@ document.addEventListener("DOMContentLoaded", () => {
           // Export cell
           const exportCell = document.createElement("td");
           const exportButton = document.createElement("button");
-          exportButton.classList.add("export-btn","non-resizable");
+          exportButton.classList.add("export-btn", "non-resizable");
           exportButton.textContent = "Export";
           exportButton.disabled = dataValues.approvalStage3 ?? false;
           if (document.body.classList.contains("dark-mode")) {
@@ -302,17 +261,11 @@ document.addEventListener("DOMContentLoaded", () => {
           summaryTextareas.forEach((textarea) => {
             textarea.addEventListener("click", (e) => {
               currentEditingTextarea = e.target as HTMLTextAreaElement;
-              const modal = document.getElementById(
-                "summaryModal"
-              ) as HTMLDivElement;
-              const modalTextarea = document.getElementById(
-                "modalTextarea"
-              ) as HTMLTextAreaElement;
 
-              modalTextarea.value = currentEditingTextarea.value;
-              modal.style.display = "block";
+              summaryModalTextarea.value = currentEditingTextarea.value;
+              summaryModal.style.display = "block";
               if (document.body.classList.contains("dark-mode")) {
-                modal
+                summaryModal
                   .querySelector(".modal-content")!
                   .classList.add("dark-mode");
               }
@@ -320,8 +273,14 @@ document.addEventListener("DOMContentLoaded", () => {
           });
 
           // Add auto-save functionality to textareas
-          const editableTextareas = [stage1SummaryTextarea,stage2SummaryTextarea,stage3SummaryTextarea];
-          console.log(`EDITABLE TEXT AREAS that we can write to: ${editableTextareas}`);
+          const editableTextareas = [
+            stage1SummaryTextarea,
+            stage2SummaryTextarea,
+            stage3SummaryTextarea,
+          ];
+          console.log(
+            `EDITABLE TEXT AREAS that we can write to: ${editableTextareas}`
+          );
           editableTextareas.forEach((textarea) => {
             textarea.addEventListener("input", (e) => {
               if (saveTimeout) clearTimeout(saveTimeout);
@@ -329,7 +288,9 @@ document.addEventListener("DOMContentLoaded", () => {
                 const target = e.target as HTMLTextAreaElement;
                 const id = parseInt(target.dataset.id || "0", 10);
                 const field = target.dataset.field || "";
-                console.log(`NOW UPDATING ${id} paper field ${field} with ${target.value}`);
+                console.log(
+                  `NOW UPDATING ${id} paper field ${field} with ${target.value}`
+                );
                 try {
                   await window.dbAPI.updateDocument(id, {
                     [field]: target.value,
@@ -343,7 +304,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
           tableBody.appendChild(row);
 
-          makeTableHeadersResizable(document.querySelector('table')!);
+          makeTableHeadersResizable(document.querySelector("table")!);
 
           // Update the disabled state for this row
           updateDisabledState(row);
@@ -610,10 +571,10 @@ document.addEventListener("DOMContentLoaded", () => {
         const paperId = parseInt(exportButton.dataset.id || "0", 10);
         console.log(`Exporting document with ID: ${paperId}`);
         const exportResult = await window.exportAPI.exportDocument(paperId);
-        if (exportResult.success)
-        {
-          showToast(`✅ Markdown summary saved to ${exportResult.path} for paper ID ${paperId}`);
-
+        if (exportResult.success) {
+          showToast(
+            `✅ Markdown summary saved to ${exportResult.path} for paper ID ${paperId}`
+          );
         }
       });
     }
@@ -622,10 +583,10 @@ document.addEventListener("DOMContentLoaded", () => {
   function showToast(message: string, duration = 3000) {
     const toast = document.getElementById("toast");
     if (!toast) return;
-  
+
     toast.textContent = message;
     toast.classList.add("show");
-  
+
     setTimeout(() => {
       toast.classList.remove("show");
     }, duration);
@@ -661,19 +622,23 @@ document.addEventListener("DOMContentLoaded", () => {
       const response = await window.dbAPI.fetchDocuments();
       if (response.success) {
         const newDocuments = response.documents;
-  
+
         let hasChanges = false;
-  
+
         for (const newDoc of newDocuments) {
           const id = newDoc.dataValues.id;
           const oldDoc = currentDocuments[id];
-  
-          if (!oldDoc || JSON.stringify(oldDoc.dataValues) !== JSON.stringify(newDoc.dataValues)) {
+
+          if (
+            !oldDoc ||
+            JSON.stringify(oldDoc.dataValues) !==
+              JSON.stringify(newDoc.dataValues)
+          ) {
             hasChanges = true;
             break;
           }
         }
-  
+
         if (hasChanges) {
           console.debug("Changes detected in DB, reloading table...");
           await loadDocuments();
@@ -684,12 +649,12 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }, 10000); // every 10 seconds
 
-
-  document.getElementById('reloadButton')!.addEventListener('click', async () => {
-    console.debug("Manual table reload triggered");
-    await loadDocuments();
-  });
-  
+  document
+    .getElementById("reloadButton")!
+    .addEventListener("click", async () => {
+      console.debug("Manual table reload triggered");
+      await loadDocuments();
+    });
 });
 
 document.body.addEventListener("click", (event) => {
@@ -707,60 +672,61 @@ document.body.addEventListener("click", (event) => {
 // Add modal event listeners
 document.getElementById("modalSave")!.addEventListener("click", async () => {
   if (currentEditingTextarea && currentEditingTextarea.value) {
-    const modalTextarea = document.getElementById(
-      "modalTextarea"
-    ) as HTMLTextAreaElement;
-    currentEditingTextarea.value = modalTextarea.value;
+    currentEditingTextarea.value = summaryModalTextarea.value;
 
     // Trigger the input event to save changes
     currentEditingTextarea.dispatchEvent(new Event("input"));
   }
-  document.getElementById("summaryModal")!.style.display = "none";
+  // Close the modal after saving
+  closeSummaryModal();
 });
 
 document.getElementById("modalClose")!.addEventListener("click", () => {
-  document.getElementById("summaryModal")!.style.display = "none";
+  closeSummaryModal();
 });
 
+function closeSummaryModal(): void {
+  summaryModal!.style.display = "none";
+}
 
 // Close modal when clicking outside
 window.addEventListener("click", (event) => {
   const modal = document.getElementById("summaryModal")!;
   if (event.target === modal) {
-    modal.style.display = "none";
+    closeSummaryModal();
   }
 });
 
 function makeTableHeadersResizable(table: HTMLTableElement) {
-  const thElements = table.querySelectorAll('th');
+  const thElements = table.querySelectorAll("th");
 
   thElements.forEach((th) => {
     // Skip if marked as non-resizable
-    if (th.classList.contains('non-resizable')) return;
+    if (th.classList.contains("non-resizable")) return;
 
     // Create a resize handle
-    const resizer = document.createElement('div');
-    resizer.style.width = '5px';
-    resizer.style.height = '100%';
-    resizer.style.position = 'absolute';
-    resizer.style.top = '0';
-    resizer.style.right = '0';
-    resizer.style.cursor = 'col-resize';
-    resizer.style.userSelect = 'none';
-    resizer.style.zIndex = '10';
+    const resizer = document.createElement("div");
+    resizer.style.width = "5px";
+    resizer.style.height = "100%";
+    resizer.style.position = "absolute";
+    resizer.style.top = "0";
+    resizer.style.right = "0";
+    resizer.style.cursor = "col-resize";
+    resizer.style.userSelect = "none";
+    resizer.style.zIndex = "10";
 
     // Make the parent th position relative
-    th.style.position = 'relative';
+    th.style.position = "relative";
     th.appendChild(resizer);
 
     let startX = 0;
     let startWidth = 0;
 
-    resizer.addEventListener('mousedown', (e) => {
+    resizer.addEventListener("mousedown", (e) => {
       startX = e.pageX;
       startWidth = th.offsetWidth;
-      document.addEventListener('mousemove', onMouseMove);
-      document.addEventListener('mouseup', onMouseUp);
+      document.addEventListener("mousemove", onMouseMove);
+      document.addEventListener("mouseup", onMouseUp);
       e.preventDefault(); // Prevent text selection
     });
 
@@ -770,8 +736,8 @@ function makeTableHeadersResizable(table: HTMLTableElement) {
     };
 
     const onMouseUp = () => {
-      document.removeEventListener('mousemove', onMouseMove);
-      document.removeEventListener('mouseup', onMouseUp);
+      document.removeEventListener("mousemove", onMouseMove);
+      document.removeEventListener("mouseup", onMouseUp);
     };
   });
 }

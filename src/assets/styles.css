@@ -9,7 +9,9 @@ body {
 }
 
 /* Ensure gridlines are always visible */
-table, th, td {
+table,
+th,
+td {
   border: 1px solid #ddd !important;
   border-collapse: collapse;
 }
@@ -174,7 +176,8 @@ body.dark-mode .expandable-textarea {
   color: #e0e0e0;
   border: 1px solid #424242;
 }
-th, td {
+th,
+td {
   border: 1px solid #ddd;
   padding: 8px;
   text-align: left;
@@ -277,7 +280,8 @@ table.dark-mode {
   border-color: #424242;
 }
 
-th.dark-mode, td.dark-mode {
+th.dark-mode,
+td.dark-mode {
   border-color: #424242;
 }
 
@@ -318,7 +322,9 @@ tr.dark-mode:hover {
     font-size: 18px;
   }
 
-  table, th, td {
+  table,
+  th,
+  td {
     font-size: 14px;
   }
 
@@ -339,7 +345,9 @@ tr.dark-mode:hover {
     font-size: 16px;
   }
 
-  table, th, td {
+  table,
+  th,
+  td {
     font-size: 12px;
   }
 
@@ -367,4 +375,39 @@ tr.dark-mode:hover {
 .toast.show {
   opacity: 1;
   pointer-events: auto;
+}
+
+/*Mini text area modal that pops up when you click on the text*/
+.modal {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+}
+
+.modal-content {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: white;
+  padding: 20px;
+  border-radius: 5px;
+  width: 80%;
+  max-width: 600px;
+}
+
+.modal-content.dark-mode {
+  background-color: #333;
+  color: white;
+}
+
+.modal-textarea {
+  width: 100%;
+  height: 300px;
+  margin-bottom: 10px;
 }
