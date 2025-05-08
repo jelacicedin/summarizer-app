@@ -94,6 +94,8 @@ saveButton.addEventListener("click", async () => {
   await window.dbAPI.updateDocument(initializedPaperId!, {
     [`stage1Summary`]: summaryBox.value,
   });
+
+  window.close();
 });
 
 // Handle modal initialization
@@ -138,3 +140,20 @@ function toggleDarkMode() {
     element.classList.toggle("dark-mode");
   });
 }
+
+document.addEventListener("DOMContentLoaded", async () => {
+  const dropdown = document.getElementById("prompt-dropdown") as HTMLSelectElement;
+  const promptInput = document.getElementById("prompt-input") as HTMLTextAreaElement;
+
+  // Fetch prompts from the main process
+  const prompts: Record<string, string> = await window.electronAPI.getPrompts();
+
+  // Handle dropdown selection
+  dropdown.addEventListener("change", (event) => {
+    const target = event.target as HTMLSelectElement;
+    const selectedPrompt = target.value ?? "";
+    if (selectedPrompt && prompts[selectedPrompt]) {
+      promptInput.value = prompts[selectedPrompt];
+    }
+  });
+});

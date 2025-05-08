@@ -341,6 +341,14 @@ function createSummarizationModal(paperId: number, stage: number) {
     }
   });
 
+  ipcMain.handle("get-prompts", () => {
+    return {
+      linkedin: process.env.LINKEDIN_PROMPT || "",
+      website: process.env.WEBSITE_PROMPT || "",
+      markdown: process.env.MARKDOWN_PROMPT || "",
+    };
+  });
+
   // Handle modal close
   chatModal.on("closed", () => {
     console.log("Modal closed.");

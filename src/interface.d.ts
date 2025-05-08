@@ -13,6 +13,8 @@ export interface IElectronAPI {
   extractText: (filePath: string) => Promise<string>;
   on: (channel: string, callback: (args: any[]) => void) => void;
   onToggleDarkMode: (callback: () => void) => void;
+  getPrompts: () => Promise<Record<string, string>>;
+  setPrompt: (prompt: string) => void;
 }
 
 export interface IModalAPI {

@@ -14,6 +14,8 @@ contextBridge.exposeInMainWorld("electronAPI", <IElectronAPI>{
     ipcRenderer.on(channel, (event, ...args) => callback(...args)),
   onToggleDarkMode: (callback: () => void) =>
     ipcRenderer.on("toggle-dark-mode", callback),
+  getPrompts: () => ipcRenderer.invoke("get-prompts"),
+  setPrompt: (prompt: string) => ipcRenderer.send("set-prompt", prompt),
 });
 
 contextBridge.exposeInMainWorld("dbAPI", <IDBAPI>{
