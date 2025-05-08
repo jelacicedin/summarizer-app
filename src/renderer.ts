@@ -12,11 +12,14 @@ const summaryModalTextarea = document.getElementById(
   "modalTextarea"
 ) as HTMLTextAreaElement;
 
-// Search boxes
-const titleSearchBox = document.getElementById("titleSearchInput") as HTMLInputElement;
-const  authorSearchBox = document.getElementById("authorSearchInput") as HTMLInputElement;
-
-
+// Search boxes & filters
+const titleSearchBox = document.getElementById(
+  "titleSearchInput"
+) as HTMLInputElement;
+const authorSearchBox = document.getElementById(
+  "authorSearchInput"
+) as HTMLInputElement;
+const stageFilter = document.getElementById("stageFilter") as HTMLSelectElement;
 
 document.addEventListener("DOMContentLoaded", () => {
   const uploadButton = document.getElementById(
@@ -35,31 +38,60 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // Title search box functionality
+
+  function filterTable() {
+    const titleQuery = titleSearchBox.value.toLowerCase();
+    const authorQuery = authorSearchBox.value.toLowerCase();
+    const selectedStage = stageFilter.value;
+
+    const rows = document.querySelectorAll(
+      "#documentsTable tbody tr"
+    ) as NodeListOf<HTMLTableRowElement>;
+
+    rows.forEach((row) => {
+      const titleCell = row.children[2]; // 3rd cell = Title
+      const authorCell = row.children[3]; // 4th cell = Authors
+
+      const stage1Checkbox = row.querySelector(
+        ".stage1-approval"
+      ) as HTMLInputElement;
+      const stage2Checkbox = row.querySelector(
+        ".stage2-approval"
+      ) as HTMLInputElement;
+      const stage3Checkbox = row.querySelector(
+        ".stage3-approval"
+      ) as HTMLInputElement;
+
+      const title =
+        (
+          titleCell.querySelector("textarea") as HTMLTextAreaElement
+        )?.value.toLowerCase() || "";
+      const author =
+        (
+          authorCell.querySelector("textarea") as HTMLTextAreaElement
+        )?.value.toLowerCase() || "";
+
+      const titleMatch = title.includes(titleQuery);
+      const authorMatch = author.includes(authorQuery);
+      const stageMatch: boolean =
+        selectedStage === "none" ||
+        (selectedStage === "stage1" &&
+          stage1Checkbox.checked &&
+          !stage2Checkbox.checked &&
+          !stage3Checkbox.checked) ||
+        (selectedStage === "stage2" &&
+          stage2Checkbox.checked &&
+          !stage3Checkbox.checked) ||
+        (selectedStage === "stage3" && stage3Checkbox.checked);
+
+      row.style.display = stageMatch && titleMatch && authorMatch ? "" : "none";
+    });
+  }
+
+  titleSearchBox.addEventListener("input", filterTable);
+  authorSearchBox.addEventListener("input", filterTable);
+  stageFilter.addEventListener("change", filterTable);
   
-function filterTable() {
-  const titleQuery = titleSearchBox.value.toLowerCase();
-  const authorQuery = authorSearchBox.value.toLowerCase();
-
-  const rows = document.querySelectorAll("#documentsTable tbody tr") as NodeListOf<HTMLTableRowElement>;
-
-  
-  rows.forEach((row) => {
-    const titleCell = row.children[2];   // 3rd cell = Title
-    const authorCell = row.children[3];  // 4th cell = Authors
-
-    const title = (titleCell.querySelector("textarea") as HTMLTextAreaElement)?.value.toLowerCase() || "";
-    const author = (authorCell.querySelector("textarea") as HTMLTextAreaElement)?.value.toLowerCase() || "";
-
-    const titleMatch = title.includes(titleQuery);
-    const authorMatch = author.includes(authorQuery);
-
-    row.style.display = titleMatch && authorMatch ? "" : "none";
-  });
-}
-
-titleSearchBox.addEventListener("input", filterTable);
-authorSearchBox.addEventListener("input", filterTable);
-
   function toggleDarkMode() {
     document.body.classList.toggle("dark-mode");
 
@@ -317,10 +349,12 @@ authorSearchBox.addEventListener("input", filterTable);
               const target = customEvent.target as HTMLTextAreaElement;
               const id = parseInt(target.dataset.id || "0", 10);
               const field = target.dataset.field || "";
-          
+
               target.value = customEvent.detail; // Copy over the modal content
-              console.log(`NOW UPDATING ${id} paper field ${field} with ${target.value}`);
-          
+              console.log(
+                `NOW UPDATING ${id} paper field ${field} with ${target.value}`
+              );
+
               try {
                 await window.dbAPI.updateDocument(id, {
                   [field]: customEvent.detail,
@@ -330,7 +364,6 @@ authorSearchBox.addEventListener("input", filterTable);
               }
             });
           });
-          
 
           tableBody.appendChild(row);
 
@@ -687,33 +720,32 @@ authorSearchBox.addEventListener("input", filterTable);
       await loadDocuments();
     });
 
+  // Add modal event listeners
+  document.getElementById("modalSave")!.addEventListener("click", async () => {
+    if (currentEditingTextarea) {
+      const id = parseInt(currentEditingTextarea.dataset.id || "0", 10);
+      const field = currentEditingTextarea.dataset.field || "";
+      const newValue = summaryModalTextarea.value;
 
-    // Add modal event listeners
-document.getElementById("modalSave")!.addEventListener("click", async () => {
-  if (currentEditingTextarea) {
-    const id = parseInt(currentEditingTextarea.dataset.id || "0", 10);
-    const field = currentEditingTextarea.dataset.field || "";
-    const newValue = summaryModalTextarea.value;
+      console.log(`NOW SAVING ${id} paper field ${field} with ${newValue}`);
+      currentEditingTextarea.value = newValue;
 
-    console.log(`NOW SAVING ${id} paper field ${field} with ${newValue}`);
-    currentEditingTextarea.value = newValue;
+      try {
+        await window.dbAPI.updateDocument(id, { [field]: newValue });
 
-    try {
-      await window.dbAPI.updateDocument(id, { [field]: newValue });
+        // Optionally refresh entire row (or whole table if simpler)
+        await loadDocuments();
 
-      // Optionally refresh entire row (or whole table if simpler)
-      await loadDocuments();
-
-      // Show a quick confirmation
-      showToast("✅ Summary updated", 2000);
-    } catch (error) {
-      console.error("Error saving summary:", error);
-      showToast("❌ Failed to update summary", 3000);
+        // Show a quick confirmation
+        showToast("✅ Summary updated", 2000);
+      } catch (error) {
+        console.error("Error saving summary:", error);
+        showToast("❌ Failed to update summary", 3000);
+      }
     }
-  }
 
-  closeSummaryModal();
-});
+    closeSummaryModal();
+  });
 });
 
 document.body.addEventListener("click", (event) => {
@@ -727,8 +759,6 @@ document.body.addEventListener("click", (event) => {
     window.electronAPI.openEditor({ id: parseInt(id!), summary });
   }
 });
-
-
 
 document.getElementById("modalClose")!.addEventListener("click", () => {
   closeSummaryModal();
@@ -790,4 +820,3 @@ function makeTableHeadersResizable(table: HTMLTableElement) {
     };
   });
 }
-

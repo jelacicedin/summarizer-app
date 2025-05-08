@@ -13,6 +13,13 @@
     <h1>PDF Summarizer</h1>
     <input type="text" id="titleSearchInput" placeholder="Search by title..." class="search-box" />
     <input type="text" id="authorSearchInput" placeholder="Search by author..." class="search-box" />
+    <label for="stageFilter" class="stage-filter-label">Stage:</label>
+    <select id="stageFilter" class="search-box">
+      <option value="none">None selected</option>
+      <option value="stage1">Stage 1 Approval</option>
+      <option value="stage2">Stage 2 Approval</option>
+      <option value="stage3">Stage 3 Approval</option>
+    </select>
     <button class="upload-button" id="uploadButton">Upload file...</button>
     <button class="reload-button" id="reloadButton">Reload Table</button>
   </div>
