@@ -307,7 +307,7 @@ document.addEventListener("DOMContentLoaded", () => {
           makeTableHeadersResizable(document.querySelector("table")!);
 
           // Update the disabled state for this row
-          updateDisabledState(row);
+          updateDisabledState({ row });
 
           // Attach event listeners to the checkboxes
           attachEventListeners(row);
@@ -320,7 +320,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  function updateDisabledState(row: HTMLTableRowElement): void {
+  function updateDisabledState({ row }: { row: HTMLTableRowElement }): void {
     // Stage 1 elements
     const stage1ApprovalCheckbox = row.querySelector(
       ".stage1-approval"
@@ -380,8 +380,9 @@ document.addEventListener("DOMContentLoaded", () => {
     stage1Summary.disabled = stage1Approval;
     stage1EditButton.disabled = stage1Approval;
     stage1ApprovalCheckbox.disabled = stage2Approval;
+
     // Enable/disable Stage 2 elements based on Stage 1 Approval
-    stage2Summary.disabled = !stage1Approval || stage3Approval;
+    stage2Summary.disabled = !stage1Approval || stage2Approval;
     stage2ApprovalCheckbox.disabled = !stage1Approval || stage3Approval;
 
     // Enable/disable Stage 3 elements based on Stage 2 Approval
@@ -430,7 +431,7 @@ document.addEventListener("DOMContentLoaded", () => {
         await window.dbAPI.updateDocument(id, { [field]: value });
 
         // Update dependent elements
-        updateDisabledState(row);
+        updateDisabledState({ row });
 
         // If unapproving a stage, unapprove subsequent stages
         if (!value) {
@@ -479,7 +480,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     stage1ApprovalCheckbox.addEventListener("change", async () => {
       // Unlock Stage 2 if Stage 1 passed
-      updateDisabledState(row);
+      updateDisabledState({ row });
       await window.dbAPI.updateDocument(paperId, {
         ["approvalStage1"]: stage1ApprovalCheckbox.checked,
       });
@@ -507,7 +508,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     stage2ApprovalCheckbox.addEventListener("change", async () => {
-      updateDisabledState(row);
+      updateDisabledState({ row });
       await window.dbAPI.updateDocument(paperId, {
         ["approvalStage2"]: stage2ApprovalCheckbox.checked,
       });
@@ -535,7 +536,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     stage3ApprovalCheckbox.addEventListener("change", async () => {
-      updateDisabledState(row);
+      updateDisabledState({ row });
       await window.dbAPI.updateDocument(paperId, {
         ["approvalStage3"]: stage3ApprovalCheckbox.checked,
       });
