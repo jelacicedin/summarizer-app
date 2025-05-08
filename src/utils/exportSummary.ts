@@ -1,6 +1,5 @@
 import fs from 'fs';
 import path from 'path';
-// import { dialog } from 'electron'; // If needed
 
 export function exportStage3Summary(summary: string, pdfPath: string): void {
   const pdfDir = path.dirname(pdfPath);

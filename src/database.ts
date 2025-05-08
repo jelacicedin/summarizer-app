@@ -1,6 +1,7 @@
 import { Sequelize, DataTypes, Model, Optional, Dialect } from "sequelize";
 import "dotenv/config";
 import path from "path";
+import fs from "fs"; // Import the file system module
 
 // Loading of auth from .env
 let database: string;
@@ -162,6 +163,18 @@ export async function addDocument(data: {
   datetimeAdded?: Date;
   datetimeLastModified?: Date;
 }): Promise<void> {
+  // Extract the folder path from the file path
+  const folderPath = path.dirname(data.filePath);
+
+  // Read all files in the folder
+  const files = fs.readdirSync(folderPath);
+
+  // Filter for .png and .jpg files
+  const imageLinks = files
+    .filter((file) => file.endsWith(".png") || file.endsWith(".jpg"))
+    .map((file) => path.join(folderPath, file)); // Get absolute paths
+
+  // Create the document in the database
   const document = await Document.create({
     filename: data.filename,
     filePath: data.filePath,
@@ -169,12 +182,11 @@ export async function addDocument(data: {
     authors: data.authors,
     datetimeAdded: data.datetimeAdded,
     datetimeLastModified: data.datetimeLastModified,
+    imageLinks, // Attach the image links
   });
 
   // Log the created document to verify the ID
   console.log("Document created:", document.toJSON());
-
-  // return document;
 }
 
 export async function getDocuments(): Promise<Document[]> {

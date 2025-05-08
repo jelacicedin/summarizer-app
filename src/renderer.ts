@@ -7,6 +7,11 @@ let currentSortOrder: "asc" | "desc" = "asc";
 let currentDocuments: Record<number, Document> = {};
 let pendingDeleteId: number | null = null;
 
+// Image modal
+const imageModal = document.getElementById("imageModal") as HTMLDivElement;
+const modalImage = document.getElementById("modalImage") as HTMLImageElement;
+const closeModal = document.querySelector(".close") as HTMLSpanElement;
+
 // Deletion modal
 const deletionModal = document.getElementById(
   "deleteConfirmModal"
@@ -26,7 +31,22 @@ const authorSearchBox = document.getElementById(
 ) as HTMLInputElement;
 const stageFilter = document.getElementById("stageFilter") as HTMLSelectElement;
 
+// Image modal event listeners
+// Open the modal when an image link is clicked
+document.body.addEventListener("click", (event) => {
+  const target = event.target as HTMLElement;
+  if (target.classList.contains("image-link")) {
+    console.log("Image link clicked:", target);
+    event.preventDefault();
+    const imageSrc = target.getAttribute("data-src");
+    console.log("Image source:", imageSrc);
 
+    if (imageSrc) {
+      modalImage.src = imageSrc;
+      imageModal.style.display = "block";
+    }
+  }
+});
 
 document.addEventListener("DOMContentLoaded", () => {
   const uploadButton = document.getElementById(
@@ -44,16 +64,17 @@ document.addEventListener("DOMContentLoaded", () => {
     return;
   }
 
-  document.getElementById("confirmDeleteBtn")!.addEventListener("click", async () => {
-    if (pendingDeleteId !== null) {
-      await window.dbAPI.deleteDocument(pendingDeleteId); // your backend method
-      await loadDocuments();
-      pendingDeleteId = null;
-    }
-    document.getElementById("deleteConfirmModal")!.style.display = "none";
-  });
-  
-  
+  document
+    .getElementById("confirmDeleteBtn")!
+    .addEventListener("click", async () => {
+      if (pendingDeleteId !== null) {
+        await window.dbAPI.deleteDocument(pendingDeleteId); // your backend method
+        await loadDocuments();
+        pendingDeleteId = null;
+      }
+      document.getElementById("deleteConfirmModal")!.style.display = "none";
+    });
+
   // Title search box functionality
   function filterTable() {
     const titleQuery = titleSearchBox.value.toLowerCase();
@@ -238,9 +259,10 @@ document.addEventListener("DOMContentLoaded", () => {
           if (dataValues.imageLinks) {
             dataValues.imageLinks.forEach((link: string) => {
               const anchor = document.createElement("a");
-              anchor.href = link;
-              anchor.target = "_blank";
-              anchor.textContent = "Image";
+              anchor.href = "#"; // Prevent navigation
+              anchor.setAttribute("data-src", link); // Store the image link in a data attribute
+              anchor.textContent = link.split("/").pop() || link; // Extract the filename
+              anchor.classList.add("image-link"); // Add a class for styling and event handling
               imageLinksCell.appendChild(anchor);
               imageLinksCell.appendChild(document.createTextNode(", "));
             });
@@ -252,8 +274,6 @@ document.addEventListener("DOMContentLoaded", () => {
             imageLinksCell.textContent = "No Images";
           }
           row.appendChild(imageLinksCell);
-
-          
 
           // Stage 1 Summary and Approval
           const stage1SummaryCell = document.createElement("td");
@@ -681,6 +701,18 @@ document.addEventListener("DOMContentLoaded", () => {
         deletionModal!.style.display = "block";
       });
     }
+
+    // Close the modal when the close button is clicked
+    closeModal.addEventListener("click", () => {
+      imageModal.style.display = "none";
+    });
+
+    // Close the modal when clicking outside the image
+    imageModal.addEventListener("click", (event) => {
+      if (event.target === imageModal) {
+        imageModal.style.display = "none";
+      }
+    });
   }
 
   function showToast(message: string, duration = 3000) {

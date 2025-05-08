@@ -326,14 +326,16 @@ ipcMain.handle(
 ipcMain.handle("fetch-document", async (_, id) => {
   console.log("ID received in fetch-document handler:", id); // Add this log
   if (!id) {
-    console.error("Invalid ID received:", id);
-    return { success: false, error: "Invalid ID" };
+    // Handle invalid ID
+    console.error("No ID received");
+    return { success: false, error: "No ID provided" };
   }
 
   try {
     const document = await fetchDocument(id);
     return { success: true, document };
   } catch (error: any) {
+    // Handle errors
     console.error("Error fetching document:", error);
     return { success: false, error: error.message };
   }
@@ -372,7 +374,8 @@ ipcMain.handle("export-document", async (_, paperId: number) => {
     fs.writeFileSync(exportPath, `# Stage 3 Summary\n\n${summary}`, "utf8");
 
     return { success: true, path: exportPath };
-  } catch (error: any) {
+  } catch (error: any) { 
+    // Handle errors
     console.error("Failed to export Stage 3 summary:", error);
     return { success: false, error: error.message };
   }
