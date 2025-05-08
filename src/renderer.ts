@@ -91,7 +91,7 @@ document.addEventListener("DOMContentLoaded", () => {
   titleSearchBox.addEventListener("input", filterTable);
   authorSearchBox.addEventListener("input", filterTable);
   stageFilter.addEventListener("change", filterTable);
-  
+
   function toggleDarkMode() {
     document.body.classList.toggle("dark-mode");
 
@@ -196,9 +196,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
           // Datetime Added cell
           const datetimeAddedCell = document.createElement("td");
-          datetimeAddedCell.textContent =
-            dataValues.datetimeAdded?.toString() || "undefined";
+          datetimeAddedCell.textContent = new Date(dataValues.datetimeAdded ?? "").toLocaleString();
           row.appendChild(datetimeAddedCell);
+
+          // Last Modified cell
+          const lastModifiedCell = document.createElement("td");
+          lastModifiedCell.textContent = dataValues.datetimeLastModified ? new Date(dataValues.datetimeLastModified??"").toLocaleString() : "Never";
+
+          row.appendChild(lastModifiedCell);
 
           // Image Links cell
           const imageLinksCell = document.createElement("td");
@@ -711,7 +716,7 @@ document.addEventListener("DOMContentLoaded", () => {
     } catch (err) {
       console.error("Polling error:", err);
     }
-  }, 10000); // every 10 seconds
+  }, 1000); // every 10 seconds
 
   document
     .getElementById("reloadButton")!

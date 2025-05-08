@@ -47,6 +47,7 @@ interface DocumentAttributes {
   authors?: string;
   datetimeAdded?: Date;
   datetimeCreated?: Date;
+  datetimeLastModified?: Date;
 
   // Stage 1
   stage1Summary?: string;
@@ -85,6 +86,7 @@ export class Document
   public authors?: string;
   public datetimeAdded?: Date;
   public datetimeCreated?: Date;
+  public datetimeLastModified?: Date;
 
   // Stage 1
   public stage1Summary?: string;
@@ -125,6 +127,11 @@ Document.init(
       allowNull: true,
       defaultValue: DataTypes.NOW,
     },
+    datetimeLastModified: {
+      type: DataTypes.DATE,
+      allowNull: true,
+      defaultValue: DataTypes.NOW,
+    },
     approvalStage1: { type: DataTypes.BOOLEAN, defaultValue: false },
     stage1Summary: { type: DataTypes.TEXT, allowNull: true },
     approvalStage2: { type: DataTypes.BOOLEAN, defaultValue: false },
@@ -153,6 +160,7 @@ export async function addDocument(data: {
   title?: string;
   authors?: string;
   datetimeAdded?: Date;
+  datetimeLastModified?: Date;
 }): Promise<void> {
   const document = await Document.create({
     filename: data.filename,
@@ -160,6 +168,7 @@ export async function addDocument(data: {
     title: data.title,
     authors: data.authors,
     datetimeAdded: data.datetimeAdded,
+    datetimeLastModified: data.datetimeLastModified,
   });
 
   // Log the created document to verify the ID
@@ -176,9 +185,15 @@ export async function updateDocument(
   id: number,
   updates: Partial<Omit<DocumentAttributes, "id">>
 ): Promise<void> {
-  await Document.update(updates, {
-    where: { id },
-  });
+  await Document.update(
+    {
+      ...updates,
+      datetimeLastModified: new Date(), // ✅ Set current timestamp
+    },
+    {
+      where: { id },
+    }
+  );
 }
 
 export async function deleteDocument(id: number): Promise<void> {
