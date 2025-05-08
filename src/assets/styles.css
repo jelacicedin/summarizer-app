@@ -377,6 +377,10 @@ tr.dark-mode:hover {
   pointer-events: auto;
 }
 
+.upload-button {
+  margin-right: 12px; /* or any spacing you like */
+}
+
 /*Mini text area modal that pops up when you click on the text*/
 .modal {
   display: none;
